@@ -1,0 +1,118 @@
+{% load static %}
+{% load dict_filters %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="icon" href="{% static 'img/icono.ico' %}" type="image/x-icon">
+    {% block extra_styles %}{% endblock %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="barra_navegacion">
+
+        <div class="barra-left">
+            <img id="logo-btn" class="logo" src="{% static 'img/logo.png' %}" alt="Logo SYMA">
+
+            {% block search_bar %}
+            <form class="syma-search" id="syma-search-form" role="search" onsubmit="return false;">
+                <input id="syma-search-input" class="syma-search__input" type="text" placeholder="Buscar..." data-app="{{ app_name }}"  >
+                <!-- lista de sugerencias (oculta por defecto, se muestra con JS o aria-hidden) -->
+                <ul id="syma-search-sugg" class="syma-search__list" role="listbox" aria-hidden="true"></ul>
+            </form>
+            {% endblock %}
+        </div>
+
+        <div class="iconos">
+            {% block iconos %}{% endblock %}
+        </div>
+
+    </header>
+
+    <nav id="menu-hamburguesa" class="menu-hamburguesa">
+        <div class="contenido">
+            <ul>
+                <li><a href="{% url 'home' %}"><i class="fa fa-home"></i> Inicio</a></li>
+
+                {% if user|has_perm:"personal,personal,ver" %}
+                    <li><a href="{% url 'personal' %}"><i class="fa fa-users"></i> Personal</a></li>
+                {% endif %}
+
+                {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,ver" or user|has_perm:"medicion_rendimiento,medicion_individual,ver" %}
+                    <li class="submenu">
+                        <a href="#"><i class="fa fa-chart-line"></i> Medición de rendimiento <i class="fa fa-caret-down"></i></a>
+                        <ul class="submenu-items">
+                            {% if user|has_perm:"medicion_rendimiento,medicion_individual,ver" %}
+                                <li><a href="{% url 'medicion_individual' %}"><i class="fa fa-user"></i> Medición individual</a></li>
+                            {% endif %}
+
+                            {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,ver" %}
+                                <li><a href="{% url 'actividad_cuadrilla' %}"><i class="fa fa-people-group"></i> Medición por cuadrilla</a></li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                {% endif %}
+                
+                {% if user|has_perm:"control_calidad,control_calidad,ver" %}
+                    <li><a href="#"><i class="fa fa-check-circle"></i> Control de calidad</a></li>
+                {% endif %}
+
+                {% if user|has_perm:"Auditorias,Auditorias,ver" %}
+                    <li><a href="#"><i class="fa fa-clipboard-check"></i> Auditorías</a></li>
+                {% endif %}
+
+                {% if user|has_perm:"entrega_vivienda,entrega_vivienda,ver" %}
+                    <li><a href="#"><i class="fa fa-home-user"></i> Entrega de viviendas</a></li>
+                {% endif %}
+
+                {% if user|has_perm:"usuario,usuario,ver" %}
+                    <li><a href="{% url 'usuario' %}"><i class="fa fa-user-gear"></i> Usuarios</a></li>
+                {% endif %}
+
+                {% if user|has_perm:"Posventa,Posventa,ver" %}
+                    <li><a href="#"><i class="fa fa-tools"></i> Posventa</a></li>
+                {% endif %}
+                <li><a href="{% url 'logout' %}"><i class="fa fa-sign-out-alt"></i> Cerrar sesión</a></li>
+            </ul>
+        </div>
+        
+    </nav>
+
+    {% block filtro %} {% endblock %}
+
+    <main class="content">
+        <section class="contenedor_principal">
+            {% block content %}
+            {% endblock %}
+            <div class="tabla-botones">
+                {% block tabla_botones %}
+                {% endblock %}
+            </div>
+        </section>
+    </main>
+
+    <script src="{% static 'js/seleccion_tabla.js' %}"></script>
+
+    <script>
+        const logoBtn = document.getElementById("logo-btn");
+        const sidebar = document.getElementById("menu-hamburguesa");
+
+        logoBtn.addEventListener("click", () => {
+            sidebar.classList.toggle("active");
+        });
+    </script>
+
+    <script src="{% static 'js/search.js' %}"></script> 
+
+    {% block scripts %} {% endblock %}
+
+</body>
+</html>

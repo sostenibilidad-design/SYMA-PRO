@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    Registrar usuario
+{% endblock %}
+
+{% block extra_styles %}
+    <link href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'usuario/css/registrar_usuario.css' %}">
+{% endblock %}
+
+{% block iconos %}
+    <a href="{% url 'usuario' %}"><span class="material-symbols-outlined">close</span></a>
+{% endblock %}
+
+{% block search_bar %}{% endblock %}
+
+{% block content %}
+        <h2 class="title">Registrar usuario</h2>
+
+        <form class="form" method="post">
+            {% csrf_token %}
+
+            <div class="form-options">
+                <label><input type="radio" name="tipo_registro" value="manual" id="modo-manual" checked> Ingresar manualmente</label>
+                <label><input type="radio" name="tipo_registro" value="seleccion"  id="modo-seleccion"> Seleccionar de la lista</label>
+            </div>
+
+            <div id="manual-fields">
+                <input type="text" name="nombre_completo" placeholder="Nombre Completo" required>
+                <input type="number" name="cedula" placeholder="Cédula" required>
+                <input class="input_abajo"  name="cargo" type="text" placeholder="Cargo" required>
+            </div>
+
+            <div id="seleccion-fields" style="display: none;">
+                <select name="empleado">
+                    <option value="">Seleccionar empleado</option>
+                    {% for emp in empleados %}
+                        <option value="{{ emp.cedula }}">{{ emp.nombre_completo }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <input type="email" name="correo" placeholder="Correo electrónico" required>
+            
+
+            <div class="funcionalidades-box" id="box-area">
+                <div class="titulo-funcionalidades" id="area-toggle">
+                    <strong>Área</strong>
+                </div>
+
+                <div class="contenido-funcionalidades dropdown" id="area-dropdown" style="display: none;">
+                    {% for area,subareas in tree.items %}
+                    <div class="area-item">
+                        <label class="area-label">
+                            <input type="checkbox" name="area_asignada" class="area-checkbox" value="{{ area }}">
+                            <strong>{{ area|capfirst }}</strong>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="funcionalidades-box" id="box-funcionalidades">
+                <div class="titulo-funcionalidades" id="funcionalidades-toggle">
+                    <strong>Funcionalidades</strong>
+                </div>
+
+                <div class="contenido-funcionalidades dropdown" id="funcionalidades-dropdown" style="display: none;">
+                    {% for area, subareas in tree.items %}
+                        <div class="subareas" data-area="{{ area }}" style="display:none; margin-left: 20px;">
+                            {% for sub, acciones in subareas.items %}
+                            <div class="subarea-item">
+                                <label>
+                                    <input type="checkbox" class="subarea-checkbox" data-area="{{ area }}">
+                                    {{ sub|capfirst }}
+                                </label>
+
+                                <ul class="acciones" style="margin-left: 5px;">
+                                    {% for accion in acciones %}
+                                    <li>
+                                        <label>
+                                            <input type="checkbox" name="perm__{{ area }}__{{ sub }}" value="{{ accion }}" class="accion-checkbox" data-area="{{ area }}">
+                                            {{ accion|capfirst }}
+                                        </label>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+
+            <button type="submit" class="btn-registrar">Registrar usuario</button>
+        </form>
+
+        <script src="{% static 'usuario/js/registrar_usuario.js' %}"></script>
+
+{% endblock %}

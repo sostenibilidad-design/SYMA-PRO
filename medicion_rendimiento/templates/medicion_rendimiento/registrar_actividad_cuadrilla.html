@@ -1,0 +1,71 @@
+{% load static %}
+
+<!-- === MODAL REGISTRAR INICIO DE ACTIVIDAD === -->
+<div id="modal-actividad" class="modal-overlay">
+    <div class="modal">
+        <h2 class="titulo">Registrar inicio de actividad</h2>
+
+        <form class="formulario" method="POST" enctype="multipart/form-data" action="{% url 'registrar_inicio_medicion' %}">
+            {% csrf_token %}
+            
+            <div class="select-wrapper">
+                <select name="proyecto" required>
+                    <option value="" disabled selected>Seleccionar proyecto</option>
+                    <option value="Ciudadela Andina">Ciudadela Andina</option>
+                </select>
+            </div>
+
+            <div class="select-wrapper">
+                <select id="actividad" name="actividad" required>
+                    <option value="">Seleccione una actividad</option>
+                    {% for c in Cumplimientos %}
+                        <option value="{{ c.actividad }}">{{ c.actividad }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="input-wrapper">
+                <input type="text" name="ubicacion" placeholder="Ubicación" required>
+            </div>
+
+            <div class="file-wrapper">
+                <span class="fileText" id="fileText_inicio">Insertar imagen</span>
+                <input type="file" name="foto_inicio" id="id_foto_inicio" accept="image/*" capture="environment">
+            </div>
+
+            <!-- BLOQUE DE SELECCIÓN DE EMPLEADOS (adaptado) -->
+            <div class="funcionalidades-box">  
+                <div class="titulo-funcionalidades"> 
+                    <strong>Seleccionar empleados</strong>
+                </div>
+
+                <div class="contenido-funcionalidades dropdown" style="display: none;">  <!-- QUITADO id="area-dropdown" -->
+                    <input type="text" class="input-busqueda-empleado" placeholder="Buscar empleado...">  <!-- QUITADO id="busqueda-empleado" -->
+
+                    <div class="lista-empleados">  <!-- CAMBIADO id → class -->
+                        {% for emp in empleados %}
+                            {% if  "oficial" in emp.cargo|lower or "ayudante" in emp.cargo|lower or "contratista" in emp.cargo|lower %}
+                            <div class="area-item">
+                                <label class="area-label">
+                                    <input type="checkbox" name="empleados" class="area-checkbox" value="{{ emp.cedula }}">
+                                    <strong>{{ emp.nombre_completo|capfirst }}</strong>
+                                </label>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-wrapper">
+                <input type="number" name="cuadrilla" placeholder="Cuadrilla" required>
+            </div>
+
+            <div class="botones">
+                <button type="submit" class="btn-guardar">Guardar</button>
+                <button type="button" id="btnCerrar" data-modal="modal-actividad" class="btn-cancelar">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+

@@ -1,0 +1,21 @@
+{% load static %}
+<div id="filtro-panel" class="filtro-panel">
+    <div class="filtro-contenido">
+        <h3>Filtro</h3>
+
+        <form id="form-filtro" method="get">
+            {% block campos_filtro %}
+            <!-- Aquí se insertan los campos del filtro -->
+            {% endblock %}
+
+            <div class="botones-filtro">
+                <a href="{% url 'actividad_cuadrilla' %}" class="btn-limpiar">Limpiar</a>
+                <button type="submit" class="btn-aplicar">Aplicar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{% static 'css/filtro_base.css' %}">
+
+<script src="{% static 'js/filtro_toggle.js' %}"></script>

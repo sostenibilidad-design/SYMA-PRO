@@ -1,0 +1,148 @@
+
+/* ESTILO GENERAL DE LOS MODALES */
+.modal-content {
+    width: 100%;
+    min-height: 280px;
+    background-color: rgba(225, 225, 225, 0.85);
+    color: #666;
+    border: 3px solid #A3BD31;
+    border-radius: 20px;
+    box-shadow: 0 0 40px #A3BD31;
+    padding: 30px;
+    font-size: 1.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Contenedor de cada modal */
+#confirmarModal .modal-dialog,
+#exitoModal .modal-dialog,
+#advertenciaModal .modal-dialog,
+#modalUnElemento .modal-dialog {
+    max-width: 700px;
+    width: 90%;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Cuerpo central del modal (para todos) */
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 25px;
+    width: 100%;
+    text-align: center;
+}
+
+/* MODAL DE ÉXITO */
+.modal-success .modal-content {
+    font-size: 2rem; /* Aumentado */
+}
+
+/* MODAL DE ADVERTENCIA */
+.advertencia-texto {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    font-size: 1.6rem; /* ⬆Aumentado */
+    color: #666;
+    text-align: center;
+    margin: 0;
+}
+
+.advertencia-texto i {
+    color: red;
+    font-size: 2.5rem; /* ⬆Aumentado */
+}
+
+.btn-close {
+    filter: invert(1);
+    width: 40px;           /* Área más grande para facilitar clic */
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-size: 1.6rem;     /* Aumenta tamaño del ícono */
+    cursor: pointer;       /* Asegura el cursor tipo botón */
+    color: #666;
+}
+
+
+/* BOTONES PERSONALIZADOS */
+.btn-si {
+    background-color: #4b7510;
+    color: #666;
+    font-weight: bold;
+    width: 120px;
+    padding: 12px 0;
+    border-radius: 10px;
+    border: none;
+    font-size: 1.3rem; /* ⬆Aumentado */
+}
+
+.btn-no {
+    background-color: #666;
+    color: black;
+    font-weight: bold;
+    width: 120px;
+    padding: 12px 0;
+    border-radius: 10px;
+    border: none;
+    font-size: 1.3rem; /* ⬆Aumentado */
+}
+
+/* Botón de cerrar (X) */
+.btn-close {
+    filter: invert(1);
+    color: #666;
+}
+
+.link_correo{
+    color: #666;
+}
+
+/* Modal para imagen */
+.modal-imagen {
+    display: none; 
+    position: fixed;
+    z-index: 1000;
+    padding-top: 40px;
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.45);
+}
+
+.modal-contenido-imagen {
+    margin: auto;
+    display: block;
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 20px;
+}
+
+.cerrar-imagen {
+    position: absolute;
+    top: 5px;
+    right: 35px;
+    color: #fff;
+    font-size: 60px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    
+}
+
+.cerrar-imagen:hover {
+    color: #ccc;
+    transform: scale(1.2);
+}

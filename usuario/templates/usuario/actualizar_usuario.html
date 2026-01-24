@@ -1,0 +1,75 @@
+{% load dict_filters %}
+
+    <!-- === MODAL ACTUALIZAR USUARIO === -->
+    <div id="modal-actualizar" class="modal-overlay">
+        <div class="modal">
+            <h2 class="titulo">Actualizar Usuario</h2>
+
+            <form id="form" class="formulario" method="post" action="{% url 'actualizar' usuario.id %}"> 
+                {% csrf_token %}
+
+                <div class="funcionalidades-box" id="box-area">
+                    <div class="titulo-funcionalidades" id="area-toggle">
+                        <strong>Área</strong>
+                    </div>
+
+                    <div class="contenido-funcionalidades dropdown" id="area-dropdown" style="display: none;">
+                        {% for area,subareas in tree.items %}
+                        <div class="area-item">
+                            <label class="area-label">
+                                <input type="checkbox" name="area_asignada" class="area-checkbox" value="{{ area }}"
+                                {% if area in usuario_areas %}checked{% endif %}>
+                                <strong>{{ area|capfirst }}</strong>
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="funcionalidades-box" id="box-funcionalidades">
+                    <div class="titulo-funcionalidades" id="funcionalidades-toggle">
+                        <strong>Funcionalidades</strong>
+                    </div>
+
+                    <div class="contenido-funcionalidades dropdown" id="funcionalidades-dropdown" style="display: none;">
+                        {% for area, subareas in tree.items %}
+                            <div class="subareas" data-area="{{ area }}" style="display:none; margin-left: 20px;">
+                                {% for sub, acciones in subareas.items %}
+                                <div class="subarea-item">
+                                    <label>
+                                        <input type="checkbox" class="subarea-checkbox" data-area="{{ area }}" value="{{ sub }}"
+                                        {% if usuario_permisos|get_item:area|get_item:sub %}
+                                            {% if usuario_permisos|get_item:area|get_item:sub|length > 0 %}
+                                                checked
+                                            {% endif %}
+                                        {% endif %} >
+                                        {{ sub|capfirst }}
+                                    </label>
+
+                                    <ul class="acciones" style="margin-left: 5px;">
+                                        {% for accion in acciones %}
+                                        <li>
+                                            <label>
+                                                <input type="checkbox" name="perm__{{ area }}__{{ sub }}" value="{{ accion }}" class="accion-checkbox" data-area="{{ area }}"
+                                                {% if accion in usuario_permisos|get_item:area|get_item:sub %}checked{% endif %}>
+                                                {{ accion|capfirst }}
+                                            </label>    
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="botones">
+                    <button type="submit" class="btn-guardar">Guardar</button>
+                    <button type="button" id="btnCerrar"  data-modal="modal-actualizar" class="btn-cancelar">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    

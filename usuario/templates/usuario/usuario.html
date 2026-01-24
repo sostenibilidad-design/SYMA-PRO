@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load static %}
+{% load dict_filters %}
+
+{% block title %}
+    Usuarios
+{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'css/tablas.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/modales_campos.css' %}">
+<link rel="stylesheet" href="{% static 'usuario/css/actualizar_usuario.css' %}">
+{% endblock %}
+
+{% block iconos %}
+    <form id="formularioIngreso" action="{% url 'usuario' %}" method="post" class="form-accion">
+        {% csrf_token %}
+        <input type="hidden" name="elemento" id="elemento_oculto">
+
+        {% if user|has_perm:"usuario,usuario,eliminar" %}
+            <a href="#"><span id="eliminar"name="accion" class="material-symbols-outlined">delete</span></a>
+        {% endif %}
+
+        {% if user|has_perm:"usuario,usuario,actualizar" %}
+            <a href="#" id="btn-actualizar" title="actualizar" data-modal="modal-actualizar"  data-url-base="{% url 'actualizar' 0 %}"><span  class="material-symbols-outlined">refresh</span></a>
+        {% endif %}
+    </form>
+{% endblock %}
+
+{% block content %}
+    <h2 class="titulo-seccion">Usuarios</h2>
+
+    <section class="tabla">
+        <div class="tabla-scroll-wrapper">
+            <form action="{% url 'usuario' %}" method="post">
+                {% csrf_token %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="primero"></th>
+                            <th>C.C</th>
+                            <th>Nombre completo</th>
+                            <th>Cargo</th>
+                            <th>Correo electronico</th>
+                            <th>Area asignada</th>
+                            <th>Funcionalidades</th>
+                        </tr>
+                    </thead>
+                    
+                    <tbody>
+                        {% if usuarios %}
+                            {% for item in usuarios %}
+                            <tr class="radio-fila">
+                                <td class="primero">
+                                    <input type="checkbox" name="elemento" id="usuario{{ item.id }}"
+                                        value="{{ item.id }}" required>
+                                </td>
+                                <td><label for="usuario{{ item.id }}">{{ item.cedula }}</label></td>
+                                <td><label for="usuario{{ item.id }}">{{ item.nombre_completo }}</label></td>
+                                <td><label for="usuario{{ item.id }}">{{ item.cargo }}</label></td>
+                                <td><label for="usuario{{ item.id }}">{{ item.correo }}</label></td>
+                                <td><label for="usuario{{ item.id }}">
+                                    {% for area in item.area_asignada|cut:" "|split:"," %}
+                                        {{ area }}<br>
+                                    {% endfor %}
+                                </label></td>
+                                <td><label for="usuario{{ item.id }}">{% for area, subareas in item.permisos.items %}
+                                        {% for subarea, acciones in subareas.items %}
+                                            {{ subarea|slugify|cut:"-"  }}:
+                                            {{ acciones|join:", " }}
+                                            <br>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </label></td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7">No hay usuarios registrados.</td>
+                            </tr>
+                        {% endif %}
+
+                        {% for i in filas_vacias %}
+                            <tr>
+                                <td class="primero"></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </section>
+
+    <!-- Contenedor vacío donde se cargará la modal -->
+    <div id="modal-container"></div>
+
+{% endblock %}
+
+{% block tabla_botones %}
+    {% if user|has_perm:"usuario,usuario,registrar" %}
+        <a href="{% url 'registrar_usuario' %}" id="btnAgregar"><i class="fa fa-plus"></i>Registrar</a>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'js/modales_campos.js' %}"></script>
+    <script src="{% static 'usuario/js/actualizar_usuario.js' %}"></script>
+{% endblock %}

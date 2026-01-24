@@ -1,0 +1,319 @@
+.nombre {
+    width: auto;
+}
+
+.titulo {
+    font-family: 'Inria Serif', serif;
+    color: #E6B41E;
+    font-size: 38px;
+    margin: 20px 60px 10px 60px;
+    text-shadow: 0 3px 6px rgba(190, 160, 40, 0.06);
+}
+
+/* Grid con la disposición exacta */
+.targeta_principal {
+    display: grid; /* os hijos directos del contenedor se organizarán dentro de una cuadrícula (filas y columnas) */
+    grid-template-columns: repeat(3, 1fr); /* Define que el grid tendrá 3 columnas iguales y  1fr significa una fracción del espacio disponible.*/
+    grid-auto-rows: minmax(120px, auto); /* Define la altura mínima y máxima de cada fila.*/
+    gap: 30px;
+    margin: 40px;
+}
+
+/* tarjeta base */
+.card {
+    width: 100%;
+    background: #fff;
+    border-radius: 20px;
+    padding: 16px 30px;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.20);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    box-sizing: border-box; /* que el padding no rompa el ancho */
+    overflow: hidden;       /* corta cualquier cosa que se salga */
+}
+
+/* variantes */
+.card.small {
+    min-height: 120px;
+}
+
+.card.wide {
+    grid-column: span 2;
+    min-height: 220px;
+}
+
+.card.alerts {
+    min-height: 220px;
+}
+
+/* títulos y tipografía */
+.card h3 {
+    font-size: 20px;
+    margin-bottom: 12px;
+    color: #333;
+    font-weight: 600;
+}
+
+/* valor grande estilizado con serif para el porcentaje */
+.value {
+    font-family: 'Inria Serif', serif;
+    font-size: 65px;
+    font-weight: 600;
+    margin-top: 17px;
+    color: #111;
+}
+
+.centered {
+    text-align: center;
+}
+
+/* two-values (mayor/menor) */
+.two-values {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.two-values::before {
+    content: "";
+    position: absolute;
+    top: 8%;
+    bottom: 10%;
+    left: 50%;
+    width: 1px;
+    background-color: #222; /* color de la línea */
+    transform: translateX(-50%);
+}
+
+.two-values .label,
+.two-values .cuadrilla {
+    display: block;
+    font-family: "Inria Serif",serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+    text-align: center;
+}
+
+
+
+.two-values .big {
+    font-family: "Inria Serif",serif;
+    font-size: 65px;
+    font-weight: 600;
+    color: #111;
+    display: block;
+}
+
+.two-values .cuadrilla {
+    font-weight:300;
+    font-size: 18px;
+    padding: 5px 0 10px 0;
+    color: #9a9a9a;
+}
+
+/* materials rows */
+.materials .mat-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 8px;
+    margin: 13px 0;
+    border-radius: 8px;
+    background: #fff;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    color: #444;
+}
+.materials .mat-row i {
+    font-size: 25px;
+}
+
+.badge {
+    padding: 6px 12px;
+    border-radius: 14px;
+    font-size: 12px;
+    color: #fff;
+    width: 15%;
+    text-align: center;
+}
+
+.badge.success {
+    background: #7fc463;
+}
+
+.badge.danger {
+    background: #e64a4a;
+}
+
+/* placeholders para calendario y gráficas (centrados) */
+.placeholder {
+    width: 100%;
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.placeholder img {
+    height: 100%;
+    object-fit: contain;
+}
+
+.placeholder.calendar {
+    height: 300px;
+}
+
+.placeholder.line {
+    height: 305px;
+}
+
+
+/* pie legend */
+.pie-chart  {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.pie-chart img {
+    height: 260px;
+}
+
+.legend {
+    width: 100%;
+    list-style: none;
+    padding: 0;
+    margin: 14px 80px 0 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.legend li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+}
+
+.dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.dot.green {
+    background: #7fc463;
+}
+
+.dot.blue {
+    background: #4a7bd6;
+}
+
+.dot.red {
+    background: #f05a5a;
+}
+
+.dot.amber {
+    background: #f0b84a;
+}
+
+/* alertas */
+.alerts h3 {
+    text-align: center;
+}
+
+
+
+.alerts ul {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0 20px;
+}
+
+.alerts li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 17px;
+    font-weight: 300;
+    padding: 8px 6px;
+    color: #333;
+    font-weight: 600;
+}
+
+.alerts i {
+    color: #c0392b;
+    font-size: 30px;
+    margin-right: 10px;
+}
+
+.card canvas,
+.card img,
+.card iframe {
+    max-width: 90%;   /* nunca más grande que la tarjeta */
+    height: auto;      /* se escala manteniendo proporción */
+    display: block;
+}
+
+/* 🔹 Para tablas, textos largos y calendarios */
+.card table,
+.card div,
+.card section {
+    max-width: 100%;
+    word-wrap: break-word;
+}
+
+/* responsive: 2 columnas tablets */
+@media (max-width: 1000px) {
+    .targeta_principal {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .card.wide {
+        grid-column: span 2;
+    }
+
+    .main-card {
+        width: 94%;
+    }
+}
+
+/* responsive: 1 columna móviles */
+@media (max-width: 600px) {
+    .targeta_principal {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .main-card-inner {
+        padding: 18px;
+    }
+
+    .page-date {
+        font-size: 22px;
+    }
+
+    .brand-row {
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 6px;
+    }
+
+    .brand-logo,
+    .brand-bic {
+        height: 28px;
+    }
+
+    .card.wide {
+        grid-column: auto;
+    }
+}

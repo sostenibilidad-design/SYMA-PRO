@@ -1,0 +1,68 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio de sesion - SYMA PRO</title>
+    <link rel="icon" href="{% static 'img/icono.ico' %}" type="image/x-icon">
+    <link rel="stylesheet" href="{% static 'core/css/login.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/funcion_ojo.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <main>
+        <section class="contenedor_principal">
+            <img class="logo" src="{% static 'img/logo.png' %}" alt="SYMA">
+
+            <section class="contenedor_secundario"> 
+                <section class="contenedor_izquierdo">
+                    <h2>Bienvenido</h2>
+                    <p>Inicia sesión para acceder a tu cuenta </p>
+                    <img class="imagen_logon" src="{% static 'core/img/login.png' %}">
+                </section>
+
+                <section class="contenedor_derecho">
+                    <form method="post" action="{% url 'login' %}">
+                        {% csrf_token %}
+
+                        <fieldset class="encabezado">
+                            <legend>Iniciar sesión</legend>
+
+                            {% if messages %}
+                                <ul class="mensajes">
+                                    {% for message in messages %}
+                                        <li class="{{ message.tags }}">{{ message }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+
+                            <div class="campo">
+                                <input type="email" name="username" placeholder="Correo electrónico" required>
+                            </div>
+
+                            <div class="campo password-container">
+                                <input id="password" type="password" name="password" placeholder="Contraseña" required>
+                                <i class="fa-solid fa-eye-slash togglePassword" data-target="password"></i>
+                            </div>
+
+                            <a class="recuperar" href="{% url 'restablecer_contraseña' %}">Recuperar contraseña</a>
+
+                            <button class="boton" type="submit">
+                                Iniciar sesión
+                            </button>
+                        </fieldset>
+                    </form>
+                </section>
+            </section>
+        </section>
+    </main>
+
+    <script src="{% static 'js/funcion_ojo.js' %}"></script>
+
+</body>
+</html>

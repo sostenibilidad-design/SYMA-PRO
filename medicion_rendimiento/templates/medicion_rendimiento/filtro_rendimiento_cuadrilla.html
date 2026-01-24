@@ -1,0 +1,37 @@
+{% extends "filtro_base.html" %}
+
+{% block campos_filtro %}
+    <div class="campo-filtro">
+        <input type="text" name="fecha" placeholder="fecha de inicio" onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'" value="{{ request.GET.fecha }}">
+    </div>
+
+    <div class="campo-filtro">
+        <input type="text" name="fecha_fin" placeholder="fecha de fin" onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'" value="{{ request.GET.fecha_fin }}">
+    </div>
+
+    <div class="campo-filtro">
+        <input type="text" name="actividad" placeholder="Actividad"  value="{{ request.GET.actividad }}">
+    </div>
+
+    <div class="campo-filtro">
+        <input type="text" name="ubicacion" placeholder="Ubicación" value="{{ request.GET.ubicacion }}">
+    </div>
+
+    <div class="campo-filtro">
+        <input type="text" name="Cuadrilla" placeholder="Cuadrilla" value="{{ request.GET.Cuadrilla }}">
+    </div>
+
+    <div class="campo-filtro">
+        <input type="number" name="cedula" placeholder="Cedula" value="{{ request.GET.cedula }}">
+    </div>
+
+    <div class="campo-filtro">
+        <input type="text" name="nombre" placeholder="Nombre" value="{{ request.GET.nombre }}">
+    </div>
+
+    <div class="campo-filtro">
+        <input type="number" name="rendimiento_real" placeholder="Rendimiento real" value="{{ request.GET.rendimiento_real }}">
+    </div>
+
+{% endblock %}
+

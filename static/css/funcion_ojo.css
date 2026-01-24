@@ -1,0 +1,37 @@
+
+.password-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-container input {
+    flex: 1;
+    padding-right: 40px; /* espacio para el icono */
+}
+
+.password-container .togglePassword {
+    position: absolute;
+    right: 20px;
+    cursor: pointer;
+    color: #555; /* puedes ajustarlo según el diseño */
+    font-size: 18px;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+/* efecto al pasar el mouse */
+.fa-solid.fa-eye-slash.togglePassword:hover {
+    transform: scale(1.2);
+}
+
+/* animación de cambio */
+.icon-animate {
+    animation: fadeInRotate 0.4s ease;
+}
+
+@keyframes fadeInRotate {
+    from { opacity: 0; transform: rotate(-90deg) scale(0.8); }
+    to { opacity: 1; transform: rotate(0) scale(1); }
+}
+
+

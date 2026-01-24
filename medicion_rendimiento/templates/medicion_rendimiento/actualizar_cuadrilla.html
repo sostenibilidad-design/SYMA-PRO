@@ -1,0 +1,102 @@
+
+<!-- === MODAL ACTUALIZAR CUADRILLA === -->
+<div id="modal-actualizar" class="modal-overlay">
+    <div class="modal">
+        <h2 class="titulo">Actualizar Cuadrilla</h2>
+
+        <form class="formulario" method="POST" id="form-actualizar-cuadrilla" action="{% url 'actualizar_cuadrilla' medicion.id %}">
+            {% csrf_token %}
+
+            
+            <div class="funcionalidades-box">  
+                <div class="titulo-funcionalidades">  
+                    <strong>¿Quién salió?</strong>
+                </div>
+
+                <div class="contenido-funcionalidades dropdown"style="display: none;">  
+                    <input type="text" class="input-busqueda-empleado" placeholder="Buscar empleado..."> 
+                    
+                    <div class="lista-empleados">  
+                        {% for emp in empleados_en_cuadrilla  %}
+                            <div class="area-item">
+                                <label class="area-label">
+                                    <input type="checkbox" name="empleados_salieron" class="area-checkbox" value="{{ emp.cedula }}">
+                                    <strong>{{ emp.nombre_completo|capfirst }}</strong>
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="funcionalidades-box">  
+                <div class="titulo-funcionalidades">  
+                    <strong>¿Quién entró?</strong>
+                </div>
+
+                <div class="contenido-funcionalidades dropdown" style="display: none;">  
+                    <input type="text" class="input-busqueda-empleado" placeholder="Buscar empleado..."> 
+
+                    <div class="lista-empleados"> 
+                        {% for emp in empleados_fuera_cuadrilla %}
+                            <div class="area-item">
+                                <label class="area-label">
+                                    <input type="checkbox" name="empleados_entraron" class="area-checkbox" value="{{ emp.cedula }}">
+                                    <strong>{{ emp.nombre_completo|capfirst }}</strong>
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div id="paso-2" style="display:none;">
+                <h3 id="titulo-persona"></h3>
+
+                <div class="input-wrapper" id="grupo-hora-entrada">
+                    <input type="text" name="hora_entrada" id="input-hora-entrada" placeholder="Hora de entrada"
+                        onfocus="(this.type='time')" onblur="if(!this.value) this.type='text'">
+                </div>
+
+                <div class="input-wrapper" id="grupo-hora-salida">
+                    <input type="text" name="hora_salida" id="input-hora-salida" placeholder="Hora de salida"
+                        onfocus="(this.type='time')" onblur="if(!this.value) this.type='text'">
+                </div>
+
+                {% for emp in empleados_en_cuadrilla %}
+                <div class="grupo-comidas" data-cedula="{{ emp.cedula }}" style="display:none">
+                    <label>
+                        <input type="checkbox" name="desayuno_{{ emp.cedula }}">
+                        Desayuno
+                    </label>
+                    <label>
+                        <input type="checkbox" name="almuerzo_{{ emp.cedula }}">
+                        Almuerzo
+                    </label>
+                </div>
+                {% endfor %}
+
+                {% for emp in empleados_fuera_cuadrilla %}
+                <div class="grupo-comidas" data-cedula="{{ emp.cedula }}" style="display:none">
+                    <label>
+                        <input type="checkbox" name="desayuno_{{ emp.cedula }}">
+                        Desayuno
+                    </label>
+                    <label>
+                        <input type="checkbox" name="almuerzo_{{ emp.cedula }}">
+                        Almuerzo
+                    </label>
+                </div>
+                {% endfor %}
+
+            </div>
+
+            <div class="botones">
+                <button type="button" id="btn-continuar" class="btn-guardar">Continuar</button>
+                <button type="submit" id="btn-aceptar" class="btn-guardar" style="display:none ;" >Guardar</button>
+                <button type="button" id="btnCerrar" data-modal="modal-actualizar" class="btn-cancelar">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+

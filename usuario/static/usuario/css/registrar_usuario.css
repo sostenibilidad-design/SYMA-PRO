@@ -1,0 +1,215 @@
+
+.title {
+    color: #f5a623;
+    font-family: 'Inria Serif', serif; 
+    font-size: 36px;
+    font-weight: 300;
+    margin-top: 25px;
+    margin-bottom: 35px;
+    text-align: center;
+}
+
+/* === Formulario === */
+.form {
+    display: flex;
+    width: 85%;
+    margin: auto;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.form-options {
+    display: flex;
+    justify-content: flex-start;
+    font-size: 13px;
+    background: transparent;
+    color: #555;
+    margin-bottom: 24px;
+}
+
+.form-options label  {
+    padding-right: 20px;
+    font-size: 20px;
+}
+
+#manual-fields,
+#seleccion-fields{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#manual-fields input{
+    width: 98%;
+    display: block;
+    margin-bottom: 24px;
+}
+
+#manual-fields .input_abajo{
+    margin-bottom: 0;
+}
+
+#seleccion-fields select {
+    width: 100%;
+    display: block;
+    margin-bottom: 0;
+}
+
+.form input,
+.form select,
+.funcionalidades-box  {
+    border: 1px solid #ccc;
+    font-family: 'Inria Serif', serif; 
+    border-radius: 8px;
+    padding: 15px 12px;
+    font-size: 20px;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.2);
+    outline: none;
+}
+
+.form select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: #fff url("data:image/svg+xml;utf8,<svg fill='black' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>") no-repeat right 12px center;
+    background-size: 30px;
+    padding-right: 70px; /* Espacio para el icono */
+}
+
+
+.form input:focus,
+.form select:focus {
+    border-color: #f5a623;
+}
+
+.form-options label input {
+    box-shadow: none;
+}
+
+
+/* === Botón === */
+.btn-registrar {
+    width: 80%;
+    background-color: #A3BD31;
+    color: #eee;
+    font-family: 'Inria Serif', serif; 
+    margin: auto;
+    border: none;
+    border-radius: 8px;
+    padding: 15px 12px;
+    font-size: 20px;
+    font-weight: 400;
+    margin-top: 12px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    transition: background 0.3s;
+}
+
+.btn-registrar:hover {
+    background-color: #94a82d;
+}
+
+.dropdown {
+    border-top: 1px solid #ccc;
+    margin-top: 8px;
+    background-color: #fafafa;
+    max-height: 220px;
+    overflow-y: auto;
+    border-radius: 6px;
+    padding: 10px;
+}
+
+
+.titulo-funcionalidades {
+    color: #555;
+    background: #fff url("data:image/svg+xml;utf8,<svg fill='black' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>") no-repeat right 12px center;
+    display: flex;
+    background-size: 30px;
+    justify-content: start;
+    align-items: center;
+    font-weight: 100;
+    gap: 8px;
+}
+
+.area-item {
+    margin: 8px 10px;
+    font-weight: 100;
+}
+
+.area-label-actualizar{
+    display: flex;
+    background-color: #94a82d;
+    align-items: start;
+    justify-content: start;
+}
+
+.subarea-item {
+    margin: 2px 0;
+}
+
+.acciones {
+    margin-left: 10px;
+    list-style:circle;
+    font-size: 18px;
+}
+
+input[type="checkbox"] {
+    box-shadow: none !important;
+    outline: none !important;
+    appearance: none;
+    width: 0;
+    height: 0;
+    border: 1.5px solid #777;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #fff;
+    position: relative;
+    padding: 6px;
+    margin-bottom: 0;
+}
+
+input[type="checkbox"]:checked {
+    background-color: #A3BD31;
+    border-color: #A3BD31;
+}
+
+input[type="checkbox"]:checked::after {
+    content: '✔';
+    color: #fff;
+    font-size: 9px;
+    position: absolute;
+    top: 0;
+    left: 2.5px;
+}
+
+/* --- Animación suave de salida de modal --- */
+.fade-out {
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* --- Animación del cuerpo antes de recargar --- */
+.fade-body-out {
+    opacity: 0;
+    transition: opacity 0.7s ease;
+}
+
+
+
+/* ===== MEDIA QUERIES ===== */
+@media (max-width: 800px) {
+    #manual-fields input{
+        width: 96%;
+    }
+
+}
+
+/* === TABLET HORIZONTAL === */
+@media screen and (orientation: landscape) and (max-width: 1366px) {
+    #manual-fields input{
+        width: 97.5%;
+    }
+}
+

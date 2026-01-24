@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    Inicio - SYMA PRO
+{% endblock %}
+
+{% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'core/css/cambio_contraseña.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/home.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+{% endblock %}
+
+{% block search_bar %}{% endblock %}
+
+{% block iconos %}
+    {% if request.user.is_authenticated %}
+        <h2 class="nombre">{{ request.user.primer_nombre }}</h2>
+    {% endif %}
+    <a href="#"><span class="material-symbols-outlined">account_circle</span></a>
+    <a href="#"><span class="material-symbols-outlined">notifications</span></a>
+{% endblock %}
+
+{% block content %}
+    <h2 class="titulo">Jueves, 16 de septiembre</h2>
+
+    <div class="targeta_principal">
+
+        <div class="card small">
+            <h3>Productividad promedio de cuadrillas</h3>
+            <div class="value">82%</div>
+        </div>
+
+        <div class="card small centered">
+            <h3 class="centered">Cuadrilla con</h3>
+            <div class="two-values">
+                <div><span class="label">Mayor</span><span class="cuadrilla">Cuadrilla #1</span><span class="big">89%</span></div>
+                <div><span class="label">Menor</span><span class="cuadrilla">Cuadrilla #2</span><span class="big">62%</span></div>
+            </div>
+        </div>
+
+        <div class="card small">
+            <h3>Estado de materiales</h3>
+            <div class="materials">
+                <div class="mat-row"><i class="fa-regular fa-square-check"></i> Concreto <span class="badge success">Apto</span></div>
+                <div class="mat-row"><i class="fa-regular fa-square-xmark"></i> Acero <span class="badge danger">No apto</span></div>
+            </div>
+        </div>
+
+        <!-- Row 2: calendar / bar chart / line chart -->
+        <div class="card">
+            <div class="placeholder calendar">
+                <img src="{% static 'core/img/calendar.png' %}" alt="calendar" />
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Rendimiento de cuadrillas</h3>
+            <div class="placeholder">
+                <img src="{% static 'core/img/chart-bar.png' %}" alt="chart bar" />
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="placeholder line">
+                <img src="{% static 'core/img/chart-line.png' %}" alt="chart line" />
+            </div>
+        </div>
+
+        <!-- Row 3: wide pie and alerts -->
+        <div class="card wide">
+            <section class="pie-chart">
+                <div class="placeholder pie">
+                    <img src="{% static 'core/img/pie.png' %}" alt="pie chart" />
+                </div>
+
+                <ul class="legend">
+                    <li><span class="dot green"></span>Valor agregado</li>
+                    <li><span class="dot blue"></span>Soporte</li>
+                    <li><span class="dot red"></span>Sin valor agregado</li>
+                    <li><span class="dot amber"></span>Detenciones autorizadas</li>
+                </ul>
+            </section>
+        </div>
+
+        <div class="card alerts">
+            <h3>Alertas del mes</h3>
+            <ul>
+                <li><i class="fa fa-exclamation-triangle"></i> Alerta</li>
+                <li><i class="fa fa-exclamation-triangle"></i> Alerta</li>
+                <li><i class="fa fa-exclamation-triangle"></i> Alerta</li>
+                <li><i class="fa fa-exclamation-triangle"></i> Alerta</li>
+            </ul>
+        </div>
+    </div> 
+
+    {% include 'core/cambiar_contraseña.html' %}
+
+{% endblock %}

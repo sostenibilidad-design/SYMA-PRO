@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% load static %}
+{% load moneda %}
+
+{% block title %}
+Reporte por Cuadrilla
+{% endblock %}
+
+{% block search_bar %} {% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="{% static 'css/reporte_base.css' %}">
+{% endblock %}
+
+{% block iconos %}
+    <a href="{% url 'actividad_cuadrilla' %}"><i class="fa fa-arrow-left"></i></a>
+{% endblock %}
+
+{% block content %}
+    <div class="reporte-cuadrilla">
+
+        <form method="get" id="filtros-form">
+            <div class="reporte-header">
+                <div class="filtros">
+
+                    <div class="filtro-wrapper">
+                        <select class="filtro proyecto" name="proyecto" onchange="this.form.submit()">
+                            <option value="{{ proyecto }}">
+                                Proyecto : {{ proyecto }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="filtro-wrapper">
+                        <select class="filtro actividad" name="actividad" onchange="this.form.submit()">
+                            {% for act in actividades %}
+                                <option value="{{ act }}" {% if act == actividad %}selected{% endif %}>
+                                    {{ act }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="filtro-wrapper">
+                        <input type="text" id="rango-fecha" class="filtro fecha" placeholder="Rango de fecha" readonly data-inicio="{{ fecha_inicio|date:'Y-m-d' }}" data-fin="{{ fecha_fin|date:'Y-m-d' }}">
+                    </div>
+
+                    <input type="hidden" name="fecha_inicio" id="fecha_inicio" value="{{ fecha_inicio|date:'Y-m-d' }}">
+                    <input type="hidden" name="fecha_fin" id="fecha_fin" value="{{ fecha_fin|date:'Y-m-d' }}">
+                </div>
+            </div>
+        </form>
+
+    
+
+    <!-- KPIs -->
+    <div class="kpi-row">
+        <div class="kpi-card">
+            <p>CUMPLIMIENTO PRESUPUESTAL</p>
+
+            <div class="progreso">
+                <h3>{{ comparacion_presupuestal }}%</h3>
+                <div class="progress">
+                    <span 
+                        class="progress-bar {{ estado_presupuestal }} animate" 
+                        style="width: {{ cumplimiento_presupuestal_width|stringformat:'f' }}%;">
+                    </span>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="kpi-card">
+            <p>CUMPLIMIENTO PROGRAMADO</p>
+            
+            <div class="progreso">
+                <h3>{{ comparacion_programado }}%</h3>
+                <div class="progress">
+                    <span 
+                        class="progress-bar {{ estado_programado }}" 
+                        style="width:{{ cumplimiento_programado_width|stringformat:'f' }}%;">
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <p>RENDIMIENTO REAL</p>
+            <h3 class="letra_centrada">{{ promedio_rendimiento_real }} {{ unidad_medida }}/h</h3>
+        </div>
+
+        <div class="kpi-card">
+            <p>COSTO POR UNIDAD</p>
+            <h3 class="letra_centrada">$ {{ promedio_costo_por_unidad|cop }}</h3>
+        </div>
+    </div>
+
+    <!-- Gráficas grandes -->
+    <div class="row-2">
+        <div class="card big">
+            <div class="carousel-cuadrillas costo">
+                {% for g in graficos_costo_cuadrillas %}
+                <div class="carousel-slide {% if forloop.first %}active{% endif %}">
+                    <h4>
+                        <h4>cuadrilla # {{ g.cuadrilla }} {% if g.cuadrilla == 0 %} Sin registros{% endif %} - Actividad: {{ actividad }}</h4>
+                    </h4>
+
+                    <div class="grafica">
+                        <canvas id="grafico-costo-cuadrilla-{{ forloop.counter }}"></canvas>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <button class="carousel-btn prev">‹</button>
+                <button class="carousel-btn next">›</button>
+            </div>
+        </div>
+
+        <div class="card big"> 
+            <div class="carousel-cuadrillas">
+                {% for g in graficos_cuadrillas %}
+                <div class="carousel-slide {% if forloop.first %}active{% endif %}">
+                    <h4>cuadrilla # {{ g.cuadrilla }} {% if g.cuadrilla == 0 %} Sin registros{% endif %} - Actividad: {{ actividad }}</h4>
+
+                    <div class="grafica">
+                        <canvas id="grafico-cuadrilla-{{ forloop.counter }}"></canvas>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- Controles -->
+                <button class="carousel-btn prev">‹</button>
+                <button class="carousel-btn next">›</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row-1">
+        <div class="card uno">
+            <h4>Rendimiento Real : {{ actividad }}</h4>
+            <div class="grafica">
+                <canvas id="graficoRendimientoMensual"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Personal + diagnósticos -->
+    <div class="row-3">
+        <div class="card tall">
+            <h4>Demanda de mano de obra por actividad</h4>
+            <div style="height: 400px;" class="grafica" >
+                <canvas id="grafico-demanda-personal"></canvas>
+            </div>
+            <div class="toggle-periodo">
+                <button id="btn-mes" class="toggle-btn active">Mensual</button>
+                <button id="btn-dia" class="toggle-btn">Diario</button>
+            </div>
+        </div>
+
+        <div class="diagnosticos">
+            <div class="card">
+                <h4>Diagnóstico de rendimiento de <br> {{ actividad }}</h4>
+                <div class="grafica circular">
+                    <canvas id="graficoDiagnosticoRendimiento"></canvas>
+                    <div class="valor-central" id="valorDiagnostico"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h4>Diagnóstico presupuestal de la actividad</h4>
+                <div class="grafica circular"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row-3">
+        <div class="card tall">
+            <h4>Comparativo de Rendimiento por Cuadrilla - Actividad</h4>
+            <div class="grafica"></div>
+        </div>
+
+        <div class="card tall">
+            <h4>Actividades Realizadas</h4>
+            <div class="grafica"></div>
+        </div>
+    </div>
+
+    <!-- Diagnóstico final -->
+    <div class="diagnostico-final">
+        <div class="estado">
+            ✅ Estado: <strong>EFICIENTE</strong>
+        </div>
+
+        <div class="datos">
+            <span>280 m²</span>
+            <span>163 h</span>
+            <span>0,59 h/m²</span>
+        </div>
+
+        <div class="barra-final">
+            <span></span>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+    <script src="{% static 'js/calendario.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const UNIDAD_MEDIDA = "{{ unidad_medida|default:'u' }}";
+        const CUMPLIMIENTO_PROGRAMADO = parseFloat("{{ cumplimiento_programado|default:'0' }}".replace(',', '.'));
+        const CUMPLIMIENTO_PRESUPUESTAL = parseFloat("{{ cumplimiento_presupuestal|default:'0' }}".replace(',','.'));
+        
+        const labelsRR = {{ labels_rendimiento|safe }};
+        const dataRR = {{ data_rendimiento|safe }};
+        const GRAFICOS_CUADRILLAS = {{ graficos_cuadrillas_json|safe }};
+        const GRAFICOS_COSTO_CUADRILLAS = {{ graficos_costo_cuadrillas_json|safe }};
+        const DIAGNOSTICO_RENDIMIENTO = {{ diagnostico_rendimiento|safe }}
+    </script>
+    <script src="{% static 'medicion_rendimiento/js/reportes.js' %}"></script>
+{% endblock %}
+

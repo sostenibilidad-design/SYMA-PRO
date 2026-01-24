@@ -1,0 +1,45 @@
+{% load static %}
+
+    <!-- === MODAL ACTUALIZAR USUARIO === -->
+    <div id="modal-fin-actividad" class="modal-overlay">
+        <div class="modal">
+            <h2 class="titulo">Registrar fin de la actividad</h2>
+
+            <form class="formulario" method="POST" enctype="multipart/form-data"  id="formFinActividad">
+                {% csrf_token %}
+
+                <div class="input-wrapper">
+                    <input type="text" name="hora_fin" id="input-hora-fin" placeholder="Hora del fin"
+                        onfocus="(this.type='time')" onblur="if(!this.value) this.type='text'">
+                </div>
+
+                <div class="file-wrapper">
+                    <span class="fileText" id="fileText_fin">Insertar imagen</span>
+                    <input type="file" name="foto_fin" id="id_foto_fin" accept="image/*" capture="environment">
+                </div>
+
+                <div class="input-wrapper">
+                    <input type="number" name="cantidad_producida" step="any" min="0" placeholder="Cantidad producida" required>
+                </div>
+
+                <div class="grupo-comidas comidas" id="grupo-comidas">
+                    <label class="checkbox-label">
+                        <input type="checkbox" class="chk-desayuno" name="desayuno">
+                        <span>Desayuno</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" class="chk-almuerzo" name="almuerzo">
+                        <span>Almuerzo</span>
+                    </label>
+                </div>
+
+                <div class="botones">
+                    <button type="submit" class="btn-guardar" >Guardar</button>
+                    <button type="button" id="btnCerrar"  data-modal="modal-fin-actividad" class="btn-cancelar">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="{% static 'medicion_rendimiento/js/registro_final_cuadrilla.js' %}"></script>
+    

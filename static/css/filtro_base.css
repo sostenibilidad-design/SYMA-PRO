@@ -1,0 +1,182 @@
+/* === PANEL === */
+.filtro-panel {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: clamp(200px, 25%, 300px);
+    height: 77%;
+    background-color: #A3BD31;
+    border-radius: 35px;
+    margin-right: 75px;
+    margin-top: 140px; /* espacio para el header */
+    transition: right 0.3s ease;
+    z-index: 999;
+    box-shadow: 0px 0px 18px rgba(0,0,0,0.30);
+    overflow: auto;
+    overflow: hidden;
+}
+
+.filtro-panel .filtro-contenido {
+    height: 100%;
+    overflow-y: auto;   /* aquí el scroll */
+    padding-left: 5px; /* espacio para que no choque con el borde */
+    direction: rtl; /* Poner scrollbar a la izquierda */
+}
+
+.filtro-panel .filtro-contenido {
+    direction: ltr; /* Para que el contenido siga alineado normal */
+}
+
+.filtro-panel .filtro-contenido::-webkit-scrollbar {
+    width: 6px;          /* más delgado */
+    background: transparent; /* transparente detrás */
+}
+
+.filtro-panel .filtro-contenido::-webkit-scrollbar-thumb {
+    background: #A3BD31;   /* verde */
+    border-radius: 10px;   /* bordes redondeados */
+    min-height: 10px;    /* altura mínima */
+}
+
+.filtro-panel .filtro-contenido::-webkit-scrollbar-thumb:hover {
+    background: #6a9430;   /* verde más oscuro al pasar el mouse */
+}
+
+.filtro-panel.active {
+    right: 0; /* Visible cuando se activa */
+}
+
+.filtro-contenido h3 {
+    font-size: 1.8rem;
+    font-family: "Inria Serif",serif;
+    color: #fff;
+    text-align: center;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 15px;
+}
+
+/* === CAMPOS === */
+#form-filtro {
+    display: flex;
+    width: 85%;
+    margin: auto;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.campo-filtro {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    font-size: 13px;
+    background: transparent;
+    color: #555;
+    margin-bottom: 24px;
+}
+
+
+.campo-filtro input,
+.campo-filtro select {
+    width: 90%;
+    border: 1px solid #ccc;
+    font-family: 'Inria Serif', serif; 
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 20px;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.2);
+    outline: none;
+}
+
+
+form input:focus,
+form select:focus {
+    border-color: #f5a623;
+}
+
+
+
+/* === BOTONES === */
+.botones-filtro {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0;
+    margin-bottom: 30px;
+    gap: 10px;
+}
+
+.btn-limpiar, .btn-aplicar {
+    flex: 1;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    font-family: "Inria Serif", serif;
+    transition: all 0.2s ease;
+}
+
+.btn-limpiar {
+    background-color: #A49E9E;
+    text-align: center;
+    text-decoration: none;
+    color: #fff;
+}
+
+.btn-aplicar {
+    background-color: #fff;
+    color: #4C5A16;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.btn-aplicar:hover {
+    background-color: #eaeaea;
+}
+
+.btn-limpiar:hover {
+    background-color: #b5b5b5;
+}
+
+/* contenedor activado */
+
+.contenedor_principal.filtro-activo{
+    width: 65%;
+    margin-right: 22%; /* Ajusta este valor según el ancho del menú */
+}
+
+.contenedor_principal.filtro-activo .two-values .big  {
+    transform: scale(0.85) !important; /* reduce un 15% */
+    transform-origin: center;
+}
+
+/* Cuando el menú está activo, centramos la tarjeta de dos valores */
+.contenedor_principal.filtro-activo .two-values {
+    justify-content: center; /* centrado */
+    gap: 10px; /* espacio entre los dos valores, ajusta a tu gusto */
+    transition: all 0.3s ease;
+}
+
+
+
+/* ===== MEDIA QUERIES ===== */
+@media (max-width: 800px) {
+    .filtro-panel {
+        width: 44%; /* tablets */
+        height: 68%;
+        right: -6000px; /* fuera de la pantalla */
+        margin: 140px 40px;
+    }
+
+    .contenedor_principal.filtro-activo {
+        margin-right: 0;
+        width: 85%;
+    }
+}
+
+/* === TABLET HORIZONTAL === */
+@media screen and (orientation: landscape) and (max-width: 1366px) {
+    .filtro-panel {
+        width: 20%;
+    }
+}

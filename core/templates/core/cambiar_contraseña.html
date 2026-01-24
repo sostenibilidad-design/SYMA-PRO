@@ -1,0 +1,54 @@
+{% load static %}
+
+{% if user.debe_cambiar_password %}
+<div id="modal-cambio-password" class="modal-overlay">
+    <div class="modal">
+        <h2 class="titulo_cambio">Cambio de contraseña</h2>
+
+        <form id="formCambioPassword" class="formulario" method="POST" action="{% url 'cambiar_password' %}">
+            {% csrf_token %}
+            <div class="input-wrapper">
+                <input type="password" name="password1" placeholder="Nueva contraseña" required>
+            </div>
+            <div class="input-wrapper">
+                <input type="password" name="password2" placeholder="Confirmar contraseña" required>
+            </div>
+
+            <div class="botones">
+                <button type="submit" class="btn-guardar">Actualizar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const modal = document.getElementById("modal-cambio-password");
+    const form = document.getElementById("formCambioPassword");
+
+    // ✅ Mostrar la modal al cargar
+    modal.classList.add("active");
+
+    // ❌ Evitar scroll y cierre
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", e => {
+        if (e.key === "Escape") e.preventDefault();
+    });
+    modal.addEventListener("click", e => e.stopPropagation());
+
+    // 🔐 Validar contraseñas
+    form.addEventListener("submit", e => {
+        const p1 = form.querySelector("[name='password1']").value.trim();
+        const p2 = form.querySelector("[name='password2']").value.trim();
+
+        if (p1 !== p2) {
+            e.preventDefault();
+            alert("⚠️ Las contraseñas no coinciden.");
+        } else if (p1.length < 6) {
+            e.preventDefault();
+            alert("⚠️ La contraseña debe tener al menos 6 caracteres.");
+        }
+    });
+});
+</script>
+{% endif %}

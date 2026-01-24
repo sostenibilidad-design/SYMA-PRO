@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'css/reporte_base.css' %}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+{% endblock %}
+
+{% block title %}{% endblock %}
+
+{% block search_bar %}{% endblock %}
+
+{% block iconos %}
+{% endblock %}
+
+{% block content %}
+<div class="report-card">
+    <h2></h2>
+    <section class="filtros">
+        <h2>Filtros</h2>
+        <div class="contenedor-filtros">
+            {% block campos_filtro %}
+            <!-- Aquí se insertan los campos del filtro -->
+            {% endblock %}
+            <button class="btn-aplicar">Aplicar filtro</button>
+        </div>
+    </section>
+
+        <!-- CONTENIDO PRINCIPAL (TABLA + GRÁFICO) -->
+    <section class="contenido-reportes">
+
+        <section class="contenedor-tabla">
+            <section class="tabla" >
+                <div class="tabla-scroll-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                {% block tabla_header %}
+                                {% endblock %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                {% block tabla_body %}
+                                <!-- Aquí se insertan los campos del filtro -->
+                                {% endblock %}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <div class="campo_botones">
+                <button class="icon-btn" title="Descargar PDF"><i class="fa fa-file-pdf"></i></button>
+                <button class="icon-btn" title="Descargar Excel"><i class="fa fa-file-excel"></i></button>
+                <button class="icon-btn" title="Enviar a Drive"><i class="fa-brands fa-google-drive"></i></button>
+            </div>
+
+            <!-- BOTONES INFERIORES -->
+            <section class="acciones-reportes">
+                <button class="btn-descargar">Descargar completo</button>
+                <button class="btn-enviar">Enviar al driver</button>
+            </section>
+        </section>
+
+        <div class="grafico-container">
+            {% block nombre_grafico %}
+            {% endblock %}
+
+            {% block grafico %}
+            {% endblock %}
+            <div class="campo_botones">
+                <button class="icon-btn" title="Descargar PDF"><i class="fa fa-file-pdf"></i></button>
+                <button class="icon-btn" title="Descargar Excel"><i class="fa fa-file-excel"></i></button>
+                <button class="icon-btn" title="Enviar a Drive"><i class="fa-brands fa-google-drive"></i></button>
+            </div>
+        </div>
+
+    </section>
+</div>
+{% endblock %}
+

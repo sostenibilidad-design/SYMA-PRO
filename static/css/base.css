@@ -1,0 +1,474 @@
+/* === RESET GENERAL === */
+body,html{
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family:sans-serif;
+    background:#fff;
+    font-size: clamp(14px, 80px, 18px); /* texto adaptable */
+    line-height: 1.4;
+}
+
+/* === HEADER === */
+.barra_navegacion {
+    position: fixed;
+    width: 100%;
+    height: 63px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    padding: clamp(10px, 4vw, 20px);
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 0 20px #000;
+}
+
+.barra-left {
+    display: flex;
+    align-items: center;
+    gap: 80px; /* espacio entre logo y barra */
+}
+
+.logo {
+    max-width: clamp(200px, 15%, 400px);
+    height: auto;
+    display: flex;
+    align-items: start;
+    padding-left: clamp(12px, 5vw, 90px);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.logo:hover {
+    transform: scale(1.1);
+}
+
+/* ===== SYMA SEARCH (UI only) ===== */
+.syma-search {
+    width: 50%;
+    display: inline-flex;
+    position: relative;
+}
+
+/* Input */
+.syma-search__input {
+    width: 100%;
+    padding: 11px 15px 11px 40px;
+    border-radius: 20px;
+    border: 1.5px solid #777;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23777' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.415l-3.85-3.85zm-5.242.656a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E") no-repeat 14px center;
+    background-size: 18px;
+    color: #777;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    outline: none;
+    font-size: clamp(13px, 1.6vw, 16px);
+    transition: box-shadow .18s ease, border-color .18s ease;
+}
+
+
+
+/* Focus visual */
+.syma-search__input:focus {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    border-color: rgba(163,189,49,0.95); /* verde SYMA */
+}
+
+/* Suggestions dropdown (hidden by default) */
+.syma-search__list {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: min(520px, 80vw);
+    max-width: 100%;
+    max-height: 320px;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.14);
+    padding: 6px 0;
+    margin: 0;
+    list-style: none;
+    z-index: 3000;
+    display: none;               /* mostrar con JS o aria-hidden="false" */
+}
+
+/* suggestion item */
+.syma-search__list li {
+    padding: 10px 14px;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    color: #111;
+}
+
+.syma-search__list li small { 
+    display:block; 
+    color:#666; 
+    font-size:0.85rem; 
+}
+
+/* hover / keyboard selected */
+.syma-search__list li:hover,
+.syma-search__list li[aria-selected="true"] {
+    background: rgba(163,189,49,0.08);
+}
+
+.iconos {
+    width: auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: clamp(10px, 10px, 20px);
+    padding-right: clamp(10px, 8vw, 120px);
+}
+
+.iconos a,
+.iconos button,
+.iconos span{ 
+    background: transparent;
+    border: none;
+    padding: clamp(5px, 2vw, 10px) 3px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: clamp(30px, 3vw, 30px);
+    color: #333;
+    transition: transform 0.2s ease;
+    margin-left: 0;
+}
+
+.iconos h2 {
+    display: flex;
+    margin-bottom: 8px;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(25px, 1.8vw, 25px);
+    font-weight: 100;
+    padding-right: 5px;
+}
+
+.iconos span{
+    font-size: clamp(40px, 2vw, 40px);
+    padding-top: clamp(18px, 1.7vw, 21px);
+    color: #444;
+    font-weight: 100;
+    cursor: default;
+}
+
+
+.iconos a:hover,
+.iconos button:hover{
+    transform: scale(1.2);
+}
+
+/* === MENÚ HAMBURGUESA === */
+
+.menu-hamburguesa {
+    position: fixed;
+    top: 0;
+    left: -600px;
+    width: clamp(200px, 25%, 300px);
+    height: 77%;
+    background: #A3BD31;
+    border-radius: 35px;
+    margin-left: 75px;
+    margin-top: 140px; /* espacio para el header */
+    transition: left 0.3s ease;
+    z-index: 999;
+    box-shadow: 0px 0px 18px rgba(0,0,0,0.30);
+    overflow: auto;
+    overflow: hidden;
+}
+
+
+.menu-hamburguesa .contenido {
+    height: 100%;
+    overflow-y: auto;   /* aquí el scroll */
+    padding-right: 5px; /* espacio para que no choque con el borde */
+    direction: rtl; /* Poner scrollbar a la izquierda */
+
+}
+
+.menu-hamburguesa .contenido * {
+    direction: ltr; /* Para que el contenido siga alineado normal */
+}
+
+/* Scrollbar en navegadores WebKit */
+.menu-hamburguesa .contenido::-webkit-scrollbar {
+    width: 6px;          /* más delgado */
+    background: transparent; /* transparente detrás */
+}
+
+.menu-hamburguesa .contenido::-webkit-scrollbar-thumb {
+    background: #A3BD31;   /* verde */
+    border-radius: 10px;   /* bordes redondeados */
+    min-height: 10px;    /* altura mínima */
+}
+
+.menu-hamburguesa .contenido::-webkit-scrollbar-thumb:hover {
+    background: #6a9430;   /* verde más oscuro al pasar el mouse */
+}
+
+.menu-hamburguesa.active {
+    left: 0; /* Visible cuando se activa */
+}
+
+.menu-hamburguesa ul {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    padding: 30px 0;
+    margin: 0;
+}
+
+
+.menu-hamburguesa ul li a {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: #fff;
+    text-decoration: none;
+    font-size: clamp(20px, 2vw, 18px);
+    transition: background 0.2s ease;
+}
+
+.menu-hamburguesa ul li a i {
+    margin:0 20px;
+}
+
+.menu-hamburguesa ul li a:hover,
+.submenu .submenu-items li a:hover {
+    background: #6a9430;
+    border-radius: 5px;
+}
+
+.submenu .submenu-items {
+    display: none; /* Oculto por defecto */
+    flex-direction: column;
+    margin-left: 30px; /* sangría hacia la derecha */
+    background: transparent;
+    border-radius: 8px;
+    padding: 5px 0;
+}
+
+.submenu .submenu-items li a {
+    font-size: 19px;
+    padding: 10px 20px;
+}
+
+
+/* Mostrar el submenú cuando el padre tiene hover */
+.submenu:hover .submenu-items {
+    display: flex;
+}
+
+/* === CONTENIDO PRINCIPAL === */
+.content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.contenedor_principal {
+    width:85%;
+    max-width: 1400px;
+    background: #fff;
+    border-radius: 35px;
+    border: 2px solid #988888;
+    margin-top: 140px; /* espacio para el header */
+    margin-bottom: 30px;
+    padding: 20px;
+    box-shadow: 0px 0px 18px rgba(0,0,0,0.50);
+    transition: all 0.3s ease;
+}
+
+.contenedor_principal .two-values .big  {
+    font-size: clamp(8px, 6vw, 55px);
+    font-weight: bold;
+}
+
+.contenedor_principal .pie-chart .legend li{
+    font-size: clamp(10px, 2vw, 18px);
+}
+
+.tabla-botones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 20px;
+    margin: 0 60px;
+    margin-top: 0;
+    padding: 8px 5px;
+}
+
+.tabla-botones a {
+    width: 130px;
+    background-color: var(--color-principal, #A3BD31);
+    color: white;
+    text-decoration: none;
+    text-align: center;
+    border: none;
+    font-weight: bold;
+    font-size: clamp(12px, 1.7vw, 15px);
+    border-radius: 6px;
+    padding: 10px 12px;
+    cursor: pointer;
+    box-shadow: 0px 7px 18px rgba(0,0,0,0.50);
+    transition: background-color 0.3s ease;
+}
+
+.tabla-botones .gris{
+    background-color: var(--color-principal, #fff);
+    color: #111;
+    border: 1px solid #111;
+}
+
+.tabla-botones a:hover {
+    background-color: var(--color-principal-hover, #ccc);
+    color: #222;
+}
+
+.tabla-botones i {
+    padding-right: 10px;
+}
+
+.menu-hamburguesa.active ~ .content .contenedor_principal {
+    width: 65%;
+    margin-left: 22%; /* Ajusta este valor según el ancho del menú */
+}
+
+
+.menu-hamburguesa.active ~ .content .contenedor_principal * {
+    transition: transform 0.3s ease;
+}
+
+.menu-hamburguesa.active ~ .content .contenedor_principal .two-values .big {
+    transform: scale(0.85) !important; /* reduce un 15% */
+    transform-origin: center;
+}
+
+/* Cuando el menú está activo, centramos la tarjeta de dos valores */
+.menu-hamburguesa.active ~ .content .contenedor_principal .two-values {
+    justify-content: center; /* centrado */
+    gap: 10px; /* espacio entre los dos valores, ajusta a tu gusto */
+    transition: all 0.3s ease;
+}
+
+/* === SUBMENÚ DESCARGA === */
+.descarga-menu {
+    position: relative;
+    list-style: none;
+}
+
+.descarga-menu .submenu-descarga {
+    position: absolute;
+    top: 60px; /* debajo del icono */
+    right:-50%;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    list-style: none;
+    padding: 8px 0;
+    margin: 0;
+    min-width: 100px;
+    display: none; /* oculto por defecto */
+    z-index: 2000;
+    overflow-x: hidden;
+}
+
+.descarga-menu .submenu-descarga li {
+    text-align: center;
+}
+
+.descarga-menu .submenu-descarga button {
+    width: 100%;
+    background: transparent;
+    border: none;
+    text-align: center;
+    padding: 10px 15px;
+    font-size: 17px;
+    color: #333;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+/* Mostrar el submenú cuando se hace hover */
+.descarga-menu:hover .submenu-descarga {
+    display: block;
+}
+
+.descarga-menu:hover .submenu-descarga {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+/* ===== MEDIA QUERIES ===== */
+@media (max-width: 800px) {
+    .barra-left {
+        gap: 15px; /* espacio entre logo y barra */
+    }
+
+    .menu-hamburguesa {
+        width: 44%; /* tablets */
+        height: 68%;
+        left: -6000px; /* fuera de la pantalla */
+        margin: 140px 40px;
+    }
+    
+
+    .menu-hamburguesa ul li a {
+        font-size: clamp(25px, 2.5vw, 16px);
+    }
+
+    .submenu .submenu-items li a {
+        font-size: clamp(25px, 2.5vw, 16px);
+    }
+
+    .contenedor_principal {
+        width: 85%;
+        margin-left: 0;
+    }
+
+    .menu-hamburguesa.active ~ .content .contenedor_principal {
+        margin-left: 0;
+        width: 85%;
+    }
+
+    .menu-hamburguesa.active ~ .content .contenedor_principal .two-values .big {
+    transform: none !important; /* reduce un 15% */
+    }
+
+    .tabla-botones {
+        margin-right: 35px;
+    }
+}
+
+/* === TABLET HORIZONTAL === */
+@media screen and (orientation: landscape) and (max-width: 1366px) {
+    .barra-left {
+        display: flex;
+        align-items: center;
+        gap: 38px; /* espacio entre logo y barra */
+    }
+    .menu-hamburguesa {
+        width: 20%;
+    }
+
+    
+
+    .menu-hamburguesa ul li a {
+        font-size: clamp(15px, 1.7vw, 16px);
+    }
+
+    .submenu .submenu-items li a {
+        font-size: clamp(15px, 1.7vw, 16px);
+    }
+}

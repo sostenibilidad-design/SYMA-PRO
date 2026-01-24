@@ -309,5 +309,20 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,python,visualstudiocode,django
+# Node
+node_modules/
 
+# Python
+env/
+__pycache__/
+*.pyc
+
+# Django
+db.sqlite3
+media/
+
+# IDE
+.vscode/
+
+# Secrets
 credentials.json

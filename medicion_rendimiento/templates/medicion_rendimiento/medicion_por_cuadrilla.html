@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+{% load dict_filters %}
+{% load moneda %}
+
+
+{% block title %}
+    Medicion de rendimiento por cuadrilla
+{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'css/tablas.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/modales.css' %}">
+<link rel="stylesheet" href="{% static 'css/modales_campos.css' %}">
+{% endblock %}
+
+{% block iconos %}
+    <a href="#"><span id="btn-filtro" class="material-symbols-outlined">filter_alt</span></a>
+
+    {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,descarga" %}
+            <a href="javascript:void(0);" id="btn-descarga"><span class="material-symbols-outlined">download</span></a>
+    {% endif %}
+
+    <form id="formularioIngreso" action="{% url 'actividad_cuadrilla' %}" method="post" class="form-accion">
+        {% csrf_token %}
+        <input type="hidden" name="elemento" id="elemento_oculto">
+
+        {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,actualizar" %}
+            <a href="#" id="btn-actualizar" data-url-base="{% url 'actualizar_cuadrilla' 0 %}" ><span class="material-symbols-outlined">refresh</span></a>
+        {% endif %}
+
+        {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,eliminar" %}
+            <a href="#" id="eliminar"><span class="material-symbols-outlined">delete</span></a>
+        {% endif %}
+
+    </form>
+{% endblock %}
+
+{% block filtro %} 
+    {% include "medicion_rendimiento/filtro_rendimiento_cuadrilla.html" %}
+{% endblock %}
+
+{% block content %}
+    <h2 class="titulo-seccion">Actividades de cuadrillas</h2>
+
+    <section class="tabla">
+        <div class="tabla-scroll-wrapper">
+            <form action="{% url 'actividad_cuadrilla' %}" method="post">
+                {% csrf_token %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="primero"></th>
+                            <th>ID</th>
+                            <th>Proyecto</th>
+                            <th>Fecha</th>
+                            <th>Cuadrilla</th>
+                            <th>N° de trabajdores</th>
+                            <th>Cedulas del personal</th>
+                            <th>Nombres del personal</th>
+                            <th>Precio hora trabajadores</th>
+                            <th>Actividad</th>
+                            <th>Ubicación</th>
+                            <th>Foto inicio</th>
+                            <th>Hora de inicio</th>
+                            <th>Hora fin</th>
+                            <th>Foto fin</th>
+                            <th>Horas efectivas por trabajador</th>
+                            <th>Horas trabajadas totales</th>
+                            <th>Costo total oficiales</th>
+                            <th>Costo total ayudantes</th>
+                            <th>Costo total de la actividad</th>
+                            <th>Cantidad producida</th>
+                            <th>Rendimiento real</th>
+                            <th>Cumplimiento programado</th>
+                            <th>Comparación programada</th>
+                            <th>Costo por (unidad de medida)</th>
+                            <th>Cumplimiento presupuestal</th>
+                            <th>Diferencia presupuestal</th>
+                            <th>Comparación presupuestal</th>
+                            <th>Id usuario</th>
+                            <th>Usuario</th>
+                        </tr>
+                    </thead>
+                    
+                    <tbody>
+                        {% if Cuadrillas %}
+                            {% for item in Cuadrillas %}
+                            <tr class="radio-fila">
+                                <td class="primero">
+                                    <input type="checkbox" name="elemento" id="personal{{ item.id }}"
+                                        value="{{ item.id }}" data-finalizada="{% if item.hora_fin %}1{% else %}0{% endif %}" required>
+                                </td>
+                                <td><label for="personal{{ item.id }}">{{ item.id }}</label></td>
+                                <td><label for="personal{{ item.id }}">{{ item.proyecto }}</label></td>
+                                <td><label for="personal{{ item.id }}">{{ item.fecha }}</label></td>
+                                <td><label for="personal{{ item.id }}">Cuadrilla #{{ item.cuadrilla }}</label></td>
+                                <td><label for="personal{{ item.id }}">{{ item.numero_oficiales_ayudantes|safe }}</label></td>
+                                <td><label for="personal{{ item.id }}">{{ item.empleado_cedula|safe }}</label></td>
+                                <td><label for="personal{{ item.id }}">{{ item.nombre_empleado|safe }}</label></td>
+                                <td><label for="personal{{ item.id }}">{{ item.precio_hora_trabajadores|safe }}</label></td>
+                                <td><label for="personal{{ item.id }}">{{ item.actividad }}</label></td>
+                                <td><label for="personal{{ item.id }}">{{ item.ubicacion }}</label></td>
+                                <td class="celda-imagen"><label for="personal{{ item.id }}">{% if item.foto_inicio %}
+                                                                            <img src="{{ item.foto_inicio.url }}" alt="Foto de inicio" style="width: 80px; height: 80px; ">
+                                                                        {% else %}
+                                                                            <span>no se insertó foto</span>
+                                                                        {% endif %}
+                                    </label>
+                                </td>
+                                <td><label for="personal{{ item.id }}">{{ item.hora_inicio_empleados|safe }}</label></td>
+                                
+                                <td>
+                                    {% if not item.hora_fin %}
+                                        {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,registrar" %}
+                                            <a href="javascript:void(0);" data-id="{{ item.id }}"  class="btn-fin">Finalizar</a>
+                                        {% endif %}
+                                    {% else %}
+                                        <label for="personal{{ item.id }}">{{ item.hora_fin_empleados|safe }}</label>
+                                    {% endif %}
+                                </td>
+
+                                {% if item.hora_fin %}
+                                    <td class="celda-imagen"><label for="personal{{ item.id }}">{% if item.foto_fin %}
+                                                                            <img src="{{ item.foto_fin.url }}" alt="Foto de fin" style="width: 80px; height: 80px; ">
+                                                                        {% else %}
+                                                                            <span>no se insertó foto</span>
+                                                                        {% endif %}
+                                        </label>
+                                    </td>
+                                    <td><label for="personal{{ item.id }}">{{item.horas_efectivas_trabajador|safe}}</label></td>
+                                    <td><label for="personal{{ item.id }}">{{ item.horas_trabajadas_totales|default:"-" }} h</label></td>
+                                    <td><label for="personal{{ item.id }}">$ {{ item.costo_total_oficiales|cop|default:"-" }}</label></td>
+                                    <td><label for="personal{{ item.id }}">$ {{ item.costo_total_ayudantes|cop|default:"-" }}</label></td>
+                                    <td><label for="personal{{ item.id }}">$ {{ item.precio_total_horas|cop|default:"-" }}</label></td>
+                                    <td><label for="personal{{ item.id }}">{{ item.cantidad_producida|default:"-" }} {{ item.unidad_medida }}</label></td>
+                                    <td><label for="personal{{ item.id }}">{{ item.rendimiento_real|default:"-" }} {{ item.unidad_medida }}/ h</label></td>
+                                    <td><label for="personal{{ item.id }}">{{ item.cumplimiento_programado|default:"-" }} {{ item.unidad_medida }}/ h</label></td>
+                                    <td><label for="personal{{ item.id }}">{{ item.comparacion_programado|default:"-" }}%</label></td>
+                                    <td><label for="personal{{ item.id }}">$ {{ item.costo_por_unidad|cop|default:"-" }}</label></td>
+                                    <td><label for="personal{{ item.id }}">$ {{ item.cumplimiento_presupuestal|cop|default:"-" }}</label></td>
+                                    <td><label for="personal{{ item.id }}">$ {{ item.diferencia_presupuestal|cop|default:"-" }}</label></td>
+                                    <td><label for="personal{{ item.id }}">{{ item.comparacion_presupuestal|default:"-" }}%</label></td>
+                                {% else %}
+                                    <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                                {% endif %}
+                                
+                                <td><label for="personal{{ item.id }}">{{ item.usuario_cedula }}</label></td>
+                                <td><label for="personal{{ item.id }}">{{ item.nombre_usuario }}</label></td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="30">No hay actividades de cuadrillas registradas.</td>
+                            </tr>
+                        {% endif %}
+                        
+                        {% for i in filas_vacias %}
+                            <tr>
+                                <td class="primero"></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </section>
+    
+    {% include 'medicion_rendimiento/registrar_actividad_cuadrilla.html' %}
+    {% include 'medicion_rendimiento/registrar_actividad_final_cuadrilla.html' %}
+    {% include 'medicion_rendimiento/registrar_valores_cumplimiento.html' %}
+    <div id="modal-container"></div>
+{% endblock %}
+
+{% block tabla_botones %}
+    {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,registrar" %}
+        <a href="javascript:void(0);" id="registrar actividad" onclick="abrirModal('modal-actividad')" id="btnAgregar"><i class="fa fa-plus"></i>Registrar</a>
+    {% endif %}
+
+    {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,reporte" %}
+        <a href="{% url 'reporte_cuadrilla' %}" id="btnAgregar"class="gris"><i class="fa-solid fa-chart-column"></i>Reporte</a>
+    {% endif %}
+
+    {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,rendimiento" %}
+        <a href="javascript:void(0);" onclick="abrirModal('modal-cumplimiento')" id="btnAgregar"class="gris"><i class="fa-solid fa-chart-line"></i>Rendimiento</a>
+    {% endif %}
+
+    {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,drive" %}
+        <a href="#" id="btnAgregar"class="gris drive"><i class="fa-brands fa-google-drive"></i></i>Drive</a>
+    {% endif %}
+
+    <div id="modal-imagen" class="modal-imagen">
+        <span class="cerrar-imagen">&times;</span>
+        <img class="modal-contenido-imagen" id="imagen-grande">
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'js/imagenes.js' %}"></script>
+    <script src="{% static 'js/init_global.js' %}"></script>
+    <script src="{% static 'js/modales_campos.js' %}"></script>
+    <script src="{% static 'js/despliegue_campos.js' %}"></script>
+    <script src="{% static 'medicion_rendimiento/js/actualizar_cuadrilla.js' %}"></script>
+{% endblock %}
+

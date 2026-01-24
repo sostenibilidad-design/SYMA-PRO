@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    Personal
+{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'css/tablas.css' %}">
+{% endblock %}
+
+{% block iconos %}
+{% endblock %}
+
+{% block content %}
+    <h2 class="titulo-seccion">Personal</h2>
+
+    <section class="tabla">
+        <div class="tabla-scroll-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>C.C</th>
+                        <th>Nombre completo</th>
+                        <th>Cargo</th>
+                    </tr>
+                </thead>
+                
+                <tbody>
+                    {% if empleados %}
+                        {% for item in empleados %}
+                        <tr>
+                            <td>{{ item.cedula }}</td>
+                            <td>{{ item.nombre_completo }}</td>
+                            <td>{{ item.cargo }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4">No hay empleados registrados.</td>
+                        </tr>
+                    {% endif %}
+
+                    {% for i in filas_vacias %}
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+{% endblock %}

@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+{% load dict_filters %}
+{% load moneda %}
+
+
+{% block title %}
+    Medicion de rendimiento individual
+{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'css/tablas.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/modales_campos.css' %}">
+{% endblock %}
+
+{% block iconos %}
+    <a href="#"><span id="btn-filtro" class="material-symbols-outlined">filter_alt</span></a>
+
+    {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,descarga" %}
+        <li class="descarga-menu">
+            <a href="javascript:void(0);" id="btn-descarga">
+                <span class="material-symbols-outlined">download</span>
+            </a>
+
+            <ul class="submenu-descarga">
+                <li><button>Excel</button></li>
+                <li><button>PDF</button></li>
+            </ul>
+        </li>
+    {% endif %}
+
+    <form id="formularioIngreso" action="{% url 'actividad_cuadrilla' %}" method="post" class="form-accion">
+        {% csrf_token %}
+        <input type="hidden" name="elemento" id="elemento_oculto">
+
+        {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,eliminar" %}
+            <a href="#" id="eliminar"><span class="material-symbols-outlined">delete</span></a>
+        {% endif %}
+
+    </form>
+{% endblock %}
+
+{% block filtro %} 
+    {% include "medicion_rendimiento/filtro_rendimiento_cuadrilla.html" %}
+{% endblock %}
+
+{% block content %}
+    <h2 class="titulo-seccion">Medicion individual</h2>
+
+    <section class="tabla">
+        <div class="tabla-scroll-wrapper">
+            <form action="{% url 'medicion_individual' %}" method="post">
+                {% csrf_token %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="primero"></th>
+                            <th>ID</th>
+                            <th>Proyecto</th>
+                            <th>Fecha</th>
+                            <th>Cedula del empleado</th>
+                            <th>Nombres del empleado</th>
+                            <th>Tiempo total medido</th>
+                            <th>Tiempo VA</th>
+                            <th>Tiempo soporte</th>
+                            <th>Tiempo SVA</th>
+                            <th>Tiempo DA</th>
+                            <th>% VA </th>
+                            <th>% Soporte</th>
+                            <th>% SVA</th>
+                            <th>% DA</th>
+                            <th>Id usuario</th>
+                            <th>Usuario</th>
+                        </tr>
+                    </thead>
+                    
+                    <tbody>
+                        {% if Individual %}
+                            {% for item in Individual %}
+                            <tr class="radio-fila">
+                                <td class="primero">
+                                    <input type="checkbox" name="elemento" id="personal{{ item.id }}"
+                                        value="{{ item.id }}" required>
+                                </td>
+                                <td><label for="personal{{ item.id }}">{{ item.id }}</label></td>
+                                <td><label for="personal{{ item.id }}">{{ item.proyecto }}</label></td>
+                                <td><label for="personal{{ item.id }}">{{ item.fecha }}</label></td>
+                                <td><label for="personal{{ item.id }}">{{ item.empleado_cedula}}</label></td>
+                                <td><label for="personal{{ item.id }}">{{ item.nombre_empleado }}</label></td>
+                                <td><label for="personal{{ item.id }}">{{ item.tiempo_total_medido }}</label></td>
+                                <td><label for="personal{{ item.id }}">{{ item.tiempo_va }}</label></td>
+                                <td><label for="personal{{ item.id }}">{{ item.tiempo_soporte }}</label></td>
+                                <td><label for="personal{{ item.id }}">{{ item.tiempo_sva }}</label></td>
+                                <td><label for="personal{{ item.id }}">{{ item.tiempo_da }}</label></td>
+                                <td><label for="personal{{ item.id }}">{{ item.porcentaje_va }}</label></td>
+                                <td><label for="personal{{ item.id }}">{{ item.porcentaje_soporte }}</label></td>
+                                <td><label for="personal{{ item.id }}">{{ item.porcentaje_sva }}</label></td>
+                                <td><label for="personal{{ item.id }}">{{ item.porcentaje_da }}</label></td>                                
+                                <td><label for="personal{{ item.id }}">{{ item.usuario_cedula }}</label></td>
+                                <td><label for="personal{{ item.id }}">{{ item.nombre_usuario }}</label></td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="17">No hay medicion individual registrada.</td>
+                            </tr>
+                        {% endif %}
+                        
+                        {% for i in filas_vacias %}
+                            <tr>
+                                <td class="primero"></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </section>
+    
+    {% include 'medicion_rendimiento/registrar_actividad_cuadrilla.html' %}
+    <div id="modal-container"></div>
+{% endblock %}
+
+{% block tabla_botones %}
+    {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,registrar" %}
+        <a href="javascript:void(0);" id="registrar actividad" onclick="abrirModal('modal-actividad')" id="btnAgregar"><i class="fa fa-plus"></i>Registrar</a>
+    {% endif %}
+
+    {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,reporte" %}
+        <a href="{% url 'reporte_cuadrilla' %}" id="btnAgregar"class="gris"><i class="fa-solid fa-chart-column"></i>Reporte</a>
+    {% endif %}
+
+    {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,drive" %}
+        <a href="#" id="btnAgregar"class="gris drive"><i class="fa-brands fa-google-drive"></i></i>Drive</a>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'js/init_global.js' %}"></script>
+    <script src="{% static 'js/modales_campos.js' %}"></script>
+    <script src="{% static 'js/despliegue_campos.js' %}"></script>
+{% endblock %}
+
