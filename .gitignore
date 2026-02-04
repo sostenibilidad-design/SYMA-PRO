@@ -326,3 +326,4 @@ media/
 
 # Secrets
 credentials.json
+staticFiles/
