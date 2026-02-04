@@ -1,0 +1,86 @@
+<div id="modal-config-alertas" class="modal-overlay">
+    <div class="modal modal-alerta" > 
+        
+        <a href="javascript:void(0);" onclick="toggleVistaAlertas()" id="icono-toggle-alerta" class="icono-esquina" title="Gestionar alertas configuradas">
+            <span class="material-symbols-outlined">delete_history</span>
+        </a>
+
+        <h2 class="titulo" id="titulo-modal" style="margin-top: 0; margin-bottom: 20px;">Asignacion de alertas</h2>
+
+        <form id="form-guardar-alerta" action="{% url 'guardar_alertas' %}" method="POST" class="formulario" style="display: flex; flex-direction: column;">
+            {% csrf_token %}
+            <div class="select-wrapper">
+                <select name="tipo_alerta" required>
+                    <option value="" disabled selected>Selecciona el tipo de alerta</option>
+                    <option value="Cierre diario">Cierre Diario</option>
+                </select>
+            </div>
+        
+            <div class="funcionalidades-box">
+                <div class="titulo-funcionalidades"><strong>Buscar Usuarios</strong></div>
+                <div class="contenido-funcionalidades dropdown" style="display: none;">
+                    <input type="text" class="input-busqueda-empleado" placeholder="Buscar empleado..."> 
+                    <div class="lista-empleados">
+                        {% for u in usuarios %}
+                            <div class="area-item">
+                                <label class="area-label">
+                                    <input type="checkbox" name="destinatarios" class="area-checkbox" value="{{ u.id }}">
+                                    <strong>{{ u.nombre_completo|capfirst}}</strong>
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="botones">
+                <button type="button" class="btn-cancelar" data-modal="modal-config-alertas">Cancelar</button>
+                <button type="submit" class="btn-guardar">Guardar</button>
+            </div>
+        </form>
+
+        <div id="lista-alertas-actuales" class="alertas-actuales">
+            <p>Alertas configuradas:</p>
+            <div class="personas-alerta">
+                {% for alerta in alertas_configuradas %}
+                <div class="usuario-alerta">
+                    <span>{{ alerta.nombre_usuario|truncatechars:40 }} - {{ alerta.tipo_alerta }}</span>
+                    <a href="{% url 'eliminar_alerta' alerta.id %}" >
+                        <span class="material-symbols-outlined" style="font-size: 20px;">delete</span>
+                    </a>
+                </div>
+                {% empty %}
+                <p class="sin-alertas" >No hay alertas asignadas.</p>
+                {% endfor %}
+            </div>
+            <div class="botones">
+                <button type="button" class="btn-guardar" onclick="toggleVistaAlertas()" style="width: 50%;">Volver al Registro</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleVistaAlertas() {
+    const formGuardar = document.getElementById('form-guardar-alerta');
+    const listaActuales = document.getElementById('lista-alertas-actuales');
+    const titulo = document.getElementById('titulo-modal');
+    const icono = document.getElementById('icono-toggle-alerta');
+
+    if (formGuardar.style.display === 'none') {
+        // Mostrar Formulario
+        formGuardar.style.display = 'flex';
+        listaActuales.style.display = 'none';
+        titulo.innerText = 'Asignación de alertas';
+        icono.innerHTML = '<span class="material-symbols-outlined" style="font-size: 28px; color: #e74c3c;">delete_history</span>';
+        icono.title = "Gestionar alertas configuradas";
+    } else {
+        // Mostrar Lista de Eliminación
+        formGuardar.style.display = 'none';
+        listaActuales.style.display = 'block';
+        titulo.innerText = 'Alertas Configuradas';
+        icono.innerHTML = '<span class="material-symbols-outlined" style="font-size: 28px; color: #A3BD31;">add_circle</span>';
+        icono.title = "Volver al registro";
+    }
+}
+</script>

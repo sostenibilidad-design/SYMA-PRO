@@ -1,6 +1,8 @@
 from django.db import models
+from django.conf import settings
 from personal.models import Empleado
 from usuario.models import Usuario
+from django.contrib.auth.models import User
 
 # Modelo para la medición de rendimiento por cuadrilla
 
@@ -123,5 +125,30 @@ class ConsumoAlimento(models.Model):
     class Meta:
         unique_together = ('medicion', 'empleado')
 
-# Modelo para la medición de rendimiento individual
+class ConfiguracionAlerta(models.Model):
+    TIPOS_ALERTA = [
+        ('Cierre diario', 'Cierre Diario (5:00 PM)'),
+    ]
 
+    id = models.BigAutoField(primary_key=True)
+
+    tipo_alerta = models.CharField(max_length=50, choices=TIPOS_ALERTA, default='CIERRE_DIARIO')
+    
+    # --- CAMBIO AQUÍ: Usamos settings.AUTH_USER_MODEL en lugar de User ---
+    destinatarios = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, 
+        related_name='alertas_asignadas', 
+        help_text="Seleccione los usuarios que recibirán esta alerta"
+    )
+
+    usuario = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, blank=True, related_name='configuraciones_alertas')
+    nombre_usuario = models.CharField(max_length=500, null=True, blank=True, help_text="Nombre del usuario que configuró la alerta")
+    correo = models.CharField(max_length=500,null=True, blank=True, help_text="Correo del usuario que configuró la alerta")
+
+    def __str__(self):
+        return self.get_tipo_alerta_display()
+
+    class Meta:
+        db_table = "configuraciones_alertas"
+        verbose_name = "Configuración de Alerta"
+        verbose_name_plural = "Configuraciones de Alertas"

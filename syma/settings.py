@@ -89,11 +89,11 @@ WSGI_APPLICATION = 'syma.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'syma_db',
-        'USER': 'root',
-        'PASSWORD': '123456',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'NAME': os.environ.get('DJANGO_DB_NAME', 'syma_db'),
+        'USER': os.environ.get('DJANGO_DB_USER', 'root'),
+        'PASSWORD': os.environ.get('DJANGO_DB_PASSWORD', 'root'),
+        'HOST': os.environ.get('DJANGO_DB_HOST', '127.0.0.1'), # <--- Aquí está la clave
+        'PORT': os.environ.get('DJANGO_DB_PORT', '3307'),      # <--- Y aquí
     }
 }
 
@@ -167,6 +167,7 @@ EMAIL_HOST_USER="sostenibilidad@syma.com.co"
 EMAIL_HOST_PASSWORD="imjx plya ldmx ilmw"
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+CORREOS_NOTIFICACION = ['sostenibilidad@syma.com.co']
 
 LOGIN_URL = '/'
 LOGIN_REDIRECT_URL = 'home'

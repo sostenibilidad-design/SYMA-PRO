@@ -16,6 +16,7 @@
     margin-bottom: 20px;
     display: flex;
     flex-direction: column;
+    position: relative !important;
 }
 
 /* Contenedor con scroll vertical y horizontal */
@@ -52,8 +53,12 @@ th, td {
     position: relative;
 }
 
-th:not(:last-child), td:not(:last-child) {
+td:not(:last-child) {
     border-right: 0.5px solid #555;
+}
+
+th:not(:last-child) {
+    border-right: 1px solid #000 !important; /* Negro puro (#000) y 1px para que se note */
 }
 
 th, td:first-child {

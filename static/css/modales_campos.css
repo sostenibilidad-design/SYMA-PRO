@@ -37,6 +37,77 @@
         opacity: 1;
     }
 }
+/* Este es el truco: el contenedor padre (modal) DEBE ser relative */
+.modal-alerta {
+    position: relative;
+    padding: 30px 20px 20px 20px; /* Más espacio arriba para el icono */
+}
+
+.icono-esquina {
+    position: absolute;
+    top: 10px;    /* Distancia del borde superior */
+    right: 15px;  /* Distancia del borde derecho */
+    z-index: 100; /* Asegura que esté por encima de todo */
+    line-height: 1;
+}
+
+.icono-esquina .material-symbols-outlined {
+    font-size: 26px; /* Ajusta el tamaño a tu gusto */
+    margin: 0 !important;
+    padding: 0 !important;
+    color: #e74c3c; /* Rojo inicial */
+    transition: transform 0.2s ease;
+}
+
+.icono-esquina:hover .material-symbols-outlined {
+    transform: scale(1.1); /* Efecto pequeño al pasar el mouse */
+}
+
+.alertas-actuales{
+    display: none; 
+    margin-bottom: 20px; 
+    text-align: left;
+}
+
+.alertas-actuales p {
+    font-weight: bold; 
+    border-bottom: 1px solid #ccc;
+    text-align: center;
+    margin-top: 0;
+}
+
+.personas-alerta {
+    max-height: 200px; 
+    overflow-y: auto;
+}
+
+.usuario-alerta {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 10px; 
+    background: #f9f9f9; 
+    margin-bottom: 5px; 
+    border-radius: 5px; 
+    border-left: 4px solid #e74c3c;
+}
+
+.usuario-alerta span {
+    font-size: 13px; 
+    color: #555;
+}
+
+.usuario-alerta a {
+    color: #e74c3c; 
+    text-decoration: none;
+}
+
+.sin-alertas {
+    font-size: 12px; 
+    color: #999; 
+    text-align: center; 
+    padding: 10px;
+}
 
 /* === Título === */
 .titulo {

@@ -1,3 +1,5 @@
 from django.contrib import admin
+from .models import Usuario
 
-# Register your models here.
+# Esto hace que el Usuario aparezca en el panel
+admin.site.register(Usuario)

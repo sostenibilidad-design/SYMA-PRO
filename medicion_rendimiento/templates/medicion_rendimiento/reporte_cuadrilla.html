@@ -10,7 +10,7 @@ Reporte por Cuadrilla
 
 {% block extra_styles %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<link rel="stylesheet" href="{% static 'css/reporte_base.css' %}">
+<link rel="stylesheet" href="{% static 'css/reporte_base.css' %}?v=4.0">
 {% endblock %}
 
 {% block iconos %}
@@ -138,9 +138,14 @@ Reporte por Cuadrilla
 
     <div class="row-1">
         <div class="card uno">
-            <h4>Rendimiento Real : {{ actividad }}</h4>
-            <div class="grafica">
-                <canvas id="graficoRendimientoMensual"></canvas>
+            <h4>Actividades Realizadas (Cronograma)</h4>
+            <div style="height: 440px;" class="grafica" id="canvas-container">
+                <canvas id="ganttCanvas"></canvas>
+            </div>
+            <div class="gantt-footer">
+                <button class="btn-gantt active" onclick="cambiarVistaGantt('day')">Días</button>
+                <button class="btn-gantt" onclick="cambiarVistaGantt('week')">Semanas</button>
+                <button class="btn-gantt" onclick="cambiarVistaGantt('month')">Meses</button>
             </div>
         </div>
     </div>
@@ -149,19 +154,19 @@ Reporte por Cuadrilla
     <div class="row-3">
         <div class="card tall">
             <h4>Demanda de mano de obra por actividad</h4>
-            <div style="height: 400px;" class="grafica" >
+            <div style="height: 560px;" class="grafica" >
                 <canvas id="grafico-demanda-personal"></canvas>
             </div>
-            <div class="toggle-periodo">
-                <button id="btn-mes" class="toggle-btn active">Mensual</button>
-                <button id="btn-dia" class="toggle-btn">Diario</button>
+            <div class="gantt-footer">
+                <button id="btn-mes" class="btn-gantt active">Mensual</button>
+                <button id="btn-dia" class="btn-gantt ">Diario</button>
             </div>
         </div>
 
         <div class="diagnosticos">
             <div class="card">
-                <h4>Diagnóstico de rendimiento de <br> {{ actividad }}</h4>
-                <div class="grafica circular">
+                <h4>Diagnóstico de rendimiento de la actividad</h4>
+                <div class="grafica circular" >
                     <canvas id="graficoDiagnosticoRendimiento"></canvas>
                     <div class="valor-central" id="valorDiagnostico"></div>
                 </div>
@@ -169,40 +174,34 @@ Reporte por Cuadrilla
 
             <div class="card">
                 <h4>Diagnóstico presupuestal de la actividad</h4>
-                <div class="grafica circular"></div>
+                <div class="grafica circular">
+                    <canvas id="graficoDiagnosticoPresupuesto"></canvas>
+                    <div class="valor-central" id="valorDiagnosticoPresupuesto"></div>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="row-3">
         <div class="card tall">
-            <h4>Comparativo de Rendimiento por Cuadrilla - Actividad</h4>
-            <div class="grafica"></div>
+            <div class="card-header">
+                <h4>Comparativo de Rendimiento por Cuadrilla - Actividad</h4>
+                <small class="periodo-text">
+                    {{ fecha_inicio|date:"d M" }} - {{ fecha_fin|date:"d M" }}
+                </small>
+            </div>
+            <div style="height: 440px;" class="grafica">
+                <canvas id="graficoComparativoCuadrillas"></canvas>
+            </div>
         </div>
 
         <div class="card tall">
-            <h4>Actividades Realizadas</h4>
-            <div class="grafica"></div>
+            <h4>Rendimiento Real : {{ actividad }}</h4>
+            <div style="height: 440px;"  class="grafica">
+                <canvas id="graficoRendimientoMensual"></canvas>
+            </div>
         </div>
     </div>
-
-    <!-- Diagnóstico final -->
-    <div class="diagnostico-final">
-        <div class="estado">
-            ✅ Estado: <strong>EFICIENTE</strong>
-        </div>
-
-        <div class="datos">
-            <span>280 m²</span>
-            <span>163 h</span>
-            <span>0,59 h/m²</span>
-        </div>
-
-        <div class="barra-final">
-            <span></span>
-        </div>
-    </div>
-
 </div>
 
 {% endblock %}
@@ -212,6 +211,10 @@ Reporte por Cuadrilla
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
     <script src="{% static 'js/calendario.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/dist/date-fns.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/2.1.0/chartjs-plugin-annotation.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         const UNIDAD_MEDIDA = "{{ unidad_medida|default:'u' }}";
         const CUMPLIMIENTO_PROGRAMADO = parseFloat("{{ cumplimiento_programado|default:'0' }}".replace(',', '.'));
@@ -221,8 +224,11 @@ Reporte por Cuadrilla
         const dataRR = {{ data_rendimiento|safe }};
         const GRAFICOS_CUADRILLAS = {{ graficos_cuadrillas_json|safe }};
         const GRAFICOS_COSTO_CUADRILLAS = {{ graficos_costo_cuadrillas_json|safe }};
-        const DIAGNOSTICO_RENDIMIENTO = {{ diagnostico_rendimiento|safe }}
+        const DIAGNOSTICO_RENDIMIENTO = {{ diagnostico_rendimiento|safe }};
+        const DIAGNOSTICO_PRESUPUESTO = {{ diagnostico_costo|default:"null"|safe }};
+        const COMPARATIVO_DATA = {{ comparativo_cuadrillas_json|default:"null"|safe }};
+        const CRONOGRAMA_DATA = {{ cronograma_data_json|default:"null"|safe }};
     </script>
-    <script src="{% static 'medicion_rendimiento/js/reportes.js' %}"></script>
+    <script src="{% static 'medicion_rendimiento/js/reportes.js' %}?v=4.0"></script>
 {% endblock %}
 

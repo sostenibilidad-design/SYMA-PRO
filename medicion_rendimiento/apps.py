@@ -7,3 +7,11 @@ class MedicionRendimientoConfig(AppConfig):
 
     def ready(self):
         import medicion_rendimiento.signals
+        # Importamos el scheduler aquí para evitar errores de carga
+        from . import scheduler
+        import os
+        
+        # El chequeo del RUN_MAIN es para evitar que el scheduler se ejecute 
+        # dos veces cuando usas el auto-reload de Django (runserver)
+        if os.environ.get('RUN_MAIN') == 'true':
+            scheduler.start()

@@ -198,27 +198,45 @@ def fetch_and_store_empleados(root_folder_id: str):
     df_emp = pd.read_excel(tmp_path, sheet_name="Cargos")
     df_emp.columns = df_emp.columns.str.lower().str.strip()
 
-    df_emp = df_emp[["cc", "nombre", "cargos"]]
-    df_emp = df_emp[df_emp["cc"].astype(str).str.isnumeric()]
+    col_cc = next((c for c in df_emp.columns if 'cc' in c or 'cedula' in c), None)
+    col_nombre = next((c for c in df_emp.columns if 'nombre' in c), None)
+    col_cargo = next((c for c in df_emp.columns if 'cargo' in c), None)
+
+    if not col_cc:
+        raise Exception(f"No se encontró columna de Cédula. Columnas: {list(df_emp.columns)}")
+
+    # 3. Limpieza de Cédula (Quitar puntos, comas y decimales)
+    df_emp[col_cc] = df_emp[col_cc].astype(str)
+    df_emp[col_cc] = df_emp[col_cc].str.replace(r'\.0$', '', regex=True) # Quita .0
+    df_emp[col_cc] = df_emp[col_cc].str.replace('.', '', regex=False)     # Quita puntos mil
+    df_emp[col_cc] = df_emp[col_cc].str.replace(',', '', regex=False)     # Quita comas
+    df_emp[col_cc] = df_emp[col_cc].str.strip()
+
+    # 4. Filtro numérico (Ahora sí funcionará porque está limpio)
+    df_emp = df_emp[df_emp[col_cc].str.isnumeric()]
+    
+    print(f"✅ Filas válidas para guardar: {len(df_emp)}")
 
     with transaction.atomic():
-        cedulas_archivo = set(df_emp["cc"].astype(str))
-        Empleado.objects.exclude(cedula__in=cedulas_archivo).delete()
-
+        count = 0
         for _, row in df_emp.iterrows():
+            # Usamos col_nombre y col_cargo detectados arriba
+            valor_nombre = row[col_nombre] if col_nombre else "Sin Nombre"
+            valor_cargo = row[col_cargo] if col_cargo else "Sin Cargo"
+            
             Empleado.objects.update_or_create(
-                cedula=str(row["cc"]),
+                cedula=str(row[col_cc]),
                 defaults={
-                    "nombre_completo": row["nombre"],
-                    "cargo": row["cargos"],
+                    "nombre_completo": str(valor_nombre).strip(),
+                    "cargo": str(valor_cargo).strip(),
                 }
             )
-
+            count += 1
+        
     os.remove(tmp_path)
 
-    print(f"✅ {len(df_emp)} empleados sincronizados correctamente")
-    return f"{len(df_emp)} empleados sincronizados"
-
+    print(f"✅ {count} empleados sincronizados correctamente")
+    return f"{count} empleados sincronizados"
 """
 EJECUCIÓN:
 python manage.py shell

@@ -3,6 +3,7 @@ import re
 import calendar
 from django.shortcuts import render, redirect,  get_object_or_404
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from datetime import datetime, date, timedelta, time
 from django.utils import timezone
 from django.db import transaction
@@ -12,15 +13,16 @@ from django.http import JsonResponse, HttpResponseRedirect
 from django.db.models import Avg, Count
 from django.db.models.functions import Coalesce,  ExtractMonth
 
-from .forms import MedicionInicioForm, MedicionFinForm, CumplimientoForm, HistorialCambiosCuadrillaForm
-from .models import MedicionCuadrilla, Cumplimiento, HistorialCambiosCuadrilla, ConsumoAlimento
+from .forms import MedicionInicioForm, MedicionFinForm, CumplimientoForm, HistorialCambiosCuadrillaForm, ConfiguracionAlertaForm
+from .models import MedicionCuadrilla, Cumplimiento, HistorialCambiosCuadrilla, ConsumoAlimento, ConfiguracionAlerta
 from personal.models import Empleado, ValorHora 
+from usuario.models import Usuario
 from medicion_rendimiento.reporte import (
     rendimiento_real_mensual, rendimiento_real_diario_por_cuadrilla, 
     costo_por_unidad_diario_por_cuadrilla, demanda_empleados_por_actividad,
-    diagnostico_rendimiento_real,
+    diagnostico_rendimiento_real, diagnostico_costo_por_unidad,
+    comparativo_rendimiento_cuadrillas, cronograma_actividades,
     )
-
 
 def formato_colombia(valor):
     return "$ {:,.0f}".format(valor).replace(",", "X").replace(".", ",").replace("X", ".")
@@ -154,6 +156,8 @@ def medicion_por_cuadrilla(request):
         Q(cargo__icontains='contratista')
     ).order_by('nombre_completo')
 
+    usuarios = Usuario.objects.all().order_by('nombre_completo')
+
     form = MedicionInicioForm()
 
     ultimo = Cumplimiento.objects.last()
@@ -163,9 +167,11 @@ def medicion_por_cuadrilla(request):
         "Cuadrillas": mediciones,
         "filas_vacias": range(filas_vacias),
         "empleados": empleados,
+        "usuarios": usuarios,
         "form": form,
         "ultimo": ultimo,
         "Cumplimientos": cumplimientos,
+        "alertas_configuradas": ConfiguracionAlerta.objects.all(),
     }
     return render(request, 'medicion_rendimiento/medicion_por_cuadrilla.html', context)
 
@@ -176,10 +182,13 @@ def registrar_inicio_medicion(request):
             medicion = form.save(commit=False)
 
             if request.user.is_authenticated:
-                medicion.usuario = getattr(request.user, 'usuario', None)
+                # CORRECCIÓN: Asignamos el usuario directamente
+                medicion.usuario = request.user 
+                
+                # Opcional: Si tu modelo Usuario tiene campo 'cedula' y 'nombre_completo'
                 medicion.usuario_cedula = getattr(request.user, 'cedula', None)
-                medicion.nombre_usuario = str(request.user)
-
+                medicion.nombre_usuario = getattr(request.user, 'nombre_completo', str(request.user))
+            
             medicion.hora_inicio = timezone.localtime(timezone.now()).time()
             
             medicion.save()  # Guarda la medición principal
@@ -266,8 +275,7 @@ def actualizar_cuadrilla(request, id):
 
                     # Obtener Empleado por cédula
                     empleado = get_object_or_404(Empleado, cedula=cedula)
-                    usuario_obj = getattr(request.user, 'usuario', None) or (request.user if request.user.is_authenticated else None)
-
+                    usuario_obj = request.user if request.user.is_authenticated else None
                     # Crear registro de historial (uno por cambio, inmutable)
                     historial = HistorialCambiosCuadrilla(
                         medicion=medicion,
@@ -932,6 +940,11 @@ def reporte_cuadrilla (request):
     fecha_fin = request.GET.get('fecha_fin', hoy)
     fecha_inicio = request.GET.get('fecha_inicio', hoy - timedelta(days=30))
 
+    cumplimiento = None
+    unidad_medida = None
+    cumplimiento_programado = Decimal('0.00')
+    cumplimiento_presupuestal = Decimal('0.00')
+
     # Normalizar fechas si vienen como string
     if isinstance(fecha_inicio, str):
         fecha_inicio = datetime.strptime(fecha_inicio, "%Y-%m-%d").date()
@@ -1045,6 +1058,38 @@ def reporte_cuadrilla (request):
         mediciones_qs=mediciones_qs
     )
 
+    costo_presupuestado = (
+        cumplimiento.cumplimiento_presupuestal
+        if cumplimiento and cumplimiento.cumplimiento_presupuestal
+        else None
+    )
+
+    diagnostico_costo = diagnostico_costo_por_unidad(
+        registros=mediciones_qs,
+        presupuesto_unitario=costo_presupuestado
+    )
+    
+    if actividad_final:
+        comparativo_data = comparativo_rendimiento_cuadrillas(
+            proyecto=proyecto,
+            actividad=actividad_final,
+            fecha_inicio=fecha_inicio,
+            fecha_fin=fecha_fin
+        )
+    else:
+        # Estructura vacía segura para evitar errores en JS si no hay actividad
+        comparativo_data = {
+            "labels": [], "data": [], 
+            "thresholds": {"bajo": 0, "estandar": 0, "superior": 0},
+            "integrantes": []
+        }
+
+    cronograma_data = cronograma_actividades(
+        proyecto=proyecto,
+        fecha_inicio=fecha_inicio,
+        fecha_fin=fecha_fin
+    )
+
     context = {
         "comparacion_presupuestal": promedio_presupuestal,
         "comparacion_programado": promedio_programado,
@@ -1070,6 +1115,9 @@ def reporte_cuadrilla (request):
         "graficos_costo_cuadrillas_json": json.dumps(graficos_costo_cuadrillas),
         "DEMANDA_PERSONAL": json.dumps(demanda_personal),
         "diagnostico_rendimiento": json.dumps(diagnostico_rendimiento),
+        "diagnostico_costo": json.dumps(diagnostico_costo),
+        "comparativo_cuadrillas_json": json.dumps(comparativo_data),
+        "cronograma_data_json": json.dumps(cronograma_data, default=str),
     }
 
     print("DEMANDA_PERSONAL >>>", demanda_personal)
@@ -1082,3 +1130,55 @@ def reporte_cuadrilla (request):
 
 def medicion_individual(request):
     return render(request, 'medicion_rendimiento/medicion_individual.html')
+
+def guardar_configuracion_alertas(request):
+    if request.method == 'POST':
+        tipo_alerta = request.POST.get('tipo_alerta')
+        usuario_ids = request.POST.getlist('destinatarios') # Obtenemos la lista de IDs seleccionados
+
+        if not usuario_ids:
+            messages.warning(request, "Debe seleccionar al menos un usuario.")
+            return redirect('actividad_cuadrilla')
+
+        # Obtenemos el modelo de usuario para buscar sus datos
+        User = get_user_model()
+        contador_registros = 0
+
+        for uid in usuario_ids:
+            try:
+                user_obj = User.objects.get(id=uid)
+                
+                # Verificamos si ya existe este usuario específico para este tipo de alerta
+                # Esto evita que una persona tenga 2 veces el mismo tipo de alerta (tu preocupación anterior)
+                existe = ConfiguracionAlerta.objects.filter(
+                    tipo_alerta=tipo_alerta, 
+                    destinatarios=user_obj
+                ).exists()
+
+                if not existe:
+                    # 1. Creamos un nuevo registro independiente
+                    nueva_alerta = ConfiguracionAlerta.objects.create(
+                        tipo_alerta=tipo_alerta,
+                        nombre_usuario=user_obj.nombre_completo,
+                        correo=user_obj.correo if hasattr(user_obj, 'correo') else user_obj.email
+                    )
+                    
+                    # 2. Asociamos al usuario a este registro específico
+                    nueva_alerta.destinatarios.add(user_obj)
+                    contador_registros += 1
+                    
+            except User.DoesNotExist:
+                continue
+
+        if contador_registros > 0:
+            messages.success(request, f"Se crearon {contador_registros} registros individuales exitosamente.")
+        else:
+            messages.info(request, "Los usuarios seleccionados ya tienen esta alerta configurada.")
+
+    return redirect('actividad_cuadrilla')
+    
+def eliminar_alerta(request, alerta_id):
+    alerta = get_object_or_404(ConfiguracionAlerta, id=alerta_id)
+    alerta.delete()
+    messages.success(request, "Asignación eliminada correctamente.")
+    return redirect('actividad_cuadrilla')

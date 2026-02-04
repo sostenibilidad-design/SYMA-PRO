@@ -14,4 +14,7 @@ urlpatterns = [
     path("api/demanda-empleados/",views.api_demanda_empleados,name="api_demanda_empleados"),
     # Medición de rendimiento individual
     path('medicion_individual/', views.medicion_individual, name='medicion_individual'),
+    
+    path('guardar-alertas/', views.guardar_configuracion_alertas, name='guardar_alertas'),
+    path('eliminar-alerta/<int:alerta_id>/', views.eliminar_alerta, name='eliminar_alerta'),
 ]

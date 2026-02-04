@@ -13,6 +13,10 @@ IGNORAR_APPS = {
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'widget_tweaks', 
+    'sites',         
+    'django_apscheduler',
+    'humanize',
 }
 
 FUNCIONES_IGNORAR = {
@@ -23,7 +27,12 @@ FUNCIONES_IGNORAR = {
 
 PATRONES_IGNORAR = [
     'filtro', 'filtrar', 'registrar', 'detalle', 'form', 'base', 'actualizar',
-    'agregar','reporte','cambiar_password','correo_bienvenida','obtener_cumplimiento'
+    'agregar', 'reporte', 'cambiar_password', 'correo_bienvenida', 'obtener_cumplimiento',
+    'modal_configuracion_alertas', 
+    'guardar_configuracion_alertas', 
+    'eliminar_alerta', 
+    'api_demanda_empleados',
+    'sincronizar_personal'
 ]
 
 PALABRAS_CLAVE = ["registrar", "eliminar", "actualizar", "descarga", "reporte", "rendimiento", "drive" ]
@@ -147,3 +156,6 @@ class Command(BaseCommand):
                 subareas[subarea] = acciones
 
         return subareas
+
+
+#docker exec -it project-syma_web-1 python manage.py shell -c "from usuario.models import Funcionalidad; Funcionalidad.objects.all().delete(); print('--- Base de datos limpia ---')"; docker exec -it project-syma_web-1 python manage.py scan_funcionalidades

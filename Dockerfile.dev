@@ -1,0 +1,29 @@
+# 1. Usamos Python 3.13
+FROM python:3.13-slim
+
+# --- AQUÍ BORRAMOS LA LÍNEA DE NPM ---
+
+# 2. Configuración de logs
+ENV PYTHONUNBUFFERED=1
+
+# 3. Carpeta de trabajo
+WORKDIR /app
+
+# 4. INSTALACIÓN DE LIBRERÍAS DE SISTEMA
+RUN apt-get update && apt-get install -y \
+    pkg-config \
+    gcc \
+    default-libmysqlclient-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# 5. Instalamos requerimientos
+COPY requirements.txt /app/
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
+
+# 6. Copiamos el código
+COPY . /app/
+
+# 7. Puerto y comando
+EXPOSE 8000
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

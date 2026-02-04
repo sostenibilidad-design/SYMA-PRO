@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  syma_web:
+    build: 
+      context: .
+      dockerfile: Dockerfile.dev           
+    ports: 
+      - "8000:8000"
+    depends_on:
+      - syma_db
+    volumes:
+      - .:/app
+    environment:
+      - DJANGO_DB_HOST=syma_db    # El nombre del servicio de abajo
+      - DJANGO_DB_PORT=3306       # Puerto interno de Docker
+      - DJANGO_DB_NAME=syma_db
+      - DJANGO_DB_USER=root
+      - DJANGO_DB_PASSWORD=root
+
+  syma_db:
+    image: mysql:8.0
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: syma_db
+volumes: 
+  mysql_data:

@@ -7,6 +7,7 @@
 
 {% block extra_styles %}
 <link rel="stylesheet" href="{% static 'css/tablas.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 {% endblock %}
 
 {% block iconos %}
@@ -15,41 +16,79 @@
 {% block content %}
     <h2 class="titulo-seccion">Personal</h2>
 
-    <section class="tabla">
-        <div class="tabla-scroll-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>C.C</th>
-                        <th>Nombre completo</th>
-                        <th>Cargo</th>
-                    </tr>
-                </thead>
-                
-                <tbody>
-                    {% if empleados %}
-                        {% for item in empleados %}
+    <div class="tabla-contenedor-relativo">
+        <section class="tabla">
+            <div class="tabla-scroll-wrapper">
+                <table>
+                    <thead>
                         <tr>
-                            <td>{{ item.cedula }}</td>
-                            <td>{{ item.nombre_completo }}</td>
-                            <td>{{ item.cargo }}</td>
+                            <th>C.C</th>
+                            <th>Nombre completo</th>
+                            <th>Cargo</th>
                         </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr>
-                            <td colspan="4">No hay empleados registrados.</td>
-                        </tr>
-                    {% endif %}
+                    </thead>
+                    
+                    <tbody>
+                        {% if empleados %}
+                            {% for item in empleados %}
+                            <tr>
+                                <td>{{ item.cedula }}</td>
+                                <td>{{ item.nombre_completo }}</td>
+                                <td>{{ item.cargo }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4">No hay empleados registrados.</td>
+                            </tr>
+                        {% endif %}
 
-                    {% for i in filas_vacias %}
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </section>
+                        {% for i in filas_vacias %}
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <button type="button" class="btn-expandir-tabla" onclick="abrirTablaFull(this)" title="Ver pantalla completa">
+                <i class="fa fa-expand"></i>
+            </button>
+        </section>
+    </div>
 {% endblock %}
+
+{% block tabla_botones %}
+    <form id="form-sync-personal" action="{% url 'sincronizar_personal' %}" method="post" style="display: none;">
+        {% csrf_token %}  </form>
+
+    <a href="#" onclick="sincronizarDatos(event)" id="btnAgregar" class="gris drive">
+        <i id="icono-sync" class="fa-solid fa-rotate"></i> Extraer Datos
+    </a>
+{% endblock %}
+
+{% block scripts %}
+
+    <script>
+        function sincronizarDatos(event) {
+            event.preventDefault(); // Evita que el enlace recargue la página vacía
+            
+            // Efecto visual: Cambiar icono a "Cargando..."
+            const icono = document.getElementById('icono-sync');
+            if (icono) {
+                icono.classList.remove('fa-rotate');
+                icono.classList.add('fa-spinner', 'fa-spin'); // Icono girando
+            }
+            
+            // Enviar el formulario oculto
+            const form = document.getElementById('form-sync-personal');
+            if (form) {
+                form.submit();
+            }
+        }
+    </script>
+{% endblock %}
+

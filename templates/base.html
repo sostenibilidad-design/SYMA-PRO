@@ -99,6 +99,15 @@
         </section>
     </main>
 
+    <div id="modalTablaFull" class="modal-tabla-overlay">
+        <div class="modal-tabla-content" style="position: relative;">
+            <button class="btn-cerrar-flotante" onclick="cerrarTablaFull()" title="Cerrar">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="modal-body-scroll" id="contenedorTablaClonada"></div>
+        </div>
+    </div>
+
     <script src="{% static 'js/seleccion_tabla.js' %}"></script>
 
     <script>
@@ -110,7 +119,8 @@
         });
     </script>
 
-    <script src="{% static 'js/search.js' %}"></script> 
+    <script src="{% static 'js/search.js' %}"></script>
+    <script src="{% static 'js/modal_de_detalles.js' %}"></script>
 
     {% block scripts %} {% endblock %}
 

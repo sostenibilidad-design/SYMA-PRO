@@ -2,7 +2,7 @@ from django import forms
 from datetime import datetime
 from .models import MedicionCuadrilla
 from personal.models import Empleado
-from .models import Cumplimiento,HistorialCambiosCuadrilla
+from .models import Cumplimiento,HistorialCambiosCuadrilla, ConfiguracionAlerta
 
 class MedicionInicioForm(forms.ModelForm):
     class Meta:
@@ -42,4 +42,15 @@ class CumplimientoForm(forms.ModelForm):
             'cumplimiento_programado',
             'actividad',
             'unidad_medida',
+            ]
+
+class ConfiguracionAlertaForm(forms.ModelForm):
+
+    class Meta:
+        model = ConfiguracionAlerta
+        fields = [
+            'tipo_alerta', 
+            'destinatarios',
+            'nombre_usuario',
+            'correo',
             ]

@@ -1,3 +1,7 @@
+/* =========================================
+   ESTILOS GENERALES
+   ========================================= */
+
 .reporte-cuadrilla {
     display: flex;
     flex-direction: column;
@@ -152,28 +156,13 @@
 }
 
 @keyframes growBar {
-    from {
-        transform: scaleX(0);
-    }
-    to {
-        transform: scaleX(1);
-    }
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
 }
 
-.progress-bar.bajo {
-    background-color: #e74c3c;
-}
-
-/* 🟡 Bien */
-.progress-bar.bien {
-    background-color: #f1c40f;
-}
-
-.progress-bar.excelente {
-    background-color: #A3BD31;
-}
-
-
+.progress-bar.bajo { background-color: #e74c3c; }
+.progress-bar.bien { background-color: #f1c40f; }
+.progress-bar.excelente { background-color: #A3BD31; }
 
 /* Cards generales */
 .card {
@@ -192,22 +181,25 @@
 }
 
 /* Filas */
+.row-1, .row-2, .row-3 {
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 20px;
+    width: 100%;
+}
+
 .row-1 {
     display: grid;
-    grid-template-columns: 1fr  ;
+    grid-template-columns: 1fr;
     gap: 25px;
 }
 
-.row-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 25px;
-}
-
-.row-3 {
-    display: grid;
-    grid-template-columns: 1fr 1fr ;
-    gap: 25px;
+.row-2 > .card, 
+.row-3 > .card,
+.row-3 > .diagnosticos {
+    flex: 1 1 450px; /* Basis: 450px */
+    width: 100%;
+    min-width: 0;
 }
 
 .diagnosticos {
@@ -215,7 +207,6 @@
     flex-direction:column;
     gap: 25px;
 }
-
 
 /* Gráficas */
 .grafica {
@@ -227,27 +218,46 @@
 }
 
 .grafica.circular {
-    height: 180px;
-    width: 180px;
-    border-radius: 50%;
-    margin: auto;
+    width: 100%;
+    height: 250px;           
+    position: relative;
+    margin: 0;
+    margin-bottom: 15px;
+    padding: 0;
+}
+
+#graficoDiagnosticoRendimiento {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.valor-central {
+    position: absolute;
+    top: 70%; /* CENTRADO EXACTO */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+    color: #999;
+    font-size: 18px;
+    line-height: 1.2;
+    width: 100px;
+}
+
+.periodo-text {
+    display: block;  
+    color: #666; 
+    font-size: 0.8em; 
+    text-align: center;
+    margin-bottom: 10px; 
 }
 
 .row-1 .grafica {
-    height: 450px; /* o 400px si lo quieres protagonista */
+    height: 450px; 
 }
 
 /* Full width */
-.full {
-    width: 100%;
-}
-
-/* Diagnóstico final */
-.diagnostico-final {
-    background: #f3f3f3;
-    border-radius: 20px;
-    padding: 15px 20px;
-}
+.full { width: 100%; }
 
 .datos {
     display: flex;
@@ -279,7 +289,6 @@
 }
 
 /* Carusel de cuadrillas */
-
 .carousel-cuadrillas {
     position: relative;
     overflow: hidden;
@@ -290,9 +299,7 @@
     animation: fade .4s ease;
 }
 
-.carousel-slide.active {
-    display: block;
-}
+.carousel-slide.active { display: block; }
 
 .carousel-btn {
     position: absolute;
@@ -304,101 +311,258 @@
     cursor: pointer;
 }
 
-.carousel-btn.prev {
-    left: 0;
-}
-
-.carousel-btn.next {
-    right: 8px;
-}
+.carousel-btn.prev { left: 0; }
+.carousel-btn.next { right: 8px; }
 
 /* Toggle Mensual / Diario */
-.toggle-periodo {
-    display: flex;
+.gantt-footer {
+    padding: 5px 20px; 
+    padding-top: 20px;
+    background: transparent; 
+    display: flex; 
     justify-content: center;
-    align-items: center;
-    gap: 20px;
-    margin-top: 15px;
+    gap: 10px;
 }
 
-.toggle-btn {
+.btn-gantt {
     padding: 8px 26px;
-    border-radius: 13px;
-    font-family: "Inria Serif", serif;
-    font-size: 15px;
-    font-weight: bold;
-    cursor: pointer;
-
     border: 2px solid rgba(180,180,180,.5);
     background: rgba(180,180,180,.12);
+    font-family: "Inria Serif", serif;
     color: #111;
-
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
     box-shadow: 0 4px 10px rgba(0,0,0,.15);
     transition: all .25s ease;
 }
 
-/* Hover */
-.toggle-btn:hover {
+.btn-gantt:hover {
     border-color: #A3BD31;
     background: rgba(163,189,49,.12);
     transform: translateY(-1px);
 }
 
-/* Activo */
-.toggle-btn.active {
-    background: #A3BD31;
-    border-color: #A3BD31;
-    color: #fff;
+.btn-gantt.active {
+    background: #A3BD31 !important;
+    border-color: #A3BD31 !important;
+    color: #fff !important;
     font-weight: 600;
     box-shadow: 0 6px 14px rgba(0,0,0,.25);
 }
 
-/* Responsive */
-@media (max-width: 480px) {
-    .toggle-btn {
-        padding: 8px 20px;
-        font-size: 14px;
-    }
+/* Contenedor Principal Gantt */
+.gantt-wrapper {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    overflow: hidden;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    position: relative;
 }
 
+.gantt-controls {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.gantt-title { font-weight: 600; color: #333; font-size: 1.1em; }
+
+.gantt-body {
+    display: flex;
+    overflow: hidden;
+    height: 450px;
+}
+
+.gantt-sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    border-right: 1px solid #eee;
+    background: #fff;
+    z-index: 10;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.02);
+    overflow-y: hidden;
+}
+
+.sidebar-header {
+    height: 50px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+    font-weight: bold;
+    color: #888;
+    background: #fdfdfd;
+}
+
+.sidebar-row {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    padding-left: 15px;
+    border-bottom: 1px dashed #f0f0f0;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 0.95em;
+    color: #444;
+}
+.sidebar-row:hover { background: #f8f9fa; color: #000; }
+.sidebar-row.child { padding-left: 40px; font-size: 0.85em; color: #666; }
+
+.toggle-btn {
+    width: 20px; 
+    text-align: center; 
+    margin-right: 8px; font-size: 10px; 
+    color: #bbb;
+    transition: transform 0.3s;
+}
+.expanded .toggle-btn { transform: rotate(90deg); color: #333; }
+
+.gantt-timeline-wrapper {
+    flex-grow: 1;
+    overflow: auto;
+    position: relative;
+    background-image: linear-gradient(to right, #f9f9f9 1px, transparent 1px);
+    background-size: 60px 100%;
+}
+
+.timeline-header {
+    height: 50px;
+    display: flex;
+    background: #fdfdfd;
+    border-bottom: 1px solid #eee;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+.timeline-date {
+    width: 60px;
+    flex-shrink: 0;
+    text-align: center;
+    font-size: 11px;
+    color: #888;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-right: 1px dashed #eee;
+}
+.date-day { font-weight: bold; color: #333; font-size: 13px; margin-bottom: 2px; }
+
+.timeline-body { position: relative; }
+.timeline-row {
+    height: 50px;
+    border-bottom: 1px dashed #f0f0f0;
+    position: relative;
+    width: 100%;
+}
+
+.gantt-bar {
+    position: absolute;
+    height: 24px;
+    top: 13px;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    opacity: 0.9;
+    transition: all 0.3s;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    color: white;
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.gantt-bar:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    opacity: 1;
+    z-index: 2;
+}
+
+#canvas-container {
+    width: 96%;
+    height: 440px;
+    overflow: auto;
+    position: relative;
+    background: #fff;
+}
+
+#ganttCanvas {
+    display: block;
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 2;
+}
+
+#gantt-spacer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    pointer-events: none;
+}
 
 @keyframes fade {
     from { opacity: 0 }
     to   { opacity: 1 }
 }
 
-
-
 @media (max-width: 1024px) {
-
-    .filtros {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .filtro {
-        font-size: 14px;
-    }
-
-    .fecha {
-        width: 79%;
-    }
-
-
-    .kpi-row {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .kpi-card .letra_centrada {
-        font-size: 22px;
-    }
-
-    .progreso h3 {
-        font-size: 18px;
-    }
+    .filtros { grid-template-columns: repeat(2, 1fr); }
+    .filtro { font-size: 14px; }
+    .fecha { width: 79%; }
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .kpi-card .letra_centrada { font-size: 22px; }
+    .progreso h3 { font-size: 18px; }
 }
 
+/* ==================================================
+   CAMBIOS ESPECÍFICOS PARA MÓVIL (768px o menos)
+   ================================================== */
 
 @media (max-width: 768px) {
+
+    /* 1. OCULTAR EL CRONOGRAMA */
+    .row-1 {
+        display: none !important;
+    }
+
+    /* 2. DONA GRANDE */
+    .grafica.circular {
+        height: 350px !important; /* MÁS GRANDE */
+        width: 100% !important;   /* Ancho completo */
+        display: flex !important;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    /* El dibujo se adapta al contenedor grande */
+    .grafica.circular canvas {
+        width: auto !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 330px !important;
+    }
+
+    /* Reducimos el texto "SIN DATOS" */
+    .valor-central {
+        top: 58%;
+        font-size: 14px !important;
+        width: auto;
+        min-width: 80px;
+        background-color: transparent;
+        padding: 5px;
+        z-index: 10;
+    }
 
     .filtros {
         grid-template-columns: 1fr;
@@ -434,7 +598,6 @@
         font-size: 20px;
     }
 
-
     .row-2,
     .row-3 {
         grid-template-columns: 1fr;
@@ -443,33 +606,14 @@
     .grafica {
         height: 200px;
     }
-
-    .grafica.circular {
-        width: 150px;
-        height: 150px;
-    }
 }
 
 @media (max-width: 480px) {
-
-    .kpi-card p {
-        font-size: 14px;
-    }
-
-    .kpi-card .letra_centrada {
-        font-size: 18px;
-    }
-
-    .progress {
-        height: 18px;
-    }
-
-    .diagnostico-final {
-        padding: 12px;
-    }
-
-    .datos {
-        flex-direction: column;
-        gap: 10px;
-    }
+    .kpi-card p { font-size: 14px; }
+    .kpi-card .letra_centrada { font-size: 18px; }
+    .progress { height: 18px; }
+    .diagnostico-final { padding: 12px; }
+    .datos { flex-direction: column; gap: 10px; }
+    .filtros { display: flex; flex-direction: column; }
+    .filtro-wrapper { width: 100%; }
 }

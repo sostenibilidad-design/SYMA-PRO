@@ -409,6 +409,115 @@ body,html{
     transform: translateY(0);
 }
 
+/*ESTILOS PARA LA MODAL DE DETALLES*/
+
+.tabla-contenedor-relativo {
+    position: relative;
+    width: 100%;
+}
+
+.btn-expandir-tabla {
+    position: absolute;
+    bottom: 10px; 
+    right: 25px; 
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background-color: #A3BD31; 
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease;
+    z-index: 50; 
+}
+
+.btn-expandir-tabla:hover {
+    background-color: #8da32b;
+    transform: scale(1.1);
+}
+
+.modal-tabla-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(4px);
+}
+
+.modal-tabla-content {
+    background: white;
+    width: 95%;
+    height: 90%;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: aparecerModal 0.3s ease-out;
+}
+
+@keyframes aparecerModal {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.modal-body-scroll {
+    flex: 1;
+    overflow: auto; 
+    padding: 0;
+    background: #fff;
+}
+
+.modal-body-scroll table {
+    width: 100% !important;
+    border-collapse: collapse;
+}
+
+/* === BOTÓN CERRAR FLOTANTE (MODAL) === */
+
+.btn-cerrar-flotante {
+    position: absolute;
+    top: 5px;         
+    right: 5px;       
+    color: #eee; 
+    border: none;
+    background-color: transparent;
+    font-size: 26px; 
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 200; 
+    transition: all 0.2s ease;
+}
+
+.btn-cerrar-flotante:hover {
+    color: #777;
+    transform: scale(1.1); 
+}
+
+/* Ocultar barra en Chrome, Safari y Opera */
+.modal-body-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+/* Ocultar barra en IE, Edge y Firefox */
+.modal-body-scroll {
+    -ms-overflow-style: none;  /* IE y Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
 
 /* ===== MEDIA QUERIES ===== */
 @media (max-width: 800px) {
@@ -461,8 +570,6 @@ body,html{
     .menu-hamburguesa {
         width: 20%;
     }
-
-    
 
     .menu-hamburguesa ul li a {
         font-size: clamp(15px, 1.7vw, 16px);
