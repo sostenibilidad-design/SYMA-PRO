@@ -29,9 +29,10 @@ body,html{
 }
 
 .barra-left {
+    width: 90%;
     display: flex;
     align-items: center;
-    gap: 80px; /* espacio entre logo y barra */
+    gap: 60px; /* espacio entre logo y barra */
 }
 
 .logo {
@@ -48,9 +49,60 @@ body,html{
     transform: scale(1.1);
 }
 
+/* Contenedor que actúa como botón */
+.boton-menu-unificado {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Espacio entre las rayitas y el logo */
+    cursor: pointer;
+    padding: 8px 15px; /* Espacio interno para el clic */
+    margin-left: 60px;
+    border-radius: 12px; /* Bordes redondeados */
+    transition: all 0.3s ease;
+    user-select: none; 
+}
+
+/* Efecto Hover: Cuando pasas el mouse por encima */
+.boton-menu-unificado:hover {
+    background-color: rgba(0, 0, 0, 0.05); /* Fondo gris muy sutil */
+    transform: translateY(-2px); /* Se levanta un poquito */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Sombrita suave */
+}
+
+/* El ícono de las tres rayitas */
+.icono-hamburguesa {
+    font-size: 28px; /* Tamaño grande y legible */
+    color: #555; /* Gris oscuro elegante */
+    transition: color 0.3s ease;
+}
+
+/* Cuando pasas el mouse, las rayitas se ponen verdes */
+.boton-menu-unificado:hover .icono-hamburguesa {
+    color: #A3BD31; /* Tu verde corporativo */
+}
+
+/* La imagen del logo SYMA */
+.logo-img {
+    max-width: clamp(150px, 12vw, 300px); /* Ajuste de tamaño responsivo */
+    height: auto;
+    display: block;
+}
+
+/* Ajuste para móviles */
+@media (max-width: 800px) {
+    .boton-menu-unificado {
+        gap: 10px;
+        padding-left: 0; /* Ahorrar espacio en pantallas chicas */
+    }
+    
+    .icono-hamburguesa {
+        font-size: 24px;
+    }
+}
+
 /* ===== SYMA SEARCH (UI only) ===== */
 .syma-search {
-    width: 50%;
+    width: 62%;
     display: inline-flex;
     position: relative;
 }
@@ -119,9 +171,9 @@ body,html{
 }
 
 .iconos {
-    width: auto;
+    height: 100%; 
     display: flex;
-    align-items: center;
+    align-items: center; 
     justify-content: flex-end;
     gap: clamp(10px, 10px, 20px);
     padding-right: clamp(10px, 8vw, 120px);
@@ -130,33 +182,37 @@ body,html{
 .iconos a,
 .iconos button,
 .iconos span{ 
-    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;         
+    height: 40px;
+    padding: 0; 
+    margin: 0;
     border: none;
-    padding: clamp(5px, 2vw, 10px) 3px;
-    border-radius: 4px;
+    background: transparent;
     cursor: pointer;
     text-decoration: none;
-    font-weight: bold;
-    font-size: clamp(30px, 3vw, 30px);
     color: #333;
     transition: transform 0.2s ease;
-    margin-left: 0;
+}
+
+.iconos i {
+    font-size: 25px; 
+    line-height: 1; /* Evita que la altura de línea invisible mueva el icono */
 }
 
 .iconos h2 {
     display: flex;
-    margin-bottom: 8px;
     align-items: center;
-    justify-content: center;
+    margin: 0;
     font-size: clamp(25px, 1.8vw, 25px);
     font-weight: 100;
-    padding-right: 5px;
 }
 
 .iconos span{
+    width: auto;
     font-size: clamp(40px, 2vw, 40px);
-    padding-top: clamp(18px, 1.7vw, 21px);
-    color: #444;
     font-weight: 100;
     cursor: default;
 }

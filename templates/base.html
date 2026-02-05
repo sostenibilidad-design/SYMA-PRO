@@ -20,7 +20,10 @@
     <header class="barra_navegacion">
 
         <div class="barra-left">
-            <img id="logo-btn" class="logo" src="{% static 'img/logo.png' %}" alt="Logo SYMA">
+            <div id="logo-btn" class="boton-menu-unificado" title="Abrir/Cerrar menú">
+                <i class="fa-solid fa-bars icono-hamburguesa"></i>
+                <img class="logo-img" src="{% static 'img/logo.png' %}" alt="Logo SYMA">
+            </div>
 
             {% block search_bar %}
             <form class="syma-search" id="syma-search-form" role="search" onsubmit="return false;">
