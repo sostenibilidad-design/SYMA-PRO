@@ -327,3 +327,5 @@ media/
 # Secrets
 credentials.json
 staticFiles/
+
+.prod.env
