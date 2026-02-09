@@ -861,7 +861,14 @@ def registrar_cumplimiento(request):
     if request.method == 'POST':
         actividad = request.POST.get('actividad', '').lower().strip()
         unidad_medida = request.POST.get('unidad_medida')
-        cumplimiento_presupuestal = Decimal(request.POST.get('cumplimiento_presupuestal', '0'))
+
+        raw_presupuestal = request.POST.get('cumplimiento_presupuestal', '0')
+        clean_presupuestal = re.sub(r'[^\d]', '', raw_presupuestal)
+
+        if not clean_presupuestal:
+            clean_presupuestal = '0'
+        
+        cumplimiento_presupuestal = Decimal(clean_presupuestal)
         cumplimiento_programado = Decimal(request.POST.get('cumplimiento_programado', '0'))
 
         # Buscar si la actividad ya existe (independiente de mayúsculas)
