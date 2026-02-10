@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django_apscheduler',
     'django.contrib.humanize',
+    'anymail',
     'core',
     'personal',
     'usuario',
@@ -127,26 +128,17 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-# Motor que Django usa para enviar correos (SMTP en este caso)
-# SMTP es un protocolo que permite enviar correos electrónicos desde una app
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+# --- CONFIGURACIÓN DE CORREO (BREVO API) ---
+# Esto le dice a Django que use la API HTTPS en lugar del puerto 587
+EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
 
-# Esta es la dirección del servidor que se usará para enviar los correos electrónicos.
-# en este caso sera gmail
-EMAIL_HOST="smtp.gmail.com"
+ANYMAIL = {
+    "BREVO_API_KEY": os.environ.get("BREVO_API_KEY"),
+}
 
-# Activa la encriptación TLS para enviar el correo de forma segura
-EMAIL_USE_TLS=True
-
-# Puerto usado por TLS para enviar correos (recomendado por Gmail)
-EMAIL_PORT=587
-
-# Correo desde el cual se enviarán los mensajes (remitente)
-EMAIL_HOST_USER=os.environ.get("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD=os.environ.get("EMAIL_HOST_PASSWORD")
-
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-CORREOS_NOTIFICACION = ['sostenibilidad@syma.com.co']
+# Configuración predeterminada
+DEFAULT_FROM_EMAIL = "sostenibilidad@syma.com.co"
+SERVER_EMAIL = "sostenibilidad@syma.com.co"
 
 LOGIN_URL = '/'
 LOGIN_REDIRECT_URL = 'home'
