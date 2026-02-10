@@ -158,3 +158,14 @@ SITE_ID = 2
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://syma_redis:6379/0')
 CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://syma_redis:6379/0')
 
+# settings.py
+
+# 1. ESTA ES LA LÍNEA QUE FALTA: Dile a Django que confíe en Nginx
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# 2. Seguridad de cookies para producción (HTTPS)
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# 3. Asegúrate de que Django use las variables de entorno para los orígenes
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
