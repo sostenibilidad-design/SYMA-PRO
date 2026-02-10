@@ -22,7 +22,9 @@
             <a href="#"><span id="eliminar"name="accion" class="material-symbols-outlined">delete</span></a>
         {% endif %}
 
+        {% if user|has_perm:"usuario,usuario,actualizar" %}
             <a href="#" id="btn-actualizar" title="actualizar" data-modal="modal-actualizar"  data-url-base="{% url 'actualizar' 0 %}"><span  class="material-symbols-outlined">refresh</span></a>
+        {% endif %}
     </form>
 {% endblock %}
 
