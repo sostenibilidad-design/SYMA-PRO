@@ -25,6 +25,30 @@ const formatoCOP = new Intl.NumberFormat("es-CO", {
     maximumFractionDigits: 0
 });
 
+const ganttState = {
+    datos: [],
+    filasVisibles: [],
+    expanded: {},
+    hoverBar: null,
+    hoverToggle: null,
+    scrollX: 0,
+    scrollY: 0,
+    viewMode: 'day',
+    fechas: {
+        inicio: null,
+        totalDias: 0
+    },
+    config: {
+        sidebarWidth: 260,
+        headerHeight: 60,
+        rowHeight: 40,
+        barHeight: 22,
+        basePixelsPerDay: 40,
+        pixelsPerDay: 40,
+        font: "12px 'Segoe UI'"
+    }
+};
+
 /* Inicializador general */
 
 function initGraficos() {
@@ -645,12 +669,24 @@ function initGraficoCronograma() {
     const elFin = document.getElementById("fecha_fin");
     if(!elInicio || !elFin) return;
 
-    ganttState.fechas.inicio = new Date(elInicio.value + 'T00:00:00');
-    const dFin = new Date(elFin.value + 'T00:00:00');
+    let inicio = new Date(elInicio.value + 'T00:00:00');
+    let fin = new Date(elFin.value + 'T00:00:00');
+
+    // 🔹 Alinear inicio al lunes anterior
+    const diaInicio = inicio.getDay();
+    const ajusteInicio = (diaInicio === 0 ? -6 : 1 - diaInicio);
+    inicio.setDate(inicio.getDate() + ajusteInicio);
+
+    // 🔹 Alinear fin al domingo siguiente
+    const diaFin = fin.getDay();
+    const ajusteFin = (diaFin === 0 ? 0 : 7 - diaFin);
+    fin.setDate(fin.getDate() + ajusteFin);
+
+    ganttState.fechas.inicio = inicio;
+
     const unDia = 24 * 60 * 60 * 1000;
-    
-    const diffTime = Math.abs(dFin - ganttState.fechas.inicio);
-    ganttState.fechas.totalDias = Math.ceil(diffTime / unDia) + 5; 
+    const diffTime = fin - inicio;
+    ganttState.fechas.totalDias = Math.ceil(diffTime / unDia);
 
     ganttState.datos = CRONOGRAMA_DATA;
     ganttState.datos.forEach(d => { if (ganttState.expanded[d.id] === undefined) ganttState.expanded[d.id] = false; });
@@ -740,6 +776,12 @@ function resizeAndDraw() {
     requestAnimationFrame(draw);
 }
 
+function getTimelineUnit() {
+    if (ganttState.viewMode === 'day') return 'day';
+    if (ganttState.viewMode === 'week') return 'week';
+    if (ganttState.viewMode === 'month') return 'month';
+}
+
 function draw() {
     const canvas = document.getElementById('ganttCanvas');
     if (!canvas) return;
@@ -781,9 +823,50 @@ function draw() {
             }
         }
         else if (ganttState.viewMode === 'month') {
-            if (d.getDate() === 1) {
-                dibujarLinea = true;
-                ctx.setLineDash([]);
+
+            let current = new Date(ganttState.fechas.inicio);
+            let endDate = new Date(ganttState.fechas.inicio.getTime() + (ganttState.fechas.totalDias * 86400000));
+
+            while (current <= endDate) {
+
+                const monthStart = new Date(current.getFullYear(), current.getMonth(), 1);
+                const monthEnd = new Date(current.getFullYear(), current.getMonth() + 1, 0);
+
+                // Calcular tramo visible del mes dentro del rango
+                const visibleStart = monthStart < ganttState.fechas.inicio 
+                    ? ganttState.fechas.inicio 
+                    : monthStart;
+
+                const visibleEnd = monthEnd > endDate 
+                    ? endDate 
+                    : monthEnd;
+
+                const diasDesdeInicio = (visibleStart - ganttState.fechas.inicio) / 86400000;
+                const diasVisibles = ((visibleEnd - visibleStart) / 86400000) + 1;
+
+                const xInicioMes = startX + (diasDesdeInicio * pxPerDay);
+                const anchoMes = diasVisibles * pxPerDay;
+
+                const xCentro = xInicioMes + (anchoMes / 2);
+
+                // Dibujar nombre del mes
+                ctx.font = "bold 12px 'Segoe UI'";
+                ctx.fillStyle = '#fff';
+                ctx.fillText(
+                    current.toLocaleDateString('es-CO', { month: 'long' }).toUpperCase(),
+                    xCentro,
+                    30
+                );
+
+                // Línea vertical inicio mes
+                ctx.beginPath();
+                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                ctx.moveTo(xInicioMes, 0);
+                ctx.lineTo(xInicioMes, cfg.headerHeight);
+                ctx.stroke();
+
+                // Saltar al siguiente mes
+                current = new Date(current.getFullYear(), current.getMonth() + 1, 1);
             }
         }
 
@@ -812,8 +895,24 @@ function draw() {
         const diffDias = diffMs / 86400000;
         const duracionDias = (duracionMs / 86400000) + 1;
 
-        const barX = startX + (diffDias * pxPerDay) + 2; 
-        const barW = Math.max((duracionDias * pxPerDay) - 4, 2);
+        let barX, barW;
+
+        if (ganttState.viewMode === 'week') {
+
+            const semanaInicio = Math.floor(diffDias / 7);
+            const semanasDuracion = Math.ceil(duracionDias / 7);
+
+            const pxPerWeek = pxPerDay * 7;
+
+            barX = startX + (semanaInicio * pxPerWeek) + 2;
+            barW = (semanasDuracion * pxPerWeek) - 4;
+
+        } else {
+
+            barX = startX + (diffDias * pxPerDay) + 2; 
+            barW = Math.max((duracionDias * pxPerDay) - 4, 2);
+        }
+
         const barY = y + (cfg.rowHeight - cfg.barHeight) / 2;
 
         fila.hitbox = { x: barX, y: barY, w: barW, h: cfg.barHeight };
@@ -1029,4 +1128,17 @@ function roundRectManual(ctx, x, y, width, height, radius) {
     ctx.lineTo(x, y + radius);
     ctx.quadraticCurveTo(x, y, x + radius, y);
     ctx.closePath();
+}
+
+function cambiarVistaGantt(mode) {
+    ganttState.viewMode = mode;
+
+    document.querySelectorAll('.btn-gantt').forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    const btn = document.querySelector(`.btn-gantt[onclick="cambiarVistaGantt('${mode}')"]`);
+    if (btn) btn.classList.add('active');
+
+    resizeAndDraw();
 }

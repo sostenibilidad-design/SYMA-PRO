@@ -1,13 +1,21 @@
+import logging
+from celery import shared_task
 from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import timezone
 from .models import MedicionCuadrilla, ConfiguracionAlerta
 
+@shared_task
 def alerta_recordatorio_usuario():
     hoy = timezone.now().date()
+
+    print(f"⏰ TAREA BEAT INICIADA (Recordatorio). Fecha: {hoy}")
     pendientes = MedicionCuadrilla.objects.filter(fecha=hoy, hora_fin__isnull=True)
 
     print(f"DEBUG: Ejecutando tarea 4:40 PM. Pendientes hoy: {pendientes.count()}")
+
+    count = pendientes.count()
+    print(f"📊 Pendientes encontrados: {count}")
 
     for m in pendientes:
         user_obj = m.usuario
@@ -20,7 +28,7 @@ def alerta_recordatorio_usuario():
                     f"Hola {m.nombre_usuario},\n\nEste es un recordatorio del cierre de actividades del día de hoy para la actividad: {m.actividad} (Ubicación: {m.ubicacion}).\n\nPor favor, ingresa al sistema y registra el fin de la actividad.",
                     settings.DEFAULT_FROM_EMAIL,
                     [user_obj.correo], 
-                    fail_silently=True
+                    fail_silently=False
                 )
                 print(f"Enviado a: {user_obj.correo}")
             except Exception as e:
@@ -28,7 +36,7 @@ def alerta_recordatorio_usuario():
         else:
             print(f"ADVERTENCIA: El usuario {m.nombre_usuario} no tiene correo registrado.")
 
-
+@shared_task
 def alerta_incumplimiento_control():
     hoy = timezone.now().date()
     pendientes = MedicionCuadrilla.objects.filter(fecha=hoy, hora_fin__isnull=True)
@@ -60,11 +68,15 @@ def alerta_incumplimiento_control():
             
             resumen = "\n".join(items_resumen)
 
-            send_mail(
-                "SYMA - Alerta: Actividades NO Finalizadas",
-                f"Atención,\n\nLas siguientes actividades del día de hoy NO han registrado su hora de fin:\n\n{resumen}\n\nPor favor verificar con los responsables.",
-                settings.DEFAULT_FROM_EMAIL,
-                lista_correos,
-                fail_silently=True
-            )
+            try:
+                send_mail(
+                    "SYMA - Alerta: Actividades NO Finalizadas",
+                    f"Atención,\n\nLas siguientes actividades del día de hoy NO han registrado su hora de fin:\n\n{resumen}\n\nPor favor verificar con los responsables.",
+                    settings.DEFAULT_FROM_EMAIL,
+                    lista_correos,
+                    fail_silently=False
+                )
+                print("✅ Reporte enviado exitosamente.")
+            except Exception as e:
+                print(f"❌ Error enviando reporte: {e}")
 

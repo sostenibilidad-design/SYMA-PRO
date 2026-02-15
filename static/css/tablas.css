@@ -54,11 +54,11 @@ th, td {
 }
 
 td:not(:last-child) {
-    border-right: 0.5px solid #555;
+    border-right: 1px solid #000;
 }
 
 th:not(:last-child) {
-    border-right: 1px solid #000 !important; /* Negro puro (#000) y 1px para que se note */
+    border-right: 1px solid #000; /* Negro puro (#000) y 1px para que se note */
 }
 
 th, td:first-child {

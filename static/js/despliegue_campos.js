@@ -1,5 +1,5 @@
 function inicializarDespliegue(contenedor) {
-
+    // Buscamos todos los contenedores de selección
     const bloques = contenedor.querySelectorAll(".funcionalidades-box");
 
     bloques.forEach((bloque) => {
@@ -7,26 +7,21 @@ function inicializarDespliegue(contenedor) {
         const areaDropdown = bloque.querySelector(".contenido-funcionalidades.dropdown");
         const checkboxes = bloque.querySelectorAll(".area-checkbox");
         const titleText = areaToggle?.querySelector("strong");
-        const buscador = bloque.querySelector('input[type="text"][placeholder="Buscar empleado..."]');
+        
+        // CORRECCIÓN: Buscamos por CLASE en lugar de por el texto del placeholder
+        const buscador = bloque.querySelector(".input-busqueda-empleado");
         const items = bloque.querySelectorAll(".area-item");
 
         if (!areaToggle || !areaDropdown || !titleText) return;
 
-        // Toggle
+        // Abrir / Cerrar dropdown
         areaToggle.addEventListener("click", (e) => {
             e.stopPropagation();
-            areaDropdown.style.display =
-                areaDropdown.style.display === "block" ? "none" : "block";
+            const estaAbierto = areaDropdown.style.display === "block";
+            areaDropdown.style.display = estaAbierto ? "none" : "block";
         });
 
-        // Cerrar al hacer click fuera
-        document.addEventListener("click", (e) => {
-            if (!e.target.closest(".funcionalidades-box")) {
-                areaDropdown.style.display = "none";
-            }
-        });
-
-        // Contador
+        // Contador de seleccionados
         if (!titleText.dataset.original) {
             titleText.dataset.original = titleText.textContent.trim();
         }
@@ -39,38 +34,29 @@ function inicializarDespliegue(contenedor) {
             });
         });
 
-        // Buscador
+        // BUSCADOR CORREGIDO
         if (buscador) {
-            buscador.addEventListener("keyup", () => {
+            buscador.addEventListener("input", () => { // Usamos 'input' en vez de 'keyup' para mayor fluidez
                 const texto = buscador.value.toLowerCase().trim();
                 items.forEach(item => {
-                    item.style.display = item.innerText.toLowerCase().includes(texto)
-                        ? "block"
-                        : "none";
+                    // Buscamos el texto dentro del label o el strong
+                    const nombre = item.textContent.toLowerCase();
+                    item.style.display = nombre.includes(texto) ? "block" : "none";
                 });
             });
         }
     });
 }
 
+// Asegúrate de llamar a la función para los modales
 document.addEventListener("DOMContentLoaded", () => {
-    // Para foto_inicio
-    const inputInicio = document.getElementById("id_foto_inicio");
-    const textInicio = document.getElementById("fileText_inicio");  // ID único
-
-    if (inputInicio && textInicio) {
-        inputInicio.addEventListener("change", () => {
-            textInicio.textContent = inputInicio.files.length > 0 ? "Archivo adjunto" : "Insertar imagen";
-        });
-    }
-
-    // Para foto_fin
-    const inputFin = document.getElementById("id_foto_fin");
-    const textFin = document.getElementById("fileText_fin");  // ID único
-
-    if (inputFin && textFin) {
-        inputFin.addEventListener("change", () => {
-            textFin.textContent = inputFin.files.length > 0 ? "Archivo adjunto" : "Insertar imagen";
-        });
-    }
+    // Inicializar para el cuerpo del documento (esto cubrirá los bloques visibles)
+    inicializarDespliegue(document.body);
+    
+    // Si tus modales se cargan dinámicamente o necesitas re-inicializar:
+    const modalActividad = document.getElementById("modal-actividad");
+    const modalAlertas = document.getElementById("modal-config-alertas");
+    
+    if(modalActividad) inicializarDespliegue(modalActividad);
+    if(modalAlertas) inicializarDespliegue(modalAlertas);
 });

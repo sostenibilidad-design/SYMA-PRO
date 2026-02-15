@@ -16,8 +16,8 @@ function abrirTablaFull(btn) {
         // Clonar tabla
         const tablaClonada = tablaFinal.cloneNode(true);
         
-        // Asegurar que se vea bien en el modal
-        tablaClonada.style.width = '100%';
+        tablaClonada.style.width = 'auto';
+        tablaClonada.style.margin = '0 auto';
         tablaClonada.style.backgroundColor = '#fff';
         
         // Insertar en modal

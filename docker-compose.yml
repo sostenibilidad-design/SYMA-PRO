@@ -3,18 +3,24 @@ version: "3.9"
 services:
   syma_web:
     build: .
-    ports: 
+    ports:
       - "8000:8000"
     volumes:
       - .:/app
     depends_on:
       - syma_db
-    environment:
+      - redis
+    # CARGA LAS VARIABLES DESDE TU ARCHIVO .env
+    env_file:
+      - .env.docker
+    environment: &django_env
       DJANGO_DB_HOST: syma_db
       DJANGO_DB_PORT: 3306
       DJANGO_DB_NAME: syma_db
       DJANGO_DB_USER: root
       DJANGO_DB_PASSWORD: root
+      CELERY_BROKER_URL: redis://redis:6379/0
+      # Las otras claves (BREVO_API_KEY, etc) se cargan solas gracias a env_file
 
   syma_db:
     image: mysql:8.0
@@ -26,5 +32,40 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: syma_db
 
-volumes: 
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  celery_worker:
+    build: .
+    restart: always
+    command: celery -A syma worker --loglevel=info
+    volumes:
+      - .:/app
+    # IMPORTANTE: Carga las mismas claves que la web
+    env_file:
+      - .env.docker
+    environment: *django_env
+    depends_on:
+      - syma_web
+      - redis
+      - syma_db
+
+  celery_beat:
+    build: .
+    restart: always
+    command: celery -A syma beat --loglevel=info
+    volumes:
+      - .:/app
+    # IMPORTANTE: Carga las claves para saber la hora y conectar DB
+    env_file:
+      - .env.docker
+    environment: *django_env
+    depends_on:
+      - syma_web
+      - redis
+      - syma_db
+
+volumes:
   mysql_data:

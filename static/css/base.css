@@ -467,6 +467,10 @@ body,html{
 
 /*ESTILOS PARA LA MODAL DE DETALLES*/
 
+.primero{
+    display: none !important;
+}
+
 .tabla-contenedor-relativo {
     position: relative;
     width: 100%;
@@ -538,6 +542,15 @@ body,html{
 .modal-body-scroll table {
     width: 100% !important;
     border-collapse: collapse;
+}
+
+
+
+.modal-body-scroll th, 
+.modal-body-scroll td {
+    white-space: nowrap; /* Mantiene el texto en una línea (como en la última foto) */
+    padding: 12px 20px;  /* Buen espaciado para leer */
+    text-align: center;
 }
 
 /* === BOTÓN CERRAR FLOTANTE (MODAL) === */

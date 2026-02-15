@@ -1,26 +1,27 @@
-from __future__ import absolute_import, unicode_literals
+# syma/celery.py
 import os
-import logging
 from celery import Celery
-from celery.signals import after_setup_task_logger
-from celery.schedules import crontab
+from celery.schedules import crontab # Importar crontab
 
-# Configurar Django
+# Establecer el módulo de configuración de Django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'syma.settings')
 
 app = Celery('syma')
 
-# Usar configuración de Django
+# Usar la configuración de settings.py con el prefijo CELERY_
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
-# Descubrir tareas automáticamente en apps
+# Autodetectar tareas en las apps instaladas
 app.autodiscover_tasks()
 
-# Configurar logging de tareas para que se escriba en un archivo
-@after_setup_task_logger.connect
-def setup_task_logger(logger, **kwargs):
-    handler = logging.FileHandler(r"C:\Users\ANLLY V\OneDrive\Documentos\Sistema_SYMA\project\logs\celery_tasks.log")
-    formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(name)s: %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
+# === PROGRAMACIÓN DE TAREAS (BEAT) ===
+app.conf.beat_schedule = {
+    'alerta-recordatorio-5pm': {
+        'task': 'medicion_rendimiento.tasks.alerta_recordatorio_usuario',
+        'schedule': crontab(hour=17, minute=0), # 5:00 PM
+    },
+    'alerta-incumplimiento-515pm': {
+        'task': 'medicion_rendimiento.tasks.alerta_incumplimiento_control',
+        'schedule': crontab(hour=17, minute=15), # 5:15 PM
+    },
+}

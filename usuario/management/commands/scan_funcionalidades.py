@@ -158,4 +158,3 @@ class Command(BaseCommand):
         return subareas
 
 
-#docker exec -it project-syma_web-1 python manage.py shell -c "from usuario.models import Funcionalidad; Funcionalidad.objects.all().delete(); print('--- Base de datos limpia ---')"; docker exec -it project-syma_web-1 python manage.py scan_funcionalidades
