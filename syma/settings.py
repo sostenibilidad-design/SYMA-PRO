@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import dj_database_url
 
 load_dotenv()
 
@@ -12,7 +13,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -68,16 +69,12 @@ WSGI_APPLICATION = 'syma.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('MYSQL_DATABASE', 'syma_db'),
-        'USER': os.environ.get('MYSQL_USER', 'root'),
-        'PASSWORD': os.environ.get('MYSQL_PASSWORD', 'root'),
-        'HOST': os.environ.get('MYSQL_HOST', 'syma_db'), # Nombre del servicio en Docker
-        'PORT': os.environ.get('MYSQL_PORT', '3306'),
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'), # Lee la variable de DigitalOcean
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {

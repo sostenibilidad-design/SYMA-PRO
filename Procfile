@@ -1,0 +1,1 @@
+web: gunicorn syma.wsgi --log-file -
