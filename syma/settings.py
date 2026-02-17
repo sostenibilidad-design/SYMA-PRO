@@ -15,6 +15,11 @@ DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['*']
 
+db_config = dj_database_url.config(
+    default=os.environ.get('DATABASE_URL'),
+    conn_max_age=600
+)
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -68,12 +73,11 @@ WSGI_APPLICATION = 'syma.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+if 'OPTIONS' in db_config and 'ssl-mode' in db_config['OPTIONS']:
+    db_config['OPTIONS']['ssl_mode'] = db_config['OPTIONS'].pop('ssl-mode')
+
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'), # Lee la variable de DigitalOcean
-        conn_max_age=600,
-        ssl_require=True
-    )
+    'default': db_config
 }
 
 AUTH_PASSWORD_VALIDATORS = [
