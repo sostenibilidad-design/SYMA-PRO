@@ -76,7 +76,9 @@
                     <li><a href="#"><i class="fa fa-home-user"></i> Entrega de viviendas</a></li>
                 {% endif %}
 
+                {% if user|has_perm:"usuario,usuario,ver" %}
                     <li><a href="{% url 'usuario' %}"><i class="fa fa-user-gear"></i> Usuarios</a></li>
+                {% endif %}
 
                 {% if user|has_perm:"Posventa,Posventa,ver" %}
                     <li><a href="#"><i class="fa fa-tools"></i> Posventa</a></li>
