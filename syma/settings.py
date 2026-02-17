@@ -153,7 +153,14 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
-CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+csrf_trusted = os.environ.get("CSRF_TRUSTED_ORIGINS")
+
+if csrf_trusted:
+    CSRF_TRUSTED_ORIGINS = csrf_trusted.split(",")
+else:
+    CSRF_TRUSTED_ORIGINS = []
+
+CSRF_TRUSTED_ORIGINS.extend(['https://' + os.environ.get('App_Domain', '*')])
 
 # === CONFIGURACIÓN CELERY ===
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://redis:6379/0')
