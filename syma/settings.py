@@ -76,15 +76,17 @@ WSGI_APPLICATION = 'syma.wsgi.application'
 database_url = os.environ.get('DATABASE_URL')
 
 if database_url:
-    # ☁️ CONFIGURACIÓN PARA NUBE (DigitalOcean)
     db_config = dj_database_url.config(
         default=database_url,
         conn_max_age=600,
         ssl_require=True
     )
-    # Corrección del error ssl-mode para DigitalOcean
-    if 'OPTIONS' in db_config and 'ssl-mode' in db_config['OPTIONS']:
-        db_config['OPTIONS']['ssl_mode'] = db_config['OPTIONS'].pop('ssl-mode')
+    
+    if 'OPTIONS' in db_config:
+        db_config['OPTIONS'].pop('sslmode', None)
+        db_config['OPTIONS'].pop('ssl-mode', None)
+        
+        db_config['OPTIONS']['ssl_mode'] = 'REQUIRED'
     
     DATABASES = {
         'default': db_config
