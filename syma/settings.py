@@ -15,11 +15,6 @@ DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['*']
 
-db_config = dj_database_url.config(
-    default=os.environ.get('DATABASE_URL'),
-    conn_max_age=600
-)
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -33,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.humanize',
     'anymail',
+    'django_apscheduler',
     'core',
     'personal',
     'usuario',
@@ -74,12 +70,38 @@ WSGI_APPLICATION = 'syma.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-if 'OPTIONS' in db_config and 'ssl-mode' in db_config['OPTIONS']:
-    db_config['OPTIONS']['ssl_mode'] = db_config['OPTIONS'].pop('ssl-mode')
+# === MODIFICACIÓN INTELIGENTE AQUÍ ===
+# Detectamos si existe la variable de la nube para decidir qué base de datos usar
 
-DATABASES = {
-    'default': db_config
-}
+database_url = os.environ.get('DATABASE_URL')
+
+if database_url:
+    # ☁️ CONFIGURACIÓN PARA NUBE (DigitalOcean)
+    db_config = dj_database_url.config(
+        default=database_url,
+        conn_max_age=600,
+        ssl_require=True
+    )
+    # Corrección del error ssl-mode para DigitalOcean
+    if 'OPTIONS' in db_config and 'ssl-mode' in db_config['OPTIONS']:
+        db_config['OPTIONS']['ssl_mode'] = db_config['OPTIONS'].pop('ssl-mode')
+    
+    DATABASES = {
+        'default': db_config
+    }
+else:
+    # 💻 CONFIGURACIÓN PARA LOCAL (Tu PC)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ.get('MYSQL_DATABASE', 'syma_db'),
+            'USER': os.environ.get('MYSQL_USER', 'root'),
+            'PASSWORD': os.environ.get('MYSQL_PASSWORD', 'root'),
+            'HOST': os.environ.get('MYSQL_HOST', 'localhost'),
+            'PORT': os.environ.get('MYSQL_PORT', '3306'),
+        }
+    }
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {

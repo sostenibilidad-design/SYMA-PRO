@@ -205,14 +205,17 @@ def fetch_and_store_empleados(root_folder_id: str):
     if not col_cc:
         raise Exception(f"No se encontró columna de Cédula. Columnas: {list(df_emp.columns)}")
 
-    # 3. Limpieza de Cédula (Quitar puntos, comas y decimales)
+    # 3. Limpieza de Cédula (Deja SOLO los números)
     df_emp[col_cc] = df_emp[col_cc].astype(str)
-    df_emp[col_cc] = df_emp[col_cc].str.replace(r'\.0$', '', regex=True) # Quita .0
-    df_emp[col_cc] = df_emp[col_cc].str.replace('.', '', regex=False)     # Quita puntos mil
-    df_emp[col_cc] = df_emp[col_cc].str.replace(',', '', regex=False)     # Quita comas
-    df_emp[col_cc] = df_emp[col_cc].str.strip()
+    
+    # Esta línea elimina CC, espacios, puntos y comas de un solo golpe
+    df_emp[col_cc] = df_emp[col_cc].str.replace(r'[^\d]', '', regex=True)
+    
+    # Filtramos para quitar filas que quedaron vacías o eran 'nan'
+    df_emp = df_emp[df_emp[col_cc] != '']
+    df_emp = df_emp[df_emp[col_cc] != 'nan']
 
-    # 4. Filtro numérico (Ahora sí funcionará porque está limpio)
+    # 4. Filtro numérico final de seguridad
     df_emp = df_emp[df_emp[col_cc].str.isnumeric()]
     
     print(f"✅ Filas válidas para guardar: {len(df_emp)}")
