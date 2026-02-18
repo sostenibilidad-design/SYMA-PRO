@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'anymail',
     'django_apscheduler',
+    'storages',
     'core',
     'personal',
     'usuario',
@@ -72,13 +73,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'syma.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-# === MODIFICACIÓN INTELIGENTE AQUÍ ===
-# Detectamos si existe la variable de la nube para decidir qué base de datos usar
 
 database_url = os.environ.get('DATABASE_URL')
 
@@ -210,22 +204,42 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
-# Solo usamos Spaces si estamos en Producción (DEBUG = False)
+import os
+
+# --- CONFIGURACIÓN DE ALMACENAMIENTO (DIGITALOCEAN SPACES) ---
+# Verificamos si las llaves existen en las variables de entorno
 if 'AWS_ACCESS_KEY_ID' in os.environ:
     AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
     
-    AWS_STORAGE_BUCKET_NAME = 'syma-media-files'  
+    AWS_STORAGE_BUCKET_NAME = 'syma-media-files'
     AWS_S3_ENDPOINT_URL = 'https://nyc3.digitaloceanspaces.com'
+    
     AWS_S3_OBJECT_PARAMETERS = {
         'CacheControl': 'max-age=86400',
     }
     
     AWS_LOCATION = 'media'
-    AWS_DEFAULT_ACL = 'public-read' # Para que las fotos se puedan ver
+    AWS_DEFAULT_ACL = 'public-read'
     
-    # Le decimos a Django que use esto en lugar del disco local
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    # --- AQUÍ ESTÁ EL CAMBIO CLAVE PARA DJANGO MODERNO ---
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+            "OPTIONS": {
+                "location": AWS_LOCATION,
+                "default_acl": AWS_DEFAULT_ACL,
+            },
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
     
-    # La URL pública de tus fotos
+    # URL Pública para las plantillas
     MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/{AWS_LOCATION}/'
+
+else:
+    # Configuración para cuando estás en tu PC local (sin nube)
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
