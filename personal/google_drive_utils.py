@@ -1,5 +1,6 @@
 import os
 import io
+import json
 import re
 import tempfile
 from datetime import datetime
@@ -28,13 +29,25 @@ SPANISH_MONTHS = {
 
 # GOOGLE DRIVE
 def get_drive_service():
-    creds = service_account.Credentials.from_service_account_file(
-        settings.GOOGLE_CREDENTIALS_FILE,
-        scopes=SCOPES
-    )
+    # Intentamos obtener las credenciales de la variable de entorno (Producción)
+    creds_json = os.environ.get('GOOGLE_CREDENTIALS_JSON')
+    
+    if creds_json:
+        # Si existe la variable, cargamos el JSON directamente desde el texto
+        info = json.loads(creds_json)
+        creds = service_account.Credentials.from_service_account_info(
+            info, 
+            scopes=SCOPES
+        )
+    else:
+        # Si no existe (Local), usamos el archivo como siempre
+        creds = service_account.Credentials.from_service_account_file(
+            settings.GOOGLE_CREDENTIALS_FILE,
+            scopes=SCOPES
+        )
+        
     return build("drive", "v3", credentials=creds, cache_discovery=False)
-
-
+    
 def list_folder(service, folder_id: str) -> List[Dict]:
     items, page_token = [], None
     while True:
