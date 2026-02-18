@@ -752,8 +752,15 @@ def registrar_fin_medicion(request, id):
         try:
             print("DEBUG registrar_fin_medicion: inicio para medicion id=", medicion.id)
 
+            # === ZONA BLINDADA: MANEJO DE FOTO ===
             if "foto_fin" in request.FILES:
+                # Si ya hay foto, intentamos 'olvidarla' antes de poner la nueva
+                # para evitar conflictos de rutas, pero SIN borrarla del disco (dejamos que AWS maneje eso)
+                if medicion.foto_fin:
+                    print(f"Reemplazando foto anterior: {medicion.foto_fin.name}")
+                
                 medicion.foto_fin = request.FILES["foto_fin"]
+            # =====================================
 
             cantidad_producida = float(request.POST.get('cantidad_producida', 0))
             hora_fin_str = request.POST.get('hora_fin')
@@ -853,7 +860,7 @@ def registrar_fin_medicion(request, id):
 
         except Exception as e:
             print("Error al registrar fin:", e)
-            messages.error(request, "Ocurrió un error al finalizar la medición.")
+            messages.error(request, f"Ocurrió un error al finalizar: {str(e)}")
 
     return redirect('actividad_cuadrilla')
 

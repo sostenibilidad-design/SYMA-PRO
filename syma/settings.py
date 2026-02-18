@@ -235,6 +235,8 @@ if 'AWS_ACCESS_KEY_ID' in os.environ:
             "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
         },
     }
+
+    AWS_S3_FILE_OVERWRITE = False
     
     # URL Pública para las plantillas
     MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/{AWS_LOCATION}/'
