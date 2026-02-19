@@ -27,8 +27,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 fechaInicioInput.value = inicio;
                 fechaFinInput.value = fin;
-
-                if (form) form.submit();
             }
         }
     });

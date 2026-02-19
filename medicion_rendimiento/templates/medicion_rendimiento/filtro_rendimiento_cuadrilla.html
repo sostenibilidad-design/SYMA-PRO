@@ -1,13 +1,14 @@
 {% extends "filtro_base.html" %}
 
 {% block campos_filtro %}
-    <div class="campo-filtro">
-        <input type="text" name="fecha" placeholder="fecha de inicio" onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'" value="{{ request.GET.fecha }}">
+    <div class="campo-filtro" style="min-width: 220px;">
+        <input type="text" id="rango-fecha" placeholder="Rango de fechas" readonly 
+            data-inicio="{{ request.GET.fecha_inicio }}" 
+            data-fin="{{ request.GET.fecha_fin }}">
     </div>
 
-    <div class="campo-filtro">
-        <input type="text" name="fecha_fin" placeholder="fecha de fin" onfocus="(this.type='date')" onblur="if(!this.value) this.type='text'" value="{{ request.GET.fecha_fin }}">
-    </div>
+    <input type="hidden" name="fecha_inicio" id="fecha_inicio" value="{{ request.GET.fecha_inicio }}">
+    <input type="hidden" name="fecha_fin" id="fecha_fin" value="{{ request.GET.fecha_fin }}">
 
     <div class="campo-filtro">
         <input type="text" name="actividad" placeholder="Actividad"  value="{{ request.GET.actividad }}">

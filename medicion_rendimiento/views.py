@@ -54,27 +54,33 @@ def filtrar_mediciones(request, queryset):
     filtros = Q()
     data = request.GET or request.POST
 
-    fecha_inicio= data.get('fecha_inicio')
-    fecha_fin= data.get('fecha_fin')
-    actividad = data.get('actividad')
-    ubicacion = data.get('ubicacion')
-    cuadrilla = data.get('Cuadrilla')
-    cedula = data.get('cedula')
-    nombre = data.get('nombre')
-    rendimiento_real = data.get('rendimiento_real')
+    fecha_inicio = data.get('fecha_inicio', '').strip()
+    fecha_fin = data.get('fecha_fin', '').strip()
+    actividad = data.get('actividad', '').strip()
+    ubicacion = data.get('ubicacion', '').strip()
+    cuadrilla = data.get('Cuadrilla', '').strip()
+    cedula = data.get('cedula', '').strip()
+    nombre = data.get('nombre', '').strip()
+    rendimiento_real = data.get('rendimiento_real', '').strip()
 
-    # --- Aplicación de filtros combinados ---
     if fecha_inicio and fecha_fin:
         try:
-            fecha_inicio_parsed = datetime.strptime(fecha_inicio, "%Y-%m-%d").date()
-            fecha_fin_parsed = datetime.strptime(fecha_fin, "%Y-%m-%d").date()
-            filtros &= Q(fecha__range=(fecha_inicio_parsed, fecha_fin_parsed))
+            f_inicio = datetime.strptime(fecha_inicio, "%Y-%m-%d").date()
+            f_fin = datetime.strptime(fecha_fin, "%Y-%m-%d").date()
+
+            filtros &= Q(fecha__gte=f_inicio, fecha__lte=f_fin)
         except ValueError:
             pass
-    elif fecha_inicio:
+    elif fecha_inicio: 
         try:
-            fecha_parsed = datetime.strptime(fecha_inicio, "%Y-%m-%d").date()
-            filtros &= Q(fecha=fecha_parsed)
+            f_inicio = datetime.strptime(fecha_inicio, "%Y-%m-%d").date()
+            filtros &= Q(fecha=f_inicio)
+        except ValueError:
+            pass
+    elif fecha_fin: 
+        try:
+            f_fin = datetime.strptime(fecha_fin, "%Y-%m-%d").date()
+            filtros &= Q(fecha__lte=f_fin)
         except ValueError:
             pass
 
@@ -88,7 +94,7 @@ def filtrar_mediciones(request, queryset):
         filtros &= Q(cuadrilla__icontains=cuadrilla)
 
     if cedula:
-        filtros &= Q(empleado_cedula__icontains=str(cedula))
+        filtros &= Q(empleado_cedula__icontains=cedula)
 
     if nombre:
         filtros &= Q(nombre_empleado__icontains=nombre)
@@ -100,7 +106,6 @@ def filtrar_mediciones(request, queryset):
         except ValueError:
             pass
 
-    # 🔁 Devuelve queryset filtrado
     return queryset.filter(filtros)
 
 def obtener_cumplimiento(request):

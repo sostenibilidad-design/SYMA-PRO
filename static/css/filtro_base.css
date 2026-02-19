@@ -157,9 +157,112 @@ form select:focus {
     transition: all 0.3s ease;
 }
 
+/* =========================================
+   ESTILOS DE FILTROS Y CALENDARIO (Importados del Reporte)
+   ========================================= */
 
+.reporte-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #fff;
+    padding: 14px 20px;
+    border-radius: 18px;
+    border: #aaa 2px solid;
+    background: rgba(215,215,215,.08);
+    box-shadow: 0 4px 12px rgba(0,0,0,.12);
+    margin-bottom: 20px; /* Separación con la tabla */
+}
 
-/* ===== MEDIA QUERIES ===== */
+.filtro-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.filtros {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    width: 100%;
+}
+
+.filtro {
+    width: 100%;
+    padding: 14px 42px 14px 16px;
+    border-radius: 14px;
+    font-size: 17px;
+    font-weight: bold;
+    color: #111;
+    cursor: pointer;
+    font-family: "Inria Serif",serif ;
+    outline: none;
+    appearance: none;
+    border: 2px solid rgba(180,180,180,.8);
+    background: rgba(180,180,180,.15);
+    box-shadow: 0 4px 10px rgba(0,0,0,.12);
+    transition: all .25s ease;
+}
+
+.filtro-wrapper::after {
+    content: "›";
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%) rotate(90deg);
+    font-size: 28px;
+    color: #111;
+    pointer-events: none;
+    transition: transform .25s ease;
+}
+
+.filtro-wrapper:focus-within::after {
+    transform: translateY(-50%) rotate(-90deg);
+}
+
+.filtro:hover {
+    border: #A3BD31 2px solid;
+    background: rgba(163,189,49,.08);
+}
+
+.filtro:focus {
+    background: rgba(215,215,215,.08);
+}
+
+/* === ESTILOS DEL CALENDARIO FLATPICKR === */
+/* Color Verde SYMA */
+.flatpickr-day.startRange,
+.flatpickr-day.endRange,
+.flatpickr-day.selected,
+.flatpickr-day.selected.inRange,
+.flatpickr-day.startRange.inRange,
+.flatpickr-day.endRange.inRange,
+.flatpickr-day.selected:focus,
+.flatpickr-day.startRange:focus,
+.flatpickr-day.endRange:focus,
+.flatpickr-day.selected:hover,
+.flatpickr-day.startRange:hover,
+.flatpickr-day.endRange:hover {
+    background: #A3BD31 !important;
+    border-color: #A3BD31 !important;
+    color: #fff !important;
+    box-shadow: none !important;
+}
+
+/* Evitar desborde del calendario */
+.flatpickr-calendar {
+    max-width: 260px !important; 
+    margin-top: 5px; 
+    font-size: 0.9em; 
+}
+
+/* === RESPONSIVIDAD PARA LOS FILTROS === */
+/* === TABLET HORIZONTAL === */
+@media screen and (orientation: landscape) and (max-width: 1366px) {
+    .filtro-panel {
+        width: 20%;
+    }
+}
+
 @media (max-width: 800px) {
     .filtro-panel {
         width: 44%; /* tablets */
@@ -174,9 +277,8 @@ form select:focus {
     }
 }
 
-/* === TABLET HORIZONTAL === */
-@media screen and (orientation: landscape) and (max-width: 1366px) {
-    .filtro-panel {
-        width: 20%;
-    }
+@media (max-width: 480px) {
+    .filtros { display: flex; flex-direction: column; }
+    .filtro-wrapper { width: 100%; }
 }
+
