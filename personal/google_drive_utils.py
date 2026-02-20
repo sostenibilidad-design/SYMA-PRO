@@ -219,40 +219,49 @@ def fetch_and_store_empleados(root_folder_id: str):
         raise Exception(f"No se encontró columna de Cédula. Columnas: {list(df_emp.columns)}")
 
     # 3. Limpieza de Cédula (Deja SOLO los números)
-    df_emp[col_cc] = df_emp[col_cc].astype(str)
+    # NUEVO: Eliminamos los nulos reales antes de convertirlos a texto
+    df_emp = df_emp.dropna(subset=[col_cc])
     
     # Esta línea elimina CC, espacios, puntos y comas de un solo golpe
-    df_emp[col_cc] = df_emp[col_cc].str.replace(r'[^\d]', '', regex=True)
+    df_emp[col_cc] = df_emp[col_cc].astype(str).str.replace(r'[^\d]', '', regex=True)
     
-    # Filtramos para quitar filas que quedaron vacías o eran 'nan'
+    # Filtramos para quitar filas que quedaron vacías
     df_emp = df_emp[df_emp[col_cc] != '']
-    df_emp = df_emp[df_emp[col_cc] != 'nan']
-
+    
     # 4. Filtro numérico final de seguridad
     df_emp = df_emp[df_emp[col_cc].str.isnumeric()]
     
     print(f"✅ Filas válidas para guardar: {len(df_emp)}")
 
+    # NUEVO: Lista para guardar las cédulas que sí vinieron en este archivo
+    cedulas_excel = []
+
     with transaction.atomic():
         count = 0
         for _, row in df_emp.iterrows():
-            # Usamos col_nombre y col_cargo detectados arriba
-            valor_nombre = row[col_nombre] if col_nombre else "Sin Nombre"
-            valor_cargo = row[col_cargo] if col_cargo else "Sin Cargo"
+            # NUEVO: Usamos pd.notna para asegurarnos de que no guarde "nan" como nombre
+            valor_nombre = str(row[col_nombre]).strip() if col_nombre and pd.notna(row[col_nombre]) else "Sin Nombre"
+            valor_cargo = str(row[col_cargo]).strip() if col_cargo and pd.notna(row[col_cargo]) else "Sin Cargo"
+            cedula_limpia = str(row[col_cc])
             
             Empleado.objects.update_or_create(
-                cedula=str(row[col_cc]),
+                cedula=cedula_limpia,
                 defaults={
-                    "nombre_completo": str(valor_nombre).strip(),
-                    "cargo": str(valor_cargo).strip(),
+                    "nombre_completo": valor_nombre,
+                    "cargo": valor_cargo,
                 }
             )
+            cedulas_excel.append(cedula_limpia) # Registramos que esta cédula existe
             count += 1
+            
+        # NUEVO: Eliminar de la base de datos a los que NO están en la lista
+        eliminados, _ = Empleado.objects.exclude(cedula__in=cedulas_excel).delete()
+        print(f"🗑️ Se eliminaron {eliminados} empleados antiguos.")
         
     os.remove(tmp_path)
 
     print(f"✅ {count} empleados sincronizados correctamente")
-    return f"{count} empleados sincronizados"
+    return f"{count} empleados sincronizados, {eliminados} eliminados"
 """
 EJECUCIÓN:
 python manage.py shell
