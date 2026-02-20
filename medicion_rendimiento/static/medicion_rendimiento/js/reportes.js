@@ -752,7 +752,15 @@ function resizeAndDraw() {
     const spacer = document.getElementById('gantt-spacer');
     const cfg = ganttState.config;
 
-    const availableWidth = container.clientWidth - cfg.sidebarWidth;
+    const availableWidth = container.clientWidth - cfg.sidebarWidth; 
+    if (ganttState.viewMode === 'day') {
+        cfg.basePixelsPerDay = 40; // Días anchos
+    } else if (ganttState.viewMode === 'week') {
+        cfg.basePixelsPerDay = 15; // Días más juntos para ver semanas
+    } else if (ganttState.viewMode === 'month') {
+        cfg.basePixelsPerDay = 5;  // Días muy apretados para ver meses completos
+    }
+
     const contentWidthBase = (ganttState.fechas.totalDias + 1) * cfg.basePixelsPerDay;
 
     // Lógica de Auto-ajuste para llenar la pantalla si hay pocos datos
@@ -805,7 +813,13 @@ function draw() {
     ctx.beginPath();
     ctx.strokeStyle = '#cbcbcb';
     ctx.lineWidth = 1;
-    ctx.setLineDash([4, 4]);
+
+    // Solo mostramos líneas punteadas en modo día
+    if (ganttState.viewMode === 'day') {
+        ctx.setLineDash([4, 4]);
+    } else {
+        ctx.setLineDash([]);
+    }
     
     for (let i = 0; i <= ganttState.fechas.totalDias; i++) {
         const x = startX + (i * pxPerDay);
@@ -814,59 +828,15 @@ function draw() {
 
         if (ganttState.viewMode === 'day') {
             dibujarLinea = true;
-            ctx.setLineDash([4, 4]);
         } 
         else if (ganttState.viewMode === 'week') {
-            if (d.getDay() === 1) { 
+            if (d.getDay() === 1) { // Lunes
                 dibujarLinea = true; 
-                ctx.setLineDash([]); 
             }
         }
         else if (ganttState.viewMode === 'month') {
-
-            let current = new Date(ganttState.fechas.inicio);
-            let endDate = new Date(ganttState.fechas.inicio.getTime() + (ganttState.fechas.totalDias * 86400000));
-
-            while (current <= endDate) {
-
-                const monthStart = new Date(current.getFullYear(), current.getMonth(), 1);
-                const monthEnd = new Date(current.getFullYear(), current.getMonth() + 1, 0);
-
-                // Calcular tramo visible del mes dentro del rango
-                const visibleStart = monthStart < ganttState.fechas.inicio 
-                    ? ganttState.fechas.inicio 
-                    : monthStart;
-
-                const visibleEnd = monthEnd > endDate 
-                    ? endDate 
-                    : monthEnd;
-
-                const diasDesdeInicio = (visibleStart - ganttState.fechas.inicio) / 86400000;
-                const diasVisibles = ((visibleEnd - visibleStart) / 86400000) + 1;
-
-                const xInicioMes = startX + (diasDesdeInicio * pxPerDay);
-                const anchoMes = diasVisibles * pxPerDay;
-
-                const xCentro = xInicioMes + (anchoMes / 2);
-
-                // Dibujar nombre del mes
-                ctx.font = "bold 12px 'Segoe UI'";
-                ctx.fillStyle = '#fff';
-                ctx.fillText(
-                    current.toLocaleDateString('es-CO', { month: 'long' }).toUpperCase(),
-                    xCentro,
-                    30
-                );
-
-                // Línea vertical inicio mes
-                ctx.beginPath();
-                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-                ctx.moveTo(xInicioMes, 0);
-                ctx.lineTo(xInicioMes, cfg.headerHeight);
-                ctx.stroke();
-
-                // Saltar al siguiente mes
-                current = new Date(current.getFullYear(), current.getMonth() + 1, 1);
+            if (d.getDate() === 1) { // Día 1 del mes
+                dibujarLinea = true;
             }
         }
 
@@ -901,11 +871,25 @@ function draw() {
 
             const semanaInicio = Math.floor(diffDias / 7);
             const semanasDuracion = Math.ceil(duracionDias / 7);
-
             const pxPerWeek = pxPerDay * 7;
 
             barX = startX + (semanaInicio * pxPerWeek) + 2;
             barW = (semanasDuracion * pxPerWeek) - 4;
+
+        } else if (ganttState.viewMode === 'month') {
+            // 🔥 LA SOLUCIÓN: Calculamos el ancho y posición basados en meses enteros
+            const pxPerMonth = pxPerDay * 30; // Aproximación visual para mantener proporción
+
+            // Cuántos meses han pasado desde la fecha de inicio del gráfico
+            let mesInicio = (dIni.getFullYear() - ganttState.fechas.inicio.getFullYear()) * 12;
+            mesInicio += dIni.getMonth() - ganttState.fechas.inicio.getMonth();
+
+            // Cuántos meses dura la actividad
+            let mesesDuracion = (dFin.getFullYear() - dIni.getFullYear()) * 12;
+            mesesDuracion += dFin.getMonth() - dIni.getMonth() + 1;
+
+            barX = startX + (mesInicio * pxPerMonth) + 2;
+            barW = (mesesDuracion * pxPerMonth) - 4;
 
         } else {
 
@@ -1003,45 +987,75 @@ function draw() {
     ctx.lineTo(sx + canvas.width, cfg.headerHeight);
     ctx.stroke();
 
-    ctx.fillStyle = '#6b778c';
+    ctx.fillStyle = '#fff';
     ctx.textAlign = 'center';
     
-    for (let i = 0; i <= ganttState.fechas.totalDias; i++) {
-        const x = startX + (i * pxPerDay) + (pxPerDay / 2);
-        const d = new Date(ganttState.fechas.inicio.getTime() + (i * 86400000));
-        const diaNum = d.getDate();
-        const mes = d.toLocaleDateString('es-CO', { month: 'short' }).replace('.', '').toUpperCase();
+    if (ganttState.viewMode === 'day') {
+        for (let i = 0; i <= ganttState.fechas.totalDias; i++) {
+            const x = startX + (i * pxPerDay) + (pxPerDay / 2);
+            const d = new Date(ganttState.fechas.inicio.getTime() + (i * 86400000));
+            const diaNum = d.getDate();
+            const mes = d.toLocaleDateString('es-CO', { month: 'short' }).replace('.', '').toUpperCase();
 
-        if (ganttState.viewMode === 'day') {
             ctx.font = "9px 'Segoe UI'";
-            ctx.fillStyle = '#f9f9f9';
             ctx.fillText(mes, x, 18);
             ctx.font = "bold 12px 'Segoe UI'";
-            ctx.fillStyle = '#fff';
             ctx.fillText(diaNum, x, 36);
+            
             ctx.beginPath(); ctx.strokeStyle = 'rgba(255,255,255,0.2)'; 
             ctx.moveTo(startX+(i*pxPerDay), 0); ctx.lineTo(startX+(i*pxPerDay), cfg.headerHeight); ctx.stroke();
         }
-        else if (ganttState.viewMode === 'week') {
-            if (d.getDay() === 1) { 
-                const xSemana = x + (pxPerDay * 3);
+    } 
+    else if (ganttState.viewMode === 'week') {
+        let current = new Date(ganttState.fechas.inicio);
+        let endDate = new Date(ganttState.fechas.inicio.getTime() + (ganttState.fechas.totalDias * 86400000));
+        
+        while (current <= endDate) {
+            if (current.getDay() === 1 || current.getTime() === ganttState.fechas.inicio.getTime()) {
+                const diasDesdeInicio = (current - ganttState.fechas.inicio) / 86400000;
+                const xInicioSemana = startX + (diasDesdeInicio * pxPerDay);
+                const xCentro = xInicioSemana + ((pxPerDay * 7) / 2);
+                
                 ctx.font = "bold 11px 'Segoe UI'";
-                ctx.fillStyle = '#fff';
-                ctx.fillText(`Semana ${getWeekNumber(d)}`, xSemana, 28);
+                ctx.fillText(`Sem ${getWeekNumber(current)}`, xCentro, 30);
+                
                 ctx.beginPath(); ctx.strokeStyle = 'rgba(255,255,255,0.3)'; 
-                ctx.moveTo(startX+(i*pxPerDay), 0); ctx.lineTo(startX+(i*pxPerDay), cfg.headerHeight); ctx.stroke();
+                ctx.moveTo(xInicioSemana, 0); ctx.lineTo(xInicioSemana, cfg.headerHeight); ctx.stroke();
             }
+            current.setDate(current.getDate() + 1);
         }
-        else if (ganttState.viewMode === 'month') {
-            if (d.getDate() === 1) {
-                const diasEnMes = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
-                const xMes = x + (pxPerDay * diasEnMes / 2);
-                ctx.font = "bold 12px 'Segoe UI'";
-                ctx.fillStyle = '#fff';
-                ctx.fillText(d.toLocaleDateString('es-CO', {month:'long'}).toUpperCase(), xMes, 28);
-                ctx.beginPath(); ctx.strokeStyle = 'rgba(255,255,255,0.3)'; 
-                ctx.moveTo(startX+(i*pxPerDay), 0); ctx.lineTo(startX+(i*pxPerDay), cfg.headerHeight); ctx.stroke();
-            }
+    } 
+    else if (ganttState.viewMode === 'month') {
+        let currentMonth = ganttState.fechas.inicio.getMonth();
+        let currentYear = ganttState.fechas.inicio.getFullYear();
+        let endMonth = new Date(ganttState.fechas.inicio.getTime() + (ganttState.fechas.totalDias * 86400000)).getMonth();
+        let endYear = new Date(ganttState.fechas.inicio.getTime() + (ganttState.fechas.totalDias * 86400000)).getFullYear();
+        
+        let iterDate = new Date(currentYear, currentMonth, 1);
+        const finalDate = new Date(endYear, endMonth, 1);
+
+        while (iterDate <= finalDate) {
+            const mesStart = new Date(iterDate.getFullYear(), iterDate.getMonth(), 1);
+            const mesEnd = new Date(iterDate.getFullYear(), iterDate.getMonth() + 1, 0);
+            
+            // Ver qué parte del mes es visible
+            const visibleStart = mesStart < ganttState.fechas.inicio ? ganttState.fechas.inicio : mesStart;
+            const visibleEnd = mesEnd > new Date(ganttState.fechas.inicio.getTime() + (ganttState.fechas.totalDias * 86400000)) ? new Date(ganttState.fechas.inicio.getTime() + (ganttState.fechas.totalDias * 86400000)) : mesEnd;
+            
+            const diasDesdeInicio = (visibleStart - ganttState.fechas.inicio) / 86400000;
+            const diasVisibles = ((visibleEnd - visibleStart) / 86400000) + 1;
+            
+            const xInicioMes = startX + (diasDesdeInicio * pxPerDay);
+            const anchoMes = diasVisibles * pxPerDay;
+            const xCentro = xInicioMes + (anchoMes / 2);
+
+            ctx.font = "bold 12px 'Segoe UI'";
+            ctx.fillText(`${iterDate.toLocaleDateString('es-CO', {month:'long'}).toUpperCase()} ${iterDate.getFullYear()}`, xCentro, 30);
+            
+            ctx.beginPath(); ctx.strokeStyle = 'rgba(255,255,255,0.3)'; 
+            ctx.moveTo(xInicioMes, 0); ctx.lineTo(xInicioMes, cfg.headerHeight); ctx.stroke();
+            
+            iterDate.setMonth(iterDate.getMonth() + 1);
         }
     }
     ctx.restore();
