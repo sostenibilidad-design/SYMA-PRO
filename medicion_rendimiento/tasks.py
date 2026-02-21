@@ -1,26 +1,17 @@
 import logging
-from celery import shared_task
 from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import timezone
 from .models import MedicionCuadrilla, ConfiguracionAlerta
 
-@shared_task
 def alerta_recordatorio_usuario():
     hoy = timezone.now().date()
-
-    print(f"⏰ TAREA BEAT INICIADA (Recordatorio). Fecha: {hoy}")
+    print(f"⏰ TAREA INICIADA (Recordatorio). Fecha: {hoy}")
     pendientes = MedicionCuadrilla.objects.filter(fecha=hoy, hora_fin__isnull=True)
-
+    
     print(f"DEBUG: Ejecutando tarea 4:40 PM. Pendientes hoy: {pendientes.count()}")
-
-    count = pendientes.count()
-    print(f"📊 Pendientes encontrados: {count}")
-
     for m in pendientes:
         user_obj = m.usuario
-        
-        # Validamos que el usuario exista y tenga el campo 'correo'
         if user_obj and user_obj.correo:
             try:
                 send_mail(
@@ -33,32 +24,22 @@ def alerta_recordatorio_usuario():
                 print(f"Enviado a: {user_obj.correo}")
             except Exception as e:
                 print(f"Error enviando correo: {e}")
-        else:
-            print(f"ADVERTENCIA: El usuario {m.nombre_usuario} no tiene correo registrado.")
 
-@shared_task
 def alerta_incumplimiento_control():
     hoy = timezone.now().date()
     pendientes = MedicionCuadrilla.objects.filter(fecha=hoy, hora_fin__isnull=True)
 
     if pendientes.exists():
         print(f"DEBUG: Alerta Control - Encontradas {pendientes.count()} actividades sin cerrar.")
-
         config_alerta = ConfiguracionAlerta.objects.filter(tipo_alerta='Cierre diario').first()
-        
         lista_correos = []
 
         if config_alerta:
             usuarios_asignados = config_alerta.destinatarios.all()
-            
             for u in usuarios_asignados:
                 if u.correo:
                     lista_correos.append(u.correo)
-            
-            print(f"DEBUG: Enviando reporte a {len(lista_correos)} destinatarios.")
-        else:
-            print("DEBUG: No existe configuración para 'Cierre diario'.")
-
+        
         if lista_correos:
             items_resumen = []
             for m in pendientes:
@@ -79,4 +60,3 @@ def alerta_incumplimiento_control():
                 print("✅ Reporte enviado exitosamente.")
             except Exception as e:
                 print(f"❌ Error enviando reporte: {e}")
-

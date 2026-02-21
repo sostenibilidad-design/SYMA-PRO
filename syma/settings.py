@@ -186,12 +186,6 @@ else:
 
 CSRF_TRUSTED_ORIGINS.extend(['https://' + os.environ.get('App_Domain', '*')])
 
-# === CONFIGURACIÓN CELERY ===
-CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://redis:6379/0')
-CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://redis:6379/0')
-CELERY_TIMEZONE = 'America/Bogota' 
-CELERY_ENABLE_UTC = True
-
 FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50 MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50 MB
 
