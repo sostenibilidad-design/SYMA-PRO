@@ -9,12 +9,15 @@ Reporte por Cuadrilla
 {% block search_bar %} {% endblock %}
 
 {% block extra_styles %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'css/reporte_base.css' %}?v=4.0">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 {% endblock %}
 
 {% block iconos %}
-    <a href="{% url 'actividad_cuadrilla' %}"><i class="fa fa-arrow-left"></i></a>
+    <a href="{% url 'actividad_cuadrilla' %}" title="Volver">
+        <span class="material-symbols-outlined">arrow_back</span>
+    </a>
 {% endblock %}
 
 {% block content %}
@@ -230,5 +233,6 @@ Reporte por Cuadrilla
         const CRONOGRAMA_DATA = {{ cronograma_data_json|default:"null"|safe }};
     </script>
     <script src="{% static 'medicion_rendimiento/js/reportes.js' %}?v=4.0"></script>
+    
 {% endblock %}
 

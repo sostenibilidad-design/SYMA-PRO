@@ -24,6 +24,10 @@
     
     <a href="#"><span id="btn-filtro" class="material-symbols-outlined">filter_alt</span></a>
 
+    {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,descarga" %}
+        <a href="javascript:void(0);" id="btn-descarga" onclick="descargarExcel()"><span class="material-symbols-outlined">download</span></a>
+    {% endif %}
+
     <form id="formularioIngreso" action="{% url 'actividad_cuadrilla' %}" method="post" class="form-accion">
         {% csrf_token %}
         <input type="hidden" name="elemento" id="elemento_oculto">
@@ -225,7 +229,7 @@
     {% endif %}
 
     {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,drive" %}
-        <a href="#" id="btnAgregar"class="gris drive"><i class="fa-brands fa-google-drive"></i></i>Drive</a>
+        <a href="javascript:void(0);" onclick="subirDrive()" id="btnAgregar"class="gris drive"><i class="fa-brands fa-google-drive"></i></i>Drive</a>
     {% endif %}
 
     <div id="modal-imagen" class="modal-imagen">
@@ -245,5 +249,18 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
     <script src="{% static 'js/filtro_calendario.js' %}"></script>
+
+    <script>
+        function descargarExcel() {
+            let queryParams = window.location.search;
+            window.location.href = "{% url 'exportar_mediciones_excel' %}" + queryParams;
+        }
+
+        function subirDrive() {
+            let queryParams = window.location.search;
+            alert("Subiendo a Google Drive, por favor espera un momento...");
+            window.location.href = "{% url 'exportar_mediciones_drive' %}" + queryParams;
+        }
+    </script>
 {% endblock %}
 

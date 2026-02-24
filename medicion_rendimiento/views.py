@@ -1,6 +1,15 @@
 import json
 import re
 import calendar
+import openpyxl
+import io
+import os
+
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseUpload
+
+from django.conf import settings
 from django.shortcuts import render, redirect,  get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -9,7 +18,7 @@ from django.utils import timezone
 from django.db import transaction
 from django.db.models import Q
 from decimal import Decimal, ROUND_HALF_UP, ROUND_DOWN
-from django.http import JsonResponse, HttpResponseRedirect
+from django.http import JsonResponse, HttpResponseRedirect,HttpResponse
 from django.db.models import Avg, Count
 from django.db.models.functions import Coalesce,  ExtractMonth
 
@@ -26,9 +35,6 @@ from medicion_rendimiento.reporte import (
 
 def formato_colombia(valor):
     return "$ {:,.0f}".format(valor).replace(",", "X").replace(".", ",").replace("X", ".")
-
-def es_contratista(emp):
-    return "contratista" in (emp.cargo or "").lower()
 
 # --- Medición de rendimiento por cuadrilla ---
 
@@ -157,8 +163,7 @@ def medicion_por_cuadrilla(request):
 
     empleados = Empleado.objects.filter(
         Q(cargo__icontains='oficial') |
-        Q(cargo__icontains='ayudante') |
-        Q(cargo__icontains='contratista')
+        Q(cargo__icontains='ayudante')
     ).order_by('nombre_completo')
 
     usuarios = Usuario.objects.all().order_by('nombre_completo')
@@ -208,7 +213,6 @@ def registrar_inicio_medicion(request):
 
             costos_empleados = [
                 formato_colombia(obtener_valor_hora_por_cargo(emp, valor_empleados)) 
-                if not es_contratista(emp) else "-"
                 for emp in empleados_qs
             ]
 
@@ -221,14 +225,10 @@ def registrar_inicio_medicion(request):
             # Guardar como una sola cadena usando <br>
             medicion.precio_hora_trabajadores = "<br>".join(costos_empleados)
 
-            oficiales = empleados_qs.filter(cargo__icontains='oficial').exclude(cargo__icontains='contratista').count()
-            ayudantes = empleados_qs.filter(cargo__icontains='ayudante').exclude(cargo__icontains='contratista').count()
-            contratistas = empleados_qs.filter(cargo__icontains='contratista').count()
+            oficiales = empleados_qs.filter(cargo__icontains='oficial').count()
+            ayudantes = empleados_qs.filter(cargo__icontains='ayudante').count()
 
-            if contratistas > 0:
-                medicion.numero_oficiales_ayudantes = f"Contratistas: {contratistas}"
-            else:
-                medicion.numero_oficiales_ayudantes = f"Oficiales: {oficiales} <br> Ayudantes: {ayudantes}"
+            medicion.numero_oficiales_ayudantes = f"Oficiales: {oficiales} <br> Ayudantes: {ayudantes}"
 
             medicion.save()
 
@@ -343,26 +343,13 @@ def actualizar_cuadrilla(request, id):
             cedulas_finales = [str(emp.cedula) for emp in empleados_unicos]
             nombres_finales = [emp.nombre_completo for emp in empleados_unicos]
 
-            contratistas_final = sum(1 for emp in empleados_unicos if 'contratista' in (emp.cargo or '').lower())
             oficiales_final = sum(1 for emp in empleados_unicos if 'oficial' in (emp.cargo or '').lower())
             ayudantes_final = sum(1 for emp in empleados_unicos if 'ayudante' in (emp.cargo or '').lower())
 
-            # Si hay contratistas, usamos su conteo y ponemos "-" en otros campos
-            if contratistas_final > 0:
-                medicion.numero_oficiales_ayudantes = f"Contratistas: {contratistas_final}"
-                medicion.precio_hora_trabajadores = "-"
-                medicion.costo_total_oficiales = "-"
-                medicion.costo_total_ayudantes = "-"
-                medicion.costo_total_actividad = "-"
-                medicion.costo_por_unidad = "-"
-                medicion.diferencia_presupuestal = "-"
-                medicion.comparacion_presupuestal = "-"
-            
-            else:
-                medicion.numero_oficiales_ayudantes = f"Oficiales: {oficiales_final} <br> Ayudantes: {ayudantes_final}"
-                valor_empleados = ValorHora.objects.first()
-                costos_empleados = [formato_colombia(obtener_valor_hora_por_cargo(emp, valor_empleados)) for emp in empleados_unicos]
-                medicion.precio_hora_trabajadores = "<br>".join(costos_empleados)
+            medicion.numero_oficiales_ayudantes = f"Oficiales: {oficiales_final} <br> Ayudantes: {ayudantes_final}"
+            valor_empleados = ValorHora.objects.first()
+            costos_empleados = [formato_colombia(obtener_valor_hora_por_cargo(emp, valor_empleados)) for emp in empleados_unicos]
+            medicion.precio_hora_trabajadores = "<br>".join(costos_empleados)
 
             # === ACTUALIZAR LISTA DE EMPLEADOS ===
             medicion.empleado_cedula = "<br>".join(cedulas_finales)
@@ -496,13 +483,6 @@ def procesos(medicion):
     ]
     empleados_ordenados.extend(restantes)
 
-    solo_contratistas = (
-        empleados_ordenados
-        and all("contratista" in (e.cargo or "").lower() for e in empleados_ordenados)
-    )
-
-    cantidad_contratistas = len(empleados_ordenados) if solo_contratistas else 0
-
     fecha = medicion.fecha
     resultado_final = []
 
@@ -618,29 +598,28 @@ def procesos(medicion):
     costo_total_ayudantes = Decimal("0.00")
     precio_total_horas = Decimal("0.00")
 
-    if not solo_contratistas:
-        for emp, horas_txt in zip(empleados_ordenados, resultado_final):
+    for emp, horas_txt in zip(empleados_ordenados, resultado_final):
 
-            horas_decimal = Decimal(horas_txt.replace(" h", ""))
+        horas_decimal = Decimal(horas_txt.replace(" h", ""))
 
-            costo_hora = Decimal(obtener_valor_hora_por_cargo(emp, valor_empleados))
-            costo_real = (costo_hora * horas_decimal).quantize(
-                Decimal("0.01"), rounding=ROUND_HALF_UP
-            )
+        costo_hora = Decimal(obtener_valor_hora_por_cargo(emp, valor_empleados))
+        costo_real = (costo_hora * horas_decimal).quantize(
+            Decimal("0.01"), rounding=ROUND_HALF_UP
+        )
 
-            cargo = (emp.cargo or "").lower()
+        cargo = (emp.cargo or "").lower()
 
-            if "oficial" in cargo:
-                costo_total_oficiales += costo_real
-            elif "ayudante" in cargo:
-                costo_total_ayudantes += costo_real
+        if "oficial" in cargo:
+            costo_total_oficiales += costo_real
+        elif "ayudante" in cargo:
+            costo_total_ayudantes += costo_real
 
-            precio_total_horas += costo_real
+        precio_total_horas += costo_real
 
-            print(
-                f">>> COSTO {emp.cedula} | {cargo}: "
-                f"{horas_decimal}h × {costo_hora} = {costo_real}"
-            )
+        print(
+            f">>> COSTO {emp.cedula} | {cargo}: "
+            f"{horas_decimal}h × {costo_hora} = {costo_real}"
+        )
 
     # 6) RENDIMIENTO REAL
     rendimiento_real = None
@@ -659,7 +638,7 @@ def procesos(medicion):
     # 7) Costo por unidad de medida
     costo_por_unidad = None
 
-    if not solo_contratistas and cantidad and cantidad > 0:
+    if cantidad and cantidad > 0:
 
         costo_por_unidad = (precio_total_horas / cantidad).quantize(
             Decimal("0.01"), rounding=ROUND_HALF_UP
@@ -723,15 +702,6 @@ def procesos(medicion):
     medicion.costo_por_unidad = costo_por_unidad
     medicion.cumplimiento_presupuestal = cumplimiento_presupuestal
     medicion.cumplimiento_programado = cumplimiento_programado
-
-    if solo_contratistas:
-        medicion.costo_total_oficiales = None
-        medicion.costo_total_ayudantes = None
-        medicion.precio_total_horas = None
-        medicion.costo_por_unidad = None
-        medicion.diferencia_presupuestal = None
-        medicion.comparacion_presupuestal = None
-        medicion.numero_oficiales_ayudantes = f"Contratistas: {cantidad_contratistas}"
 
     medicion.save(update_fields=[
         "horas_efectivas_trabajador",
@@ -1201,3 +1171,146 @@ def eliminar_alerta(request, alerta_id):
     alerta.delete()
     messages.success(request, "Asignación eliminada correctamente.")
     return redirect('actividad_cuadrilla')
+
+def construir_excel_mediciones(mediciones):
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Registros Filtrados"
+
+    # Encabezados
+    headers = [
+        "ID", "Proyecto", "Fecha", "Cuadrilla", "N° de Trabajadores", 
+        "Cédulas del Personal", "Nombres del Personal", "Precio Hora Trabajadores",
+        "Actividad", "Ubicación", "Hora de Inicio", "Hora Fin", 
+        "Horas Efectivas por Trabajador", "Horas Trabajadas Totales", "Costo Total Oficiales", 
+        "Costo Total Ayudantes", "Costo Total Actividad", "Cantidad Producida", 
+        "Rendimiento Real", "Cumplimiento Programado", "Comparación Programada %", 
+        "Costo por Unidad", "Cumplimiento Presupuestal", "Diferencia Presupuestal", 
+        "Comparación Presupuestal %", "Id Usuario", "Usuario Registra"
+    ]
+    ws.append(headers)
+
+    # Agregar los datos
+    for m in mediciones:
+        num_trabajadores = (m.numero_oficiales_ayudantes or "").replace("<br>", " | ")
+        cedulas = (m.empleado_cedula or "").replace("<br>", "\n")
+        nombres = (m.nombre_empleado or "").replace("<br>", "\n")
+        precios = (m.precio_hora_trabajadores or "").replace("<br>", "\n")
+        hora_ini_emp = (m.hora_inicio_empleados or "").replace("<br>", "\n")
+        hora_fin_emp = (m.hora_fin_empleados or "").replace("<br>", "\n")
+        horas_efectivas = (m.horas_efectivas_trabajador or "").replace("<br>", "\n")
+
+        row = [
+            m.id, m.proyecto, m.fecha.strftime("%Y-%m-%d") if m.fecha else "",
+            f"Cuadrilla #{m.cuadrilla}" if m.cuadrilla else "", num_trabajadores,
+            cedulas, nombres, precios, m.actividad, m.ubicacion, hora_ini_emp, hora_fin_emp,
+            horas_efectivas, float(m.horas_trabajadas_totales) if m.horas_trabajadas_totales else 0,
+            float(m.costo_total_oficiales) if m.costo_total_oficiales else 0,
+            float(m.costo_total_ayudantes) if m.costo_total_ayudantes else 0,
+            float(m.precio_total_horas) if m.precio_total_horas else 0,
+            float(m.cantidad_producida) if m.cantidad_producida else 0,
+            float(m.rendimiento_real) if m.rendimiento_real else 0,
+            float(m.cumplimiento_programado) if m.cumplimiento_programado else 0,
+            float(m.comparacion_programado) if m.comparacion_programado else 0,
+            float(m.costo_por_unidad) if m.costo_por_unidad else 0,
+            float(m.cumplimiento_presupuestal) if m.cumplimiento_presupuestal else 0,
+            float(m.diferencia_presupuestal) if m.diferencia_presupuestal else 0,
+            float(m.comparacion_presupuestal) if m.comparacion_presupuestal else 0,
+            m.usuario_cedula, m.nombre_usuario
+        ]
+        ws.append(row)
+
+    # Diseño
+    from openpyxl.styles import Alignment, Font, PatternFill, Border, Side
+    color_verde = PatternFill(start_color="548235", end_color="548235", fill_type="solid")
+    fuente_blanca_negrita = Font(color="FFFFFF", bold=True, size=12)
+    alineacion_encabezado = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    alineacion_datos = Alignment(horizontal="left", vertical="top", wrap_text=True)
+    borde_delgado = Border(left=Side(style='thin'), right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
+
+    ws.row_dimensions[1].height = 40
+    for col in ws.columns:
+        max_length = 0
+        column_letter = col[0].column_letter
+        for cell in col:
+            cell.border = borde_delgado
+            if cell.row == 1:
+                cell.fill = color_verde
+                cell.font = fuente_blanca_negrita
+                cell.alignment = alineacion_encabezado
+            else:
+                cell.alignment = alineacion_datos
+            try:
+                lineas = str(cell.value).split('\n')
+                for linea in lineas:
+                    if len(linea) > max_length: max_length = len(linea)
+            except: pass
+        ws.column_dimensions[column_letter].width = min(max_length + 2, 45)
+
+    return wb
+
+def exportar_mediciones_excel(request):
+    mediciones = MedicionCuadrilla.objects.all().order_by('-fecha', '-hora_inicio')
+    mediciones = filtrar_mediciones(request, mediciones)
+
+    wb = construir_excel_mediciones(mediciones) # Llamamos al constructor
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="Reporte_Medicion_Rendimiento.xlsx"'
+    wb.save(response)
+    return response
+
+def exportar_mediciones_drive(request):
+    mediciones = MedicionCuadrilla.objects.all().order_by('-fecha', '-hora_inicio')
+    mediciones = filtrar_mediciones(request, mediciones)
+
+    wb = construir_excel_mediciones(mediciones) # Llamamos al constructor
+
+    # Guardar en memoria virtual
+    excel_bytes = io.BytesIO()
+    wb.save(excel_bytes)
+    excel_bytes.seek(0)
+
+    try:
+        SCOPES = ["https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
+        creds_json = os.environ.get('GOOGLE_CREDENTIALS_JSON')
+        
+        if creds_json:
+            info = json.loads(creds_json)
+            creds = service_account.Credentials.from_service_account_info(info, scopes=SCOPES)
+        else:
+            creds = service_account.Credentials.from_service_account_file(settings.GOOGLE_CREDENTIALS_FILE, scopes=SCOPES)
+            
+        service = build("drive", "v3", credentials=creds, cache_discovery=False)
+
+        # 1. CORRECCIÓN: Dejamos ÚNICAMENTE el ID (sin el https...)
+        folder_id = "1ufUy8I363i9KOFP51mztZb_x6lOPXG67"
+        fecha_str = timezone.now().strftime("%Y-%m-%d_%H-%M")
+        
+        file_metadata = {
+            'name': f'Reporte_Rendimiento_{fecha_str}',
+            'mimeType': 'application/vnd.google-apps.spreadsheet',
+            'parents': [folder_id]
+        }
+        
+        media = MediaIoBaseUpload(
+            excel_bytes, 
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 
+            resumable=True
+        )
+        
+        # 2. CORRECCIÓN: Agregamos supportsAllDrives=True para que el Drive Empresarial asuma el peso
+        service.files().create(
+            body=file_metadata, 
+            media_body=media, 
+            fields='id',
+            supportsAllDrives=True
+        ).execute()
+        
+        messages.success(request, f"¡Reporte guardado exitosamente en Google Drive!")
+    except Exception as e:
+        messages.error(request, f"Error al subir a Google Drive: {str(e)}")
+        print(f"Error Drive: {e}")
+
+    return redirect('actividad_cuadrilla')
+

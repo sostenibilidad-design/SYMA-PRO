@@ -17,4 +17,7 @@ urlpatterns = [
     
     path('guardar-alertas/', views.guardar_configuracion_alertas, name='guardar_alertas'),
     path('eliminar-alerta/<int:alerta_id>/', views.eliminar_alerta, name='eliminar_alerta'),
+
+    path('exportar-excel-cuadrilla/', views.exportar_mediciones_excel, name='exportar_mediciones_excel'),
+    path('exportar-drive-cuadrilla/', views.exportar_mediciones_drive, name='exportar_mediciones_drive'),
 ]

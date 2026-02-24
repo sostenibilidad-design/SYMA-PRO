@@ -32,7 +32,9 @@ PATRONES_IGNORAR = [
     'guardar_configuracion_alertas', 
     'eliminar_alerta', 
     'api_demanda_empleados',
-    'sincronizar_personal'
+    'sincronizar_personal',
+    'exportar_mediciones_excel',
+    'exportar_mediciones_drive',
 ]
 
 PALABRAS_CLAVE = ["registrar", "eliminar", "actualizar", "descarga", "reporte", "rendimiento", "drive" ]

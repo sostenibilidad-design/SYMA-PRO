@@ -44,7 +44,7 @@
 
                     <div class="lista-empleados">  <!-- CAMBIADO id → class -->
                         {% for emp in empleados %}
-                            {% if  "oficial" in emp.cargo|lower or "ayudante" in emp.cargo|lower or "contratista" in emp.cargo|lower %}
+                            {% if  "oficial" in emp.cargo|lower or "ayudante" in emp.cargo|lower %}
                             <div class="area-item">
                                 <label class="area-label">
                                     <input type="checkbox" name="empleados" class="area-checkbox" value="{{ emp.cedula }}">

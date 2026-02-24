@@ -87,15 +87,20 @@ function graficoRendimientoRealMensual(canvasId, labels, data, unidad, objetivo)
                 label: `Rendimiento real (${unidad}/h)`,
                 data: data,
                 backgroundColor: colores,
-                borderRadius: 6,
-                animations: {
-                    y:{ type: 'number', from: 1000, duration: 1500, easing: 'easeOutQuart' }
-                }
+                borderRadius: 6
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            // ANIMACIÓN AGREGADA (Crece suavemente desde la base)
+            animation: {
+                duration: 1500,
+                easing: 'easeInOutQuart', 
+                y: {
+                    from: (ctx) => ctx.chart.scales.y.getPixelForValue(0)
+                }
+            },
             scales: {
                 y: {
                     beginAtZero: true,
@@ -151,6 +156,7 @@ function graficoCumplimientoProgramado(canvasId, labels, dataReal, objetivo, uni
                     borderColor: "#01d32b",
                     backgroundColor: "#01d32b",
                     tension: 0, borderWidth: 2, pointRadius: 1, pointHoverRadius: 0,
+                    spanGaps: true
                 },
                 {
                     label: "Rendimiento Real",
@@ -158,13 +164,21 @@ function graficoCumplimientoProgramado(canvasId, labels, dataReal, objetivo, uni
                     borderColor: "#3498db",
                     backgroundColor: "#3498db",
                     pointRadius: dataReal.every(v => v === null) ? 0 : 3,
-                    spanGaps: false, tension: .3
+                    spanGaps: true, tension: .3
                 }
             ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            // ANIMACIÓN AGREGADA (Fluida y natural desde el fondo)
+            animation: {
+                duration: 2000,
+                easing: 'easeInOutQuart',
+                y: {
+                    from: (ctx) => ctx.chart.scales.y.getPixelForValue(0)
+                }
+            },
             scales: {
                 y: { beginAtZero: true, ticks: { callback: v => `${v} ${unidad}/h` } }
             },
@@ -211,19 +225,28 @@ function graficoCostoVsPresupuesto(canvasId, labels, dataCosto, presupuesto) {
                     data: labels.map(() => presupuesto),
                     borderColor: "#E67E22", backgroundColor: "#E67E22",
                     borderWidth: 2, pointRadius: 1, tension: 0, pointHoverRadius: 0,
+                    spanGaps: true
                 },
                 {
                     label: "Costo por unidad",
                     data: dataCosto,
                     borderColor: "#8E44AD", backgroundColor: "#8E44AD",
                     pointRadius: dataCosto.every(v => v === null) ? 0 : 3,
-                    spanGaps: false, tension: .3
+                    spanGaps: true, tension: .3
                 }
             ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            // ANIMACIÓN AGREGADA (Fluida y natural desde el fondo)
+            animation: {
+                duration: 2000,
+                easing: 'easeInOutQuart',
+                y: {
+                    from: (ctx) => ctx.chart.scales.y.getPixelForValue(0)
+                }
+            },
             scales: {
                 y: { beginAtZero: true, ticks: { callback: v => formatoCOP.format(v) } }
             },
@@ -322,6 +345,14 @@ function renderGraficoDemanda(canvasId, labels, datasetsRaw) {
         data: { labels, datasets },
         options: {
             responsive: true, maintainAspectRatio: false,
+            // ANIMACIÓN AGREGADA
+            animation: {
+                duration: 2000,
+                easing: 'easeInOutQuart',
+                y: {
+                    from: (ctx) => ctx.chart.scales.y.getPixelForValue(0)
+                }
+            },
             plugins: {
                 legend: { position: "bottom", labels: { boxWidth: 12, boxHeight: 12, padding: 10, size: 11 } },
                 tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y} personas` } }
@@ -354,9 +385,13 @@ const pluginDiagnosticoAvanzado = {
         const max = options.max;
         const valor = options.valor;
 
+        // Para evitar bugs agresivos, la aguja solo se dibuja si la animación del gráfico terminó o está corriendo
+        const currentPct = chart.canvas.currentAnimationProgress || 1; 
+
         if (valor !== null && min !== max) {
             const pct = Math.max(0, Math.min((valor - min) / (max - min), 1));
-            const angulo = Math.PI + pct * Math.PI;
+            // Multiplicamos por el progreso de la animación para que la aguja "suba" suavemente
+            const angulo = Math.PI + (pct * currentPct) * Math.PI; 
             const largoAguja = r * 0.8;
             const anchoBase = 12;
 
@@ -385,11 +420,11 @@ const pluginDiagnosticoAvanzado = {
             rangos = [
                 { texto: "EXCELENTE", valor: valores.excelente, ang: Math.PI + Math.PI * 0.17 },
                 { texto: "ACEPTABLE", valor: valores.aceptable, ang: Math.PI + Math.PI * 0.50 },
-                { texto: "CRÍTICO",   valor: valores.critico,   ang: Math.PI + Math.PI * 0.83 }
+                { texto: "CRÍTICO",  valor: valores.critico,   ang: Math.PI + Math.PI * 0.83 }
             ];
         } else {
             rangos = [
-                { texto: "CRÍTICO",   valor: valores.critico,   ang: Math.PI + Math.PI * 0.17 },
+                { texto: "CRÍTICO",  valor: valores.critico,   ang: Math.PI + Math.PI * 0.17 },
                 { texto: "ACEPTABLE", valor: valores.aceptable, ang: Math.PI + Math.PI * 0.50 },
                 { texto: "EXCELENTE", valor: valores.excelente, ang: Math.PI + Math.PI * 0.83 }
             ];
@@ -472,6 +507,19 @@ function renderGraficoDiagnosticoRendimiento(canvasId, valorId, data) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            // ANIMACIÓN AGREGADA
+            animation: {
+                animateRotate: true,
+                animateScale: false,
+                duration: 2000,
+                easing: "easeOutQuart", // Suavizado para la dona
+                onProgress: function(animation) {
+                    this.canvas.currentAnimationProgress = animation.currentStep / animation.numSteps;
+                },
+                onComplete: function() {
+                    this.canvas.currentAnimationProgress = 1;
+                }
+            },
             layout: {
                 padding: { left: paddingLateral, right: paddingLateral }
             },
@@ -532,6 +580,19 @@ function renderGraficoDiagnosticoCosto(canvasId, valorId, data) {
         options: {
             responsive: true, 
             maintainAspectRatio: false,
+            // ANIMACIÓN AGREGADA
+            animation: {
+                animateRotate: true,
+                animateScale: false,
+                duration: 2000,
+                easing: "easeOutQuart", // Suavizado para la dona
+                onProgress: function(animation) {
+                    this.canvas.currentAnimationProgress = animation.currentStep / animation.numSteps;
+                },
+                onComplete: function() {
+                    this.canvas.currentAnimationProgress = 1;
+                }
+            },
             layout: { padding: { left: paddingLateral, right: paddingLateral } },
             cutout: "60%", 
             circumference: 180, 
@@ -615,6 +676,14 @@ function renderComparativo(dataPayload) {
         },
         options: {
             responsive: true, maintainAspectRatio: false,
+            // ANIMACIÓN AGREGADA
+            animation: {
+                duration: 1500,
+                easing: 'easeInOutQuart',
+                y: {
+                    from: (ctx) => ctx.chart.scales.y.getPixelForValue(0)
+                }
+            },
             scales: {
                 y: { beginAtZero: true, title: { display: true, text: 'Rendimiento Real (u/h)' }, grid: { borderDash: [2, 2], color: '#f0f0f0' }, suggestedMax: hayDatosSuficientes ? undefined : 10 },
                 x: { grid: { display: false } }
