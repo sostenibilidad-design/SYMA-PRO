@@ -14,6 +14,7 @@ class MedicionInicioForm(forms.ModelForm):
             'ubicacion',
             'proyecto',
             'foto_inicio',
+            'hora_inicio',
         ]
 class MedicionFinForm(forms.ModelForm):
     class Meta:

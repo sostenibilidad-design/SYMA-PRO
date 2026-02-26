@@ -28,6 +28,11 @@
                 <input type="text" name="ubicacion" placeholder="Ubicación" required>
             </div>
 
+            <div class="input-wrapper">
+                <input type="text" name="hora_inicio" id="input-hora-inicio" placeholder="Hora de inicio"
+                    onfocus="(this.type='time')" onblur="if(!this.value) this.type='text'" required>
+            </div>
+
             <div class="file-wrapper">
                 <span class="fileText" id="fileText_inicio">Insertar imagen</span>
                 <input type="file" name="foto_inicio" id="id_foto_inicio" accept="image/*" capture="environment">

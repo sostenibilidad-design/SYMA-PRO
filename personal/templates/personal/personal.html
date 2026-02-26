@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load moneda %}
 
 {% block title %}
     Personal
@@ -25,6 +26,7 @@
                             <th>C.C</th>
                             <th>Nombre completo</th>
                             <th>Cargo</th>
+                            <th>Salario</th>
                         </tr>
                     </thead>
                     
@@ -35,16 +37,18 @@
                                 <td>{{ item.cedula }}</td>
                                 <td>{{ item.nombre_completo }}</td>
                                 <td>{{ item.cargo }}</td>
+                                <td>$ {{ item.salario|cop }}</td>
                             </tr>
                             {% endfor %}
                         {% else %}
                             <tr>
-                                <td colspan="4">No hay empleados registrados.</td>
+                                <td colspan="5">No hay empleados registrados.</td>
                             </tr>
                         {% endif %}
 
                         {% for i in filas_vacias %}
                             <tr>
+                                <td></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>

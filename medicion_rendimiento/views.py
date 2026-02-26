@@ -19,12 +19,12 @@ from django.db import transaction
 from django.db.models import Q
 from decimal import Decimal, ROUND_HALF_UP, ROUND_DOWN
 from django.http import JsonResponse, HttpResponseRedirect,HttpResponse
-from django.db.models import Avg, Count
+from django.db.models import Avg, Count, Case, When, Value, IntegerField
 from django.db.models.functions import Coalesce,  ExtractMonth
 
 from .forms import MedicionInicioForm, MedicionFinForm, CumplimientoForm, HistorialCambiosCuadrillaForm, ConfiguracionAlertaForm
 from .models import MedicionCuadrilla, Cumplimiento, HistorialCambiosCuadrilla, ConsumoAlimento, ConfiguracionAlerta
-from personal.models import Empleado, ValorHora 
+from personal.models import Empleado
 from usuario.models import Usuario
 from medicion_rendimiento.reporte import (
     rendimiento_real_mensual, rendimiento_real_diario_por_cuadrilla, 
@@ -38,22 +38,19 @@ def formato_colombia(valor):
 
 # --- Medición de rendimiento por cuadrilla ---
 
-def obtener_valor_hora_por_cargo(emp, valores):
-    cargo = (emp.cargo or "").lower()
-
-    if "ayudante" in cargo and "entendido" in cargo:
-        return valores.ayudante_entendido
-
-    if "ayudante" in cargo:
-        return valores.ayudante_raso
-
-    if "oficial junior" in cargo:
-        return valores.oficial_junior
-
-    if "oficial senior" in cargo:
-        return valores.oficial_senior
-
-    return Decimal("0.00") 
+def calcular_valor_hora_empleado(emp):
+    """
+    Calcula el valor de la hora de un empleado dinámicamente:
+    Fórmula: (salario / 15) / 7.33
+    """
+    salario = emp.salario if emp.salario else Decimal("0.00")
+    
+    if salario > 0:
+        valor_dia = salario / Decimal("15")
+        valor_hora = valor_dia / Decimal("7.33")
+        return valor_hora.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        
+    return Decimal("0.00")
 
 #  --- FUNCIÓN AUXILIAR DE FILTRO GENERAL ---
 def filtrar_mediciones(request, queryset):
@@ -149,7 +146,14 @@ def medicion_por_cuadrilla(request):
             return redirect("actividad_cuadrilla")  # 🔥 evitar POST doble y refrescos erróneos
 
     # --- LUEGO cargar mediciones ---
-    mediciones = MedicionCuadrilla.objects.all().order_by('-fecha', '-hora_inicio')
+    mediciones = MedicionCuadrilla.objects.annotate(
+        estado_orden=Case(
+            When(hora_fin__isnull=True, then=Value(0)), 
+            default=Value(1),                           
+            output_field=IntegerField()
+        )
+    ).order_by('estado_orden', '-fecha', '-hora_inicio')
+
     mediciones = filtrar_mediciones(request, mediciones)
 
     cumplimientos_dict = {
@@ -198,21 +202,18 @@ def registrar_inicio_medicion(request):
                 # Opcional: Si tu modelo Usuario tiene campo 'cedula' y 'nombre_completo'
                 medicion.usuario_cedula = getattr(request.user, 'cedula', None)
                 medicion.nombre_usuario = getattr(request.user, 'nombre_completo', str(request.user))
-            
-            medicion.hora_inicio = timezone.localtime(timezone.now()).time()
-            
+                        
             medicion.save()  # Guarda la medición principal
             form.save_m2m()  # Guarda la relación ManyToMany (empleados)
 
             # Conteo dentro de la cuadrilla: contamos entre los empleados seleccionados
             empleados_qs = form.cleaned_data.get('empleados', Empleado.objects.none())
-            valor_empleados = ValorHora.objects.first()
 
             nombres = [f"{emp.nombre_completo}" for emp in empleados_qs]
             cedulas = [f"{emp.cedula}" for emp in empleados_qs]
 
             costos_empleados = [
-                formato_colombia(obtener_valor_hora_por_cargo(emp, valor_empleados)) 
+                formato_colombia(calcular_valor_hora_empleado(emp)) 
                 for emp in empleados_qs
             ]
 
@@ -348,7 +349,7 @@ def actualizar_cuadrilla(request, id):
 
             medicion.numero_oficiales_ayudantes = f"Oficiales: {oficiales_final} <br> Ayudantes: {ayudantes_final}"
             valor_empleados = ValorHora.objects.first()
-            costos_empleados = [formato_colombia(obtener_valor_hora_por_cargo(emp, valor_empleados)) for emp in empleados_unicos]
+            costos_empleados = [formato_colombia(calcular_valor_hora_empleado(emp)) for emp in empleados_unicos]
             medicion.precio_hora_trabajadores = "<br>".join(costos_empleados)
 
             # === ACTUALIZAR LISTA DE EMPLEADOS ===
@@ -592,7 +593,6 @@ def procesos(medicion):
         print(f">>> RESULTADO {emp.cedula}: {minutos_totales} min → {horas} h")
 
     # 5) CÁLCULO COSTOS TOTALES POR CARGO
-    valor_empleados = ValorHora.objects.first()
 
     costo_total_oficiales = Decimal("0.00")
     costo_total_ayudantes = Decimal("0.00")
@@ -602,7 +602,7 @@ def procesos(medicion):
 
         horas_decimal = Decimal(horas_txt.replace(" h", ""))
 
-        costo_hora = Decimal(obtener_valor_hora_por_cargo(emp, valor_empleados))
+        costo_hora = calcular_valor_hora_empleado(emp)
         costo_real = (costo_hora * horas_decimal).quantize(
             Decimal("0.01"), rounding=ROUND_HALF_UP
         )

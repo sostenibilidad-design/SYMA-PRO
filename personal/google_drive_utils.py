@@ -16,7 +16,7 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 
-from .models import Empleado, ValorHora
+from .models import Empleado
 
 # CONFIGURACIÓN
 SCOPES = ["https://www.googleapis.com/auth/drive.readonly"]
@@ -194,19 +194,6 @@ def fetch_and_store_empleados(root_folder_id: str):
     tmp_path = os.path.join(tempfile.gettempdir(), "empleados.xlsx")
     download_file(service, file_meta, tmp_path)
 
-    # ---------------- VALORES HORA ----------------
-    df_raw = pd.read_excel(tmp_path, sheet_name="Cargos", header=None)
-    valores = extraer_valores_hora(df_raw)
-
-    print("💰 Valores hora detectados:")
-    for k, v in valores.items():
-        print(f"  {k}: {v}")
-
-    ValorHora.objects.update_or_create(
-        id=1,
-        defaults=valores
-    )
-
     # ---------------- EMPLEADOS ----------------
     df_emp = pd.read_excel(tmp_path, sheet_name="Cargos")
     df_emp.columns = df_emp.columns.str.lower().str.strip()
@@ -214,6 +201,7 @@ def fetch_and_store_empleados(root_folder_id: str):
     col_cc = next((c for c in df_emp.columns if 'cc' in c or 'cedula' in c), None)
     col_nombre = next((c for c in df_emp.columns if 'nombre' in c), None)
     col_cargo = next((c for c in df_emp.columns if 'cargo' in c), None)
+    col_costos = next((c for c in df_emp.columns if 'costo' in c or 'salario' in c), None)
 
     if not col_cc:
         raise Exception(f"No se encontró columna de Cédula. Columnas: {list(df_emp.columns)}")
@@ -243,12 +231,14 @@ def fetch_and_store_empleados(root_folder_id: str):
             valor_nombre = str(row[col_nombre]).strip() if col_nombre and pd.notna(row[col_nombre]) else "Sin Nombre"
             valor_cargo = str(row[col_cargo]).strip() if col_cargo and pd.notna(row[col_cargo]) else "Sin Cargo"
             cedula_limpia = str(row[col_cc])
+            valor_salario = clean_money(row[col_costos]) if col_costos and pd.notna(row[col_costos]) else Decimal('0.00')
             
             Empleado.objects.update_or_create(
                 cedula=cedula_limpia,
                 defaults={
                     "nombre_completo": valor_nombre,
                     "cargo": valor_cargo,
+                    "salario": valor_salario,
                 }
             )
             cedulas_excel.append(cedula_limpia) # Registramos que esta cédula existe
