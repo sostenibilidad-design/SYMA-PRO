@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% load static %}
+{% load dict_filters %}
+
+{% block title %}
+    Registro de entrada y salida del personal
+{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'css/tablas.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/modales.css' %}">
+<link rel="stylesheet" href="{% static 'css/modales_campos.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+{% endblock %}
+
+{% block iconos %}
+    <a href="javascript:void(0);" onclick="abrirModal('modal-config-alertas')" title="Configurar Alertas">
+        <span class="material-symbols-outlined">notifications_active</span>
+    </a>
+    
+    <a href="#"><span id="btn-filtro" class="material-symbols-outlined">filter_alt</span></a>
+
+    {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,descarga" %}
+        <a href="javascript:void(0);" id="btn-descarga" onclick="descargarExcel()"><span class="material-symbols-outlined">download</span></a>
+    {% endif %}
+
+    <form id="formularioIngreso" action="{% url 'actividad_cuadrilla' %}" method="post" class="form-accion">
+        {% csrf_token %}
+        <input type="hidden" name="elemento" id="elemento_oculto">
+
+        {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,actualizar" %}
+            <a href="#" id="btn-actualizar" data-url-base="{% url 'actualizar_cuadrilla' 0 %}" ><span class="material-symbols-outlined">refresh</span></a>
+        {% endif %}
+    </form>
+{% endblock %}
+
+{% block filtro %} 
+{% endblock %}
+
+{% block content %}
+    <h2 class="titulo-seccion">Entrada y salida del personal</h2>
+
+    <div class="tabla-contenedor-relativo">
+        <section class="tabla">
+            <div class="tabla-scroll-wrapper">
+                <form action="{% url 'actividad_cuadrilla' %}" method="post">
+                    {% csrf_token %}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="primero"></th>
+                                <th>ID</th>
+                                <th>Proyecto</th>
+                                <th>Fecha</th>
+                                <th>Nombre del empleado</th>
+                                <th>Hora de ingreso</th>
+                                <th>Hora de salida</th>
+                                <th>Tiempo de alimentación</th>
+                                <th>Novedades</th>
+                                <th>Comentario</th>
+                                <th>Horas trabajadas</th>
+                                <th>Actividad</th>
+                                <th>Cargo</th>
+                                <th>Id usuario</th>
+                                <th>Usuario</th>
+                            </tr>
+                        </thead>
+                            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                            <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                        <tbody>
+                            
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+            
+            <button type="button" class="btn-expandir-tabla" onclick="abrirTablaFull(this)" title="Ver pantalla completa">
+                <i class="fa fa-expand"></i>
+            </button>
+        </section>
+    </div>
+{% endblock %}
+
+{% block tabla_botones %}
+    {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,registrar" %}
+        <a href="javascript:void(0);" id="registrar actividad" onclick="abrirModal('modal-actividad')" id="btnAgregar"><i class="fa fa-plus"></i>Registrar</a>
+    {% endif %}
+
+    <a href="#" onclick="sincronizarDatos(event)" id="btnAgregar" class="gris drive">
+        <i id="icono-sync" class="fa-solid fa-rotate"></i> Extraer datos
+    </a>
+
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
+

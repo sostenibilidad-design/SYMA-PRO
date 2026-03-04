@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'personal',
     'usuario',
     'medicion_rendimiento',
+    'entrada_y_salida_del_personal',
 ]
 
 MIDDLEWARE = [

@@ -348,7 +348,6 @@ def actualizar_cuadrilla(request, id):
             ayudantes_final = sum(1 for emp in empleados_unicos if 'ayudante' in (emp.cargo or '').lower())
 
             medicion.numero_oficiales_ayudantes = f"Oficiales: {oficiales_final} <br> Ayudantes: {ayudantes_final}"
-            valor_empleados = ValorHora.objects.first()
             costos_empleados = [formato_colombia(calcular_valor_hora_empleado(emp)) for emp in empleados_unicos]
             medicion.precio_hora_trabajadores = "<br>".join(costos_empleados)
 

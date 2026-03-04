@@ -64,17 +64,8 @@
                     </li>
                 {% endif %}
                 
-                {% if user|has_perm:"control_calidad,control_calidad,ver" %}
-                    <li><a href="#"><i class="fa fa-check-circle"></i> Control de calidad</a></li>
-                {% endif %}
 
-                {% if user|has_perm:"Auditorias,Auditorias,ver" %}
-                    <li><a href="#"><i class="fa fa-clipboard-check"></i> Auditorías</a></li>
-                {% endif %}
-
-                {% if user|has_perm:"entrega_vivienda,entrega_vivienda,ver" %}
-                    <li><a href="#"><i class="fa fa-home-user"></i> Entrega de viviendas</a></li>
-                {% endif %}
+                <li><a href="{% url 'entrada_salida_personal' %}"><i class="fa fa-clock"></i> Entrada y salida del personal</a></li>
 
                 {% if user|has_perm:"usuario,usuario,ver" %}
                     <li><a href="{% url 'usuario' %}"><i class="fa fa-user-gear"></i> Usuarios</a></li>
