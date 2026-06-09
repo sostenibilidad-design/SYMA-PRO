@@ -118,7 +118,7 @@ class PasswordResetNoRedirectView(PasswordResetView):
         for user in form.get_users(correo):
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = default_token_generator.make_token(user)
-            domain = get_current_site(self.request).domain
+            domain = self.request.get_host()
 
             context = {
                 "user": user,
