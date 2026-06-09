@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+{% load static %}
+{% load dict_filters %}
+
+{% block title %}Bitácora - {{ proyecto.nombre }}{% endblock %}
+
+{% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'bitacora/css/bitacora.css' %}">
+    <link rel="stylesheet" href="{% static 'bitacora/css/modal_firmas.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+{% endblock %}
+
+{% block search_bar %}{% endblock %}
+
+{% block iconos %}
+
+    {% if user|has_perm:"bitacora,cuaderno_bitacora,descargar" %}
+        <a href="{% url 'imprimir_bitacora_completa' proyecto.id_proyectos %}" target="_blank" title="Descargar bitácora completa">
+            <span class="material-symbols-outlined">download</span>
+        </a>
+    {% endif %}
+
+    <a href="{% url 'bitacora' %}" title="Cerrar y volver">
+        <span class="material-symbols-outlined">close</span>
+    </a>
+{% endblock %}
+
+{% block content %}
+<div class="bt-wrapper">
+    <form id="form-bitacora" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="bt-portada">
+            
+            <div class="bt-notebook">
+                
+                <div class="bt-tabs">
+                    <a href="{% url 'detalle_bitacora' proyecto.id_proyectos %}" class="bt-tab {% if not bitacora %}bt-tab-active{% endif %}" style="text-decoration: none;">Nueva entrada</a>
+
+                    {% if user|has_perm:"bitacora,cuaderno_bitacora,descargar" %}
+                        {% if bitacora %}
+                            <a href="{% url 'imprimir_bitacora_hoja' proyecto.id_proyectos bitacora.id_bitacora %}" target="_blank" class="bt-tab" style="text-decoration: none;">Descargar página</a>
+                        {% else %}
+                            <a href="#" class="bt-tab" style="text-decoration: none; opacity: 0.5; cursor: not-allowed;" title="Guarde el registro primero">Descargar página</a>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if primer_id %}
+                    <a href="{% url 'detalle_bitacora_id' proyecto.id_proyectos primer_id %}" class="bt-tab {% if bitacora.id_bitacora == primer_id %}bt-tab-active{% endif %}" style="text-decoration: none;">Primer registro</a>
+                    {% endif %}
+                    
+                    {% if ultimo_id %}
+                    <a href="{% url 'detalle_bitacora_id' proyecto.id_proyectos ultimo_id %}" class="bt-tab {% if bitacora.id_bitacora == ultimo_id %}bt-tab-active{% endif %}" style="text-decoration: none;">Ultimo registro</a>
+                    {% endif %}
+
+                </div>
+
+                <div class="bt-page bt-page-left">
+                    <div class="bt-page-header">
+                        <img src="{% static 'img/logo_syma.png' %}" alt="SYMA" class="bt-logo">
+                        <span class="bt-page-num">Pg {{ pagina_izq }}</span> 
+                        <input type="hidden" name="id_bitacora" id="id_bitacora" value="{{ bitacora.id_bitacora|default_if_none:'' }}">
+                    </div>
+
+                    <div class="bt-section">
+                        <label class="bt-label">Fecha de registro</label>
+                        <input type="date" name="fecha" class="bt-input-date" value="{{ bitacora.fecha|date:'Y-m-d' }}" required>
+                    </div>
+
+                    <div class="bt-section">
+                        <label class="bt-label">Estado del clima</label>
+                        <div class="bt-weather-container">
+                            <div class="bt-weather-group">
+                                <span class="bt-weather-title">MAÑANA</span>
+                                <div class="bt-weather-buttons" id="clima-manana">
+                                    <button type="button" class="bt-w-btn {% if bitacora.clima_manana == 'lluvioso' %}active{% endif %}" data-value="lluvioso"><i class="fa-solid fa-cloud-showers-heavy"></i>lluvioso</button>
+                                    <button type="button" class="bt-w-btn {% if bitacora.clima_manana == 'nublado' %}active{% endif %}" data-value="nublado"><i class="fa-solid fa-cloud-sun-rain"></i>nublado</button>
+                                    <button type="button" class="bt-w-btn {% if bitacora.clima_manana == 'soleado' %}active{% endif %}" data-value="soleado"><i class="fa-solid fa-sun"></i>soleado</button>
+                                    <input type="hidden" name="clima_manana" value="{{ bitacora.clima_manana|default_if_none:'' }}" required>
+                                </div>
+                            </div>
+                            <div class="bt-weather-group">
+                                <span class="bt-weather-title">TARDE</span>
+                                <div class="bt-weather-buttons" id="clima-tarde">
+                                    <button type="button" class="bt-w-btn {% if bitacora.clima_tarde == 'lluvioso' %}active{% endif %}" data-value="lluvioso"><i class="fa-solid fa-cloud-showers-heavy"></i>lluvioso</button>
+                                    <button type="button" class="bt-w-btn {% if bitacora.clima_tarde == 'nublado' %}active{% endif %}" data-value="nublado"><i class="fa-solid fa-cloud-sun-rain"></i>nublado</button>
+                                    <button type="button" class="bt-w-btn {% if bitacora.clima_tarde == 'soleado' %}active{% endif %}" data-value="soleado"><i class="fa-solid fa-sun"></i>soleado</button>
+                                    <input type="hidden" name="clima_tarde" value="{{ bitacora.clima_tarde|default_if_none:'' }}" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bt-section">
+                        <label class="bt-label">Equipo de obra</label>
+                        <textarea name="equipo" class="bt-textarea" placeholder="Describe el equipo utilizado...">{{ bitacora.equipo_obra|default_if_none:'' }}</textarea>
+                    </div>
+
+                    <div class="bt-section">
+                        <label class="bt-label">Personal de obra</label>
+                        <div class="bt-workers-grid">
+                            <div class="bt-worker-card">
+                                <div class="bt-worker-head"><i class="fa-solid fa-helmet-safety"></i> Maestros</div>
+                                <div class="bt-counter">
+                                    <button type="button" class="bt-cnt-btn" onclick="updateCount('maestros', -1)">&#10094;</button>
+                                    <input type="number" id="maestros" name="cant_maestros" value="{{ bitacora.cant_maestros|default:0 }}" min="0" readonly>
+                                    <button type="button" class="bt-cnt-btn" onclick="updateCount('maestros', 1)">&#10095;</button>
+                                </div>
+                            </div>
+                            <div class="bt-worker-card">
+                                <div class="bt-worker-head"><i class="fa-solid fa-helmet-safety"></i> Oficiales</div>
+                                <div class="bt-counter">
+                                    <button type="button" class="bt-cnt-btn" onclick="updateCount('oficiales', -1)">&#10094;</button>
+                                    <input type="number" id="oficiales" name="cant_oficiales" value="{{ bitacora.cant_oficiales|default:0 }}" min="0" readonly>
+                                    <button type="button" class="bt-cnt-btn" onclick="updateCount('oficiales', 1)">&#10095;</button>
+                                </div>
+                            </div>
+                            <div class="bt-worker-card">
+                                <div class="bt-worker-head"><i class="fa-solid fa-user-gear"></i> Ayudantes</div>
+                                <div class="bt-counter">
+                                    <button type="button" class="bt-cnt-btn" onclick="updateCount('ayudantes', -1)">&#10094;</button>
+                                    <input type="number" id="ayudantes" name="cant_ayudantes" value="{{ bitacora.cant_ayudantes|default:0 }}" min="0" readonly>
+                                    <button type="button" class="bt-cnt-btn" onclick="updateCount('ayudantes', 1)">&#10095;</button>
+                                </div>
+                            </div>
+                            <div class="bt-worker-card">
+                                <div class="bt-worker-head"><i class="fa-solid fa-user-tie"></i> Contratista</div>
+                                <div class="bt-counter">
+                                    <button type="button" class="bt-cnt-btn" onclick="updateCount('contratista', -1)">&#10094;</button>
+                                    <input type="number" id="contratista" name="cant_contratistas" value="{{ bitacora.cant_contratistas|default:0 }}" min="0" readonly>
+                                    <button type="button" class="bt-cnt-btn" onclick="updateCount('contratista', 1)">&#10095;</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if id_anterior %}
+                    <div class="bt-corner-prev" title="Página Anterior" onclick="turnPage('{% url 'detalle_bitacora_id' proyecto.id_proyectos id_anterior %}', 'prev')"></div>
+                    {% endif %}
+                </div>
+
+                <div class="bt-binder">
+                    <div class="bt-ring"></div><div class="bt-ring"></div>
+                    <div class="bt-ring"></div><div class="bt-ring"></div>
+                    <div class="bt-ring"></div><div class="bt-ring"></div>
+                    <div class="bt-ring"></div><div class="bt-ring"></div>
+                    <div class="bt-ring"></div><div class="bt-ring"></div>
+                </div>
+
+                <div class="bt-page bt-page-right">
+                    <div class="bt-page-header">
+                        <img src="{% static 'img/logo_syma.png' %}" alt="SYMA" class="bt-logo">
+                        <span class="bt-page-num">Pg {{ pagina_der }}</span>
+                    </div>
+
+                    <div class="bt-section">
+                        <label class="bt-label">Actividades realizadas</label>
+                        <textarea name="actividades" class="bt-textarea actividades-section" placeholder="Describe las actividades del día...">{{ bitacora.actividades|default_if_none:'' }}</textarea>
+                    </div>
+
+                    <div class="bt-section">
+                        <label class="bt-label">Registro fotográfico</label>
+                        <div class="bt-photo-carousel-wrapper">
+                            <button type="button" class="bt-carousel-btn" id="btn-prev-photo">&#10094;</button>
+                            
+                            <div class="bt-photo-area" id="photo-container">
+                                {% if bitacora %}
+                                    {% for foto in bitacora.fotos.all %}
+                                    <div class="bt-photo-thumb" id="foto-{{ foto.id_bitacora_fotos }}">
+                                        <img src="{{ foto.url_imagen.url }}" alt="Foto bitácora">
+                                        <button type="button" class="btn-delete-photo" onclick="eliminarFoto({{ foto.id_bitacora_fotos }})">×</button>
+                                    </div>
+                                    {% endfor %}
+                                {% endif %}
+                                
+                                <label class="bt-add-photo" id="label-add-photo">
+                                    <span id="span-add-icon">+</span>
+                                    <input type="file" id="input-fotos" name="fotos" multiple accept="image/*" style="display:none;">
+                                </label>
+                            </div>
+                            
+                            <button type="button" class="bt-carousel-btn" id="btn-next-photo">&#10095;</button>
+                        </div>
+                    </div>
+
+                    <div class="bt-footer-action">
+                        {% if bitacora.firma_autor_url and bitacora.firma_supervisor_url %}
+                            <div class="firmas-completadas-display">
+                                <div class="firma-display-item">
+                                    <img src="{{ bitacora.firma_autor_url.url }}" alt="Firma Autor">
+                                    <p class="firma-nombre">{{ bitacora.autor.nombre_visible }}</p>
+                                    <p class="firma-rol">Autor (CC: {% if bitacora.autor.cedula %}{{ bitacora.autor.cedula }}{% elif bitacora.autor.empleado %}{{ bitacora.autor.empleado.cedula }}{% else %}N/A{% endif %})</p>
+                                </div>
+                                <div class="firma-display-item">
+                                    <img src="{{ bitacora.firma_supervisor_url.url }}" alt="Firma Supervisor">
+                                    <p class="firma-nombre">{{ bitacora.supervisor.nombre_visible }}</p>
+                                    <p class="firma-rol">Supervisor (CC: {% if bitacora.supervisor.cedula %}{{ bitacora.supervisor.cedula }}{% elif bitacora.supervisor.empleado %}{{ bitacora.supervisor.empleado.cedula }}{% else %}N/A{% endif %})</p>
+                                </div>
+                            </div>
+                        {% else %}
+                            <button type="button" id="btn-abrir-firmas" class="bt-btn-firma">
+                                <i class="fa-solid fa-signature"></i> Añadir firma
+                            </button>
+                        {% endif %}
+                    </div>
+
+                    {% if id_siguiente %}
+                    <div class="bt-corner-next" title="Página Siguiente" onclick="turnPage('{% url 'detalle_bitacora_id' proyecto.id_proyectos id_siguiente %}', 'next')"></div>
+                    {% elif bitacora %}
+                    <div class="bt-corner-next" title="Nueva Entrada" onclick="turnPage('{% url 'detalle_bitacora' proyecto.id_proyectos %}', 'next')"></div>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+    </form>
+</div>
+
+{% include 'bitacora/modal_firmas.html' %}
+
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'bitacora/js/bitacora.js' %}"></script>
+    <script src="{% static 'bitacora/js/modal_firma.js' %}"></script>
+{% endblock %}

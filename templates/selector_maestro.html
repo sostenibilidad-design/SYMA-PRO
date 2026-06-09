@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    Seleccionar Proyecto - SYMA PRO
+{% endblock %}
+
+{% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'css/selector_maestro.css' %}">
+{% endblock %}
+
+{% block search_bar %}{% endblock %}
+
+{% block content %}
+<div class="ps-container">
+    <h1 class="ps-main-title">PROYECTOS ACTUALES</h1>
+    
+    <p class="ps-subtitle">
+        {% block texto_instruccion %}
+            Selecciona un proyecto para continuar
+        {% endblock %}
+    </p>
+
+    <div class="ps-grid">
+        {% for proyecto in proyectos %}
+        
+        <a href="{% if url_destino %}{% url url_destino proyecto.id_proyectos %}{% else %}#{% endif %}" class="ps-card">
+            
+            <div class="ps-card-header">
+                <span class="ps-badge ps-badge-{{ proyecto.estado|lower }}">{{ proyecto.estado }}</span>
+                {% if proyecto.imagen_portada %}
+                    <img src="{{ proyecto.imagen_portada.url }}" alt="{{ proyecto.nombre }}" class="ps-card-img">
+                {% else %}
+                    <div class="ps-img-placeholder"><i class="fa-solid fa-camera"></i></div>
+                {% endif %}
+            </div>
+
+            <div class="ps-card-body">
+                <h3 class="ps-project-name">{{ proyecto.nombre }}</h3>
+                <p class="ps-project-location">{{ proyecto.ubicacion }}</p>
+            </div>
+
+            <div class="ps-card-footer">
+                <i class="fa-solid fa-user-group ps-footer-icon"></i>
+                <span class="ps-footer-text">{{ proyecto.cant_empleados|default:"0" }} empleados</span>
+            </div>
+            
+        </a>
+        
+        {% empty %}
+        <div class="ps-no-data">
+            <p>Aún no hay proyectos registrados en el sistema.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,285 @@
+.rp-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 20px 0;
+}
+
+#rp-form {
+    display: flex;
+    gap: 40px;
+    width: 100%;
+}
+
+/* --- Títulos Comunes --- */
+.rp-title {
+    font-family: 'Inria Serif', serif;
+    color: #A3BD31;
+    font-size: 30px;
+    font-weight: 600;
+    text-align: center;
+    margin: 0 0 25px 0;
+    line-height: 1.2;
+}
+
+/* --- Columna Izquierda (Previsualización) --- */
+.rp-col-izq {
+    flex: 0 0 500px;
+    display: flex;
+    flex-direction: column;
+    margin-left: 20px;
+}
+
+.rp-preview-box {
+    width: 100%;
+    aspect-ratio: 1;
+    background-color: #d8d8d8;
+    border-radius: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.05), 0 5px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.rp-preview-box i {
+    font-size: 100px;
+    color: #333;
+}
+
+.rp-preview-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* --- Línea Divisoria --- */
+.rp-divider {
+    width: 2px;
+    background-color: #c4c4c4;
+    border-radius: 2px;
+}
+
+/* --- Columna Derecha (Formulario) --- */
+.rp-col-der {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.rp-scroll-area {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-height: 380px; /* Activa el scroll basado en tus capturas */
+    overflow-y: auto;
+    padding-right: 15px; /* Espacio para el scrollbar */
+    padding-bottom: 10px;
+}
+
+/* Scrollbar styling */
+.rp-scroll-area::-webkit-scrollbar {
+    width: 6px;
+}
+.rp-scroll-area::-webkit-scrollbar-thumb {
+    background-color: #a0a0a0;
+    border-radius: 10px;
+}
+
+/* Inputs tipo Píldora */
+.rp-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 15px 25px;
+    border-radius: 30px;
+    border: 1px solid #d1d1d1;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    font-family: 'Inria Serif', serif;
+    font-size: 18px;
+    color: #666;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.rp-input:focus {
+    border-color: #A3BD31;
+}
+
+.rp-input::placeholder {
+    color: #888;
+}
+
+/* Botones / Inputs Punteados */
+.rp-dashed-btn {
+    position: relative;
+    background-color: #e2e2e2;
+    border: 2px dashed #777;
+    border-radius: 30px;
+    padding: 15px 25px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    cursor: pointer;
+}
+
+.rp-dashed-btn i {
+    font-size: 22px;
+    color: #000;
+}
+
+.rp-dashed-btn span {
+    font-family: 'Inria Serif', serif;
+    font-size: 18px;
+    font-weight: bold;
+    color: #000;
+}
+
+/* Funcionalidad invisible para el input file */
+.rp-dashed-btn input[type="file"] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Input transparente para el link */
+.rp-input-transparent {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'Inria Serif', serif;
+    font-size: 18px;
+    font-weight: bold;
+    color: #000;
+    width: 100%;
+}
+
+.rp-input-transparent::placeholder {
+    color: #000;
+}
+
+/* Botón de Guardar */
+.rp-actions {
+    margin-top: 38px;
+    display: flex;
+    justify-content: center;
+    padding-right: 15px;
+}
+
+.rp-btn-guardar {
+    background-color: #A3BD31;
+    color: #fff;
+    font-family: 'Inria Serif', serif;
+    font-size: 25px;
+    border: none;
+    border-radius: 30px;
+    padding: 12px 35px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(163, 189, 49, 0.3);
+    transition: background-color 0.3s;
+}
+
+.rp-btn-guardar:hover {
+    background-color: #8da32b;
+}
+
+/* =========================================
+    CUSTOM SELECT (MENÚ DESPLEGABLE ESTILIZADO)
+   ========================================= */
+
+.syma-custom-select {
+    position: relative;
+    width: 100%;
+    outline: none;
+}
+
+.select-selected {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.select-icon {
+    color: #888;
+    transition: transform 0.3s ease;
+}
+
+/* La caja desplegable */
+.select-items {
+    position: absolute;
+    top: 110%; /* Se coloca justo debajo del input */
+    left: 0;
+    right: 0;
+    background-color: #ffffff;
+    border-radius: 20px; /* Bordes bien redondeados */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); /* Sombra elegante */
+    border: 1px solid #d1d1d1;
+    overflow: hidden;
+    z-index: 999;
+    
+    /* Efecto de aparición */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+/* Cuando el select está abierto */
+.syma-custom-select.active .select-items {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.syma-custom-select.active .select-selected {
+    border-color: #A3BD31; /* Borde verde al abrir */
+}
+
+.syma-custom-select.active .select-icon {
+    transform: rotate(180deg); /* La flecha gira hacia arriba */
+    color: #A3BD31;
+}
+
+/* Las opciones individuales de la lista */
+.select-items div {
+    padding: 12px 25px;
+    cursor: pointer;
+    font-family: 'Inria Serif', serif;
+    font-size: 18px;
+    color: #666;
+    transition: all 0.2s ease;
+}
+
+/* Efecto hover sobre cada opción */
+.select-items div:hover {
+    background-color: rgba(163, 189, 49, 0.1); /* Fondo verde super clarito */
+    color: #A3BD31; /* Letra verde SYMA */
+    padding-left: 32px; /* Pequeño salto a la derecha muy profesional */
+}
+
+/* ===== MEDIA QUERIES ===== */
+@media (max-width: 850px) {
+    #rp-form {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+    .rp-divider {
+        width: 100%;
+        height: 2px;
+    }
+    .rp-col-izq, .rp-col-der {
+        width: 100%;
+        flex: auto;
+    }
+    .rp-preview-box {
+        max-width: 320px;
+        margin: 0 auto;
+    }
+}

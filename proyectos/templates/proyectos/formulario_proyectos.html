@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    Registrar Proyecto - SYMA PRO
+{% endblock %}
+
+{% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'proyectos/css/formulario_proyectos.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+{% endblock %}
+
+{% block search_bar %}{% endblock %}
+
+{% block iconos %}
+    <a href="{% url 'proyectos' %}" title="Cerrar y volver"><span class="material-symbols-outlined">close</span></a>
+{% endblock %}
+
+{% block content %}
+    <div class="rp-wrapper">
+        <form id="rp-form" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="rp-col-izq">
+                <h2 class="rp-title">Previsualización<br>de imagen</h2>
+                
+                <div class="rp-preview-box" id="rp-preview-container">
+                    <i class="fa-solid fa-camera" id="rp-preview-icon"></i>
+                    <img id="rp-preview-image" src="" alt="Previsualización" style="display: none;">
+                </div>
+            </div>
+
+            <div class="rp-divider"></div>
+
+            <div class="rp-col-der">
+                <h2 class="rp-title">Añadir detalles<br>del proyecto</h2>
+                
+                <div class="rp-scroll-area">
+                    <input type="text" class="rp-input" name="nombre" placeholder="Nombre del proyecto..." required>
+                    <input type="text" class="rp-input" name="ubicacion" placeholder="Ubicación..." required>
+                    
+                    <div class="rp-dashed-btn">
+                        <i class="fa-solid fa-camera"></i>
+                        <span>Cargar imagen</span>
+                        <input type="file" id="rp-input-foto" name="imagen_portada" accept="image/*" required>
+                    </div>
+
+                    <div class="syma-custom-select" tabindex="0">
+                        <input type="hidden" name="estado" id="input-estado" required>
+                        
+                        <div class="select-selected rp-input">
+                            <span class="selected-text" style="color: #888;">Selecciona el estado...</span>
+                            <i class="fa-solid fa-chevron-down select-icon"></i>
+                        </div>
+                        
+                        <div class="select-items">
+                            <div data-value="ACTIVO">Activo</div>
+                            <div data-value="PAUSADO">Pausado</div>
+                            <div data-value="TERMINADO">Terminado</div>
+                            <div data-value="ESCRITURACION">Escrituración</div>
+                        </div>
+                    </div>
+
+                    <input type="number" class="rp-input" name="cant_viviendas" placeholder="Cantidad de viviendas" required>
+                    <input type="number" step="0.01" class="rp-input" name="m2_urbanismo" placeholder="M2 urbanismo" required>
+                    <input type="number" step="0.01" class="rp-input" name="m2_zona_verde" placeholder="M2 zonas verdes" required>
+                    <input type="number" class="rp-input" name="numero_pisos" placeholder="Numero de pisos" required>
+                    <input type="number" class="rp-input" name="numero_bloques" placeholder="Numero de bloques" required>
+                    <input type="number" class="rp-input" name="cant_empleados" placeholder="Cantidad de empleados" required>
+                    <input type="text" class="rp-input" name="sistema_constructivo" placeholder="Sistema constructivo" required>
+                    
+                    <div class="rp-dashed-btn">
+                        <i class="fa-solid fa-link"></i>
+                        <input type="url" class="rp-input-transparent" name="link_planos" placeholder="Link de planos" required>
+                    </div>
+                </div>
+                
+                <div class="rp-actions">
+                    <button type="submit" class="rp-btn-guardar">Guardar Proyecto</button>
+                </div>
+
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'proyectos/js/formulario_proyectos.js' %}"></script>
+{% endblock %}

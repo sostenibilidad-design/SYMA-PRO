@@ -1,0 +1,272 @@
+.modal-overlay {
+    display: none; /* Oculto por defecto */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6); 
+    backdrop-filter: blur(3px); /* Desenfoque elegante del fondo */
+    z-index: 9999; /* Para que quede por encima del header y el cuaderno */
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-overlay.active {
+    display: flex; 
+}
+
+
+.modal {
+    max-height: 95vh;
+    overflow-y: auto; 
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    animation: aparecerModal 0.3s ease-out forwards;
+}
+
+@keyframes aparecerModal {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.modal-firma-content {
+    max-width: 800px !important;
+    width: 95% !important;
+    padding: 10px 30px !important;
+    padding-top: 10px !important;
+    padding-bottom: 15px !important;
+    background-color: #ffffff;
+    background-image: radial-gradient(#dcdcdc 1.2px, transparent 1.2px);
+    background-size: 18px 18px;
+    border: 1px solid #ccc; 
+    border-top: 18px solid #A3BD31; 
+    border-radius: 12px; 
+    box-sizing: border-box;
+}
+
+.titulo-firmas {
+    font-family: 'Inria Serif', serif;
+    font-size: 22px;
+    color: #111;
+    text-align: center;
+    margin-bottom: 0px;
+    margin-top: 0;
+}
+
+.dashed-line {
+    border: none;
+    border-top: 2px solid #ccc;
+    margin: 15px 0;
+    margin-top: 10px;
+}
+
+.firmas-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+}
+
+/* Columna individual */
+.firma-col {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+/* La línea divisoria sutil en el medio */
+.firma-col:first-child {
+    padding-right: 30px;
+    border-right: 1px solid #ccc;
+}
+
+.firma-col:last-child {
+    padding-left: 30px;
+}
+
+.firma-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.icon-firma {
+    font-size: 40px;
+    color: #A3BD31;
+    text-shadow: 2px 2px 2px rgba(0,0,0,0.1);
+}
+
+.firma-textos h3 {
+    font-family: 'Inria Serif', serif;
+    margin: 0;
+    font-size: 18px;
+    color: #000;
+    font-weight: 700;
+}
+
+.firma-textos p {
+    margin: 0;
+    font-size: 14px;
+    color: #555;
+    font-family: 'Inria Serif', serif; /* Ajustado al boceto */
+}
+
+.firma-label {
+    font-family: 'Inria Serif', serif; /* Ajustado al boceto */
+    font-size: 15px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 5px;
+}
+
+.firma-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+    font-family: sans-serif;
+    outline: none;
+}
+
+.firma-input:focus {
+    border-color: #A3BD31;
+}
+
+/* Zona de Dibujo (Canvas) */
+/* Zona de Dibujo (Canvas) */
+.canvas-container {
+    position: relative;
+    width: 100%;
+    height: 120px;
+    background-color: #e3e3e3; /* Gris exacto del boceto */
+    border: 1.5px dashed #888; /* Borde punteado un poco más oscuro */
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+}
+
+.canvas-placeholder {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #666;
+    font-size: 20px; /* Letra un poco más grande */
+    font-family: 'Inria Serif', serif; /* Letra del boceto */
+    z-index: 1;
+    pointer-events: none;
+    text-align: center;
+    width: 100%;
+}
+
+.firma-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    cursor: crosshair;
+}
+
+.canvas-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+/* Botones de acción pequeños (Píldoras grises) */
+.btn-sm {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid #777; /* Borde oscuro del boceto */
+    background-color: #e0e0e0;
+    border-radius: 20px; /* Muy redondeados */
+    font-size: 13px;
+    font-family: 'Inria Serif', serif;
+    font-weight: bold;
+    color: #111;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: 0.2s;
+}
+
+.btn-sm:hover {
+    background-color: #ccc;
+}
+
+/* Contenedor de botones inferiores */
+.botones-firmas {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 15px;
+}
+
+/* Botón Cancelar del boceto */
+.botones-firmas .btn-cancelar {
+    background-color: #e0e0e0;
+    color: #111;
+    border: 1px solid #bababa;
+    border-radius: 8px;
+    padding: 10px 30px;
+    font-family: 'Inria Serif', serif;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    transition: background 0.2s;
+}
+
+.botones-firmas .btn-cancelar:hover {
+    background-color: #ccc;
+}
+
+/* Botón Firmar del boceto */
+.botones-firmas .btn-guardar {
+    background-color: #A3BD31;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 30px;
+    font-family: 'Inria Serif', serif;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    transition: background 0.2s;
+}
+
+.botones-firmas .btn-guardar:hover {
+    background-color: #92aa2c;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .firmas-grid { grid-template-columns: 1fr; } 
+    .modal-firma-content { max-height: 85vh; overflow-y: auto; }
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .firmas-grid { 
+        grid-template-columns: 1fr; 
+        gap: 20px; 
+    } 
+    /* Quitamos la línea vertical y los paddings en celular */
+    .firma-col:first-child {
+        padding-right: 0;
+        border-right: none;
+        border-bottom: 2px dashed #ccc; /* La línea pasa a ser horizontal */
+        padding-bottom: 20px;
+    }
+    .firma-col:last-child {
+        padding-left: 0;
+    }
+    .modal-firma-content { max-height: 85vh; overflow-y: auto; }
+}

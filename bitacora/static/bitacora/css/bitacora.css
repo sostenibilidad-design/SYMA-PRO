@@ -1,0 +1,656 @@
+.bt-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: 0;
+    background-color: #fff;
+    border-radius: 20px;
+
+    container-type: inline-size;
+    width: 100%;
+}
+
+/* --- NUEVA PORTADA VERDE --- */
+.bt-portada {
+    position: relative;
+    background-color: #A3BD31; /* El verde SYMA ahora vive aquí */
+    padding: 12px 20px; /* El grosor de la pasta */
+    border-radius: 12px;
+    width: 1250px;
+    max-width: 100%;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+.bt-notebook {
+    display: flex;
+    position: relative;
+    width: 100%;
+    background: transparent; 
+    box-sizing: border-box;
+}
+
+
+/* --- Fondo de puntos estilo Bullet Journal --- */
+.bt-page {
+    background-color: #ffffff;
+    flex: 1;
+    padding: 30px 40px;
+    padding-top: 15px;
+    border-radius: 5px;
+    background-image: radial-gradient(#d1d5db 1.5px, transparent 1.5px);
+    background-size: 20px 20px; /* Separación de los puntos */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-sizing: border-box;
+
+    box-shadow: 
+        1px 1px 0px #d1d5db,   /* Sombra hoja 1 */
+        3px 2px 0px #ffffff,   /* Hoja 1 */
+        4px 3px 0px #d1d5db,   /* Sombra hoja 1 */
+        6px 4px 0px #ffffff,   /* Hoja 2 */
+        7px 5px 0px #d1d5db,   /* Sombra hoja 2 */
+
+        -1px 1px 0px #d1d5db,   /* Sombra hoja 1 */
+        -3px 2px 0px #ffffff,   /* Hoja 1 */
+        -4px 3px 0px #d1d5db,   /* Sombra hoja 1 */
+        -6px 4px 0px #ffffff,   /* Hoja 2 */
+        -7px 5px 0px #d1d5db,   /* Sombra hoja 2 */
+        -8px 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.bt-page-left { margin-right: 2px; }
+.bt-page-right { margin-left: 2px; }
+
+/* --- Espiral Central --- */
+.bt-binder {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    width: 50px;
+    background: transparent;
+    z-index: 10;
+    margin: 0 -17px; /* Centra perfectamente los anillos sobre el corte de las hojas */
+    padding: 25px 0; 
+    box-sizing: border-box;
+}
+
+.bt-ring {
+    position: relative;
+    width: 37px;
+    height: 10px;
+    border-radius: 5px;
+    margin: 6px auto;
+    box-shadow: 0 4px 5px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    background: linear-gradient(
+        to bottom, 
+        #222222 0%, #cccccc 15%, #ffffff 25%, #111111 45%, /* Alambre superior */
+        transparent 45%, transparent 55%,                  /* Hueco central libre */
+        #222222 55%, #cccccc 70%, #ffffff 80%, #111111 100% /* Alambre inferior */
+    );
+}
+
+/* Los agujeros negros troquelados en el papel detrás de la argolla */
+.bt-ring::before, .bt-ring::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    background-color: #111111; /* Negro profundo del fondo del cuaderno */
+    border-radius: 50%;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8);
+    z-index: -1; /* Posicionados estrictamente detrás del metal */
+}
+
+.bt-ring::before { left: -10px; }
+.bt-ring::after { right: -10px; }
+
+/* --- Pestañas (Tabs) --- */
+.bt-tabs {
+    position: absolute;
+    right: -35px;
+    top: 50px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.bt-tab {
+    background-color: #a0a0a0;
+    color: #fff;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    padding: 15px 5px;
+    border-radius: 0 8px 8px 0;
+    font-family: 'Inria Serif', serif;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+}
+
+.bt-tab-active { background-color: #A3BD31; }
+
+/* --- Tipografía y Headers --- */
+.bt-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 2px dashed #d1d5db;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.bt-logo { height: 30px; }
+.bt-page-num { color: #aaa; font-family: 'Inria Serif', serif; font-size: 18px; }
+
+.bt-label {
+    font-family: 'Inria Serif', serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: #111;
+    margin-bottom: 12px;
+    display: block;
+}
+
+/* --- Clima (Botones Radio Ocultos) --- */
+.bt-weather-container { display: flex; gap: 50px; flex-wrap: wrap;}
+.bt-weather-group { display: flex; flex-direction: column; }
+.bt-weather-title { font-size: 14px; color: #666; letter-spacing: 1px; margin-bottom: 5px; }
+
+.bt-weather-buttons { display: flex; gap: 10px; flex-wrap: wrap;}
+.bt-w-btn {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 17px 13.5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 12px;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.bt-w-btn i { font-size: 18px; margin-bottom: 3px; }
+.bt-w-btn.active { background-color: #A3BD31; color: #fff; border-color: #A3BD31; }
+
+/* --- Contadores de Personal --- */
+.bt-workers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.bt-worker-card {
+    background: #e5e7eb;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+}
+.bt-worker-head { font-family: 'Inria Serif', serif; color: #333; margin-bottom: 10px; }
+.bt-counter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #fff;
+    border-radius: 8px;
+    padding: 5px;
+    border: 1px solid #ccc;
+}
+.bt-cnt-btn { background: none; border: none; font-size: 16px; cursor: pointer; padding: 0 10px; color: #555; }
+.bt-counter input {
+    width: 40px; text-align: center; border: none; font-size: 16px; font-weight: bold; background: transparent; outline: none;
+}
+
+/* --- Inputs de Texto y Fotos --- */
+.bt-input-date, .bt-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-family: sans-serif;
+    outline: none;
+    background: #fff;
+}
+.bt-textarea { resize: none; height: 90px; }
+
+.actividades-section{
+    height: 340px;
+}
+
+.bt-add-photo {
+    width: 70px; height: 70px;
+    border: 2px dashed #aaa; border-radius: 10px;
+    display: flex; justify-content: center; align-items: center;
+    font-size: 30px; color: #aaa; cursor: pointer; background: #fff;
+}
+
+.bt-footer-action { 
+    text-align: center; 
+    margin-top: auto; 
+    padding-top: 0;
+}
+
+.bt-btn-firma {
+    background-color: #A3BD31; 
+    color: #ffffff;
+    border: none; 
+    border-radius: 9px; 
+    padding: 10px 35px; 
+    font-family: 'Inria Serif', serif; 
+    font-size: 19px; 
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(163, 189, 49, 0.35); 
+    transition: all 0.2s ease;
+}
+
+.bt-btn-firma i { margin-right: 6px; }
+
+.bt-btn-firma:hover { 
+    background-color: #8fa928; 
+    transform: translateY(-1px);
+    box-shadow: 0 6px 15px rgba(163, 189, 49, 0.45); 
+}
+
+/* ==========================================================================
+    CARRUSEL DE FOTOS (VERSIÓN DEFINITIVA Y RÍGIDA)
+   ========================================================================== */
+.bt-photo-carousel-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.bt-photo-area {
+    display: flex;
+    gap: 10px;
+    width: 420px; 
+    max-width: 420px; 
+    overflow-x: hidden; 
+    scroll-behavior: smooth;
+    padding: 5px 0;
+}
+
+/* La clave: 'flex: 0 0 80px' obliga a que midan EXACTAMENTE 80px siempre */
+.bt-photo-thumb {
+    flex: 0 0 110px; 
+    width: 110px;
+    height: 110px;
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.bt-photo-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.bt-add-photo {
+    flex: 0 0 110px; 
+    width: 110px;
+    height: 110px;
+    border: 2px dashed #aaa; 
+    border-radius: 10px;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    font-size: 30px; 
+    color: #aaa; 
+    cursor: pointer; 
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.bt-add-photo:hover {
+    border-color: #A3BD31;
+    color: #A3BD31;
+}
+
+/* Botoncito rojo para eliminar foto */
+.btn-delete-photo {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    background: rgba(220, 53, 69, 0.9);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.2s;
+}
+
+.btn-delete-photo:hover { background: red; transform: scale(1.1); }
+
+/* Flechas del carrusel */
+.bt-carousel-btn {
+    flex: 0 0 30px; /* Flechas de tamaño fijo */
+    width: 30px;
+    height: 30px;
+    background: #fff;
+    border: 1px solid #ccc;
+    color: #555;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 8px;
+    transition: 0.2s;
+}
+
+.bt-carousel-btn:hover { background: #eee; color: #A3BD31; }
+
+/* ==========================================================================
+    ESQUINAS DOBLADAS (EFECTO REALISTA)
+   ========================================================================== */
+.bt-corner-prev, .bt-corner-next {
+    position: absolute;
+    bottom: 0;
+    width: 45px;
+    height: 45px;
+    cursor: pointer;
+    z-index: 50;
+    transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Esquina Inferior Derecha (Avanzar) */
+.bt-corner-next {
+    right: 0;
+    /* Gradiente que simula la luz pegando en el doblez del papel */
+    background: linear-gradient(135deg, #ffffff 40%, #e5e7eb 50%, #b0b5be 60%);
+    box-shadow: -4px -4px 6px rgba(0,0,0,0.15);
+    border-top-left-radius: 8px; /* Curvatura del papel */
+}
+
+/* Esquina Inferior Izquierda (Retroceder) */
+.bt-corner-prev {
+    left: 0;
+    background: linear-gradient(225deg, #ffffff 40%, #e5e7eb 50%, #b0b5be 60%);
+    box-shadow: 4px -4px 6px rgba(0,0,0,0.15);
+    border-top-right-radius: 8px;
+}
+
+/* Efecto hover interactivo: El doblez se hace más grande al pasar el mouse */
+.bt-corner-next:hover {
+    width: 60px;
+    height: 60px;
+    box-shadow: -6px -6px 12px rgba(0,0,0,0.25);
+}
+
+.bt-corner-prev:hover {
+    width: 60px;
+    height: 60px;
+    box-shadow: 6px -6px 12px rgba(0,0,0,0.25);
+}
+
+/* ==========================================================================
+   EFECTO FLIPBOOK REALISTA 3D (PASAR LA HOJA)
+   ========================================================================== */
+
+/* 1. La cámara 3D */
+.bt-notebook {
+    perspective: 2500px;
+    position: relative;
+    z-index: 1;
+}
+
+/* 🔥 EL TRUCO MAESTRO: Una página base dibujada debajo de todo para tapar el fondo verde */
+.bt-notebook::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: #ffffff;
+    background-image: radial-gradient(#d1d5db 1.5px, transparent 1.5px);
+    background-size: 20px 20px;
+    border-radius: 5px;
+    z-index: -1; 
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.05); /* Sombra interna para dar profundidad */
+}
+
+/* 2. Preparar las hojas para el giro */
+.bt-page-left, .bt-page-right {
+    backface-visibility: hidden; /* Para que la hoja no se vea al revés al girar */
+    /* Curva de aceleración que simula el peso del papel */
+    transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease 0.15s, box-shadow 0.65s ease;
+}
+
+.bt-page-left {
+    transform-origin: right center; /* La bisagra es el espiral derecho */
+}
+
+.bt-page-right {
+    transform-origin: left center; /* La bisagra es el espiral izquierdo */
+}
+
+/* 3. El movimiento de "Levantar y Girar la página" */
+.flip-next {
+    /* Se levanta un poco hacia ti (scale), y gira hacia la izquierda (rotateY) */
+    transform: rotateY(-120deg) scale(1.05);
+    opacity: 0;
+    box-shadow: -20px 0 40px rgba(0,0,0,0.4) !important; /* Proyecta sombra sobre la página de abajo */
+}
+
+.flip-prev {
+    /* Gira hacia la derecha */
+    transform: rotateY(120deg) scale(1.05);
+    opacity: 0;
+    box-shadow: 20px 0 40px rgba(0,0,0,0.4) !important;
+}
+
+/* ==========================================================================
+    ESTILOS DE FIRMAS COMPLETADAS Y MODO LECTURA
+   ========================================================================== */
+
+/* 1. Las firmas directamente en la hoja del cuaderno */
+.firmas-completadas-display {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    margin-top: 0;
+    padding-top: 5px;
+}
+
+.firma-display-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 45%;
+}
+
+.firma-display-item img {
+    max-height: 80px;
+    max-width: 100%;
+    object-fit: contain;
+    margin-bottom: 5px;
+    mix-blend-mode: multiply; /* 🔥 MAGIA: Quita el fondo blanco de la imagen y deja solo el trazo */
+    filter: contrast(1.2); 
+}
+
+.firma-nombre {
+    font-family: 'Inria Serif', serif;
+    font-weight: 700;
+    color: #111;
+    font-size: 15px;
+    margin: 0;
+    border-top: 1.5px solid #111; /* La línea donde firma */
+    padding-top: 3px;
+    width: 100%;
+}
+
+.firma-rol {
+    font-family: sans-serif;
+    font-size: 11px;
+    color: #666;
+    margin: 0;
+    margin-top: 2px;
+}
+
+/* 2. Los inputs bloqueados en la Modal */
+.input-readonly {
+    background-color: #f3f4f6 !important;
+    color: #6b7280 !important;
+    cursor: not-allowed;
+    border-color: #e5e7eb !important;
+}
+
+/* 3. La caja de "Firma ya guardada" en la Modal */
+.firma-ya-guardada {
+    text-align: center; 
+    margin-top: 10px; 
+    border: 1.5px dashed #A3BD31; 
+    border-radius: 10px; 
+    padding: 10px; 
+    background: #f9fafb;
+}
+
+.firma-ya-guardada img {
+    max-height: 75px; 
+    max-width: 100%; 
+    mix-blend-mode: multiply;
+}
+
+.firma-ya-guardada p {
+    color: #A3BD31; 
+    font-weight: bold; 
+    margin: 5px 0 0 0; 
+    font-size: 14px;
+}
+
+/* ==========================================================================
+    ADAPTACIÓN RESPONSIVA DINÁMICA (CONTAINER QUERIES)
+   ========================================================================== */
+
+/* 1. Cuando el contenedor empieza a perder espacio (Ej: Menú lateral abierto) */
+@container (max-width: 1250px) {
+    .bt-portada {
+        width: 100%;
+        padding: 10px 20px;
+    }
+    .bt-page {
+        padding: 20px 25px 15px 25px;
+        gap: 15px;
+    }
+    .bt-weather-container { gap: 15px; }
+    .bt-workers-grid { gap: 10px; }
+
+    .bt-photo-area {
+        width: 260px;
+        max-width: 260px;
+    }
+}
+
+/* 2. Cuando el espacio es crítico (Menú abierto en pantallas pequeñas o celulares) -> MODO LIBRETA */
+@container (max-width: 900px) {
+    .bt-portada {
+        padding: 50px 10px 20px 10px; /* Espacio arriba para las pestañas */
+    }
+
+    /* El cuaderno apila las páginas verticalmente */
+    .bt-notebook {
+        flex-direction: column;
+    }
+
+    /* Sombras en modo horizontal (lomo acostado) */
+    .bt-page-left { 
+        margin-right: 0;
+        margin-bottom: 2px;
+        box-shadow: inset 0 -15px 20px rgba(0, 0, 0, 0.03); 
+    }
+    .bt-page-right { 
+        margin-left: 0;
+        margin-top: 2px;
+        box-shadow: inset 0 15px 20px rgba(0, 0, 0, 0.03); 
+    }
+
+    /* Giramos el espiral central a horizontal */
+    .bt-binder {
+        flex-direction: row;
+        width: 100%;
+        height: 48px;
+        margin: -24px 0; /* Superposición exacta */
+        padding: 0 40px;
+    }
+
+    /* El mismo vector realista Wire-O, pero dibujado en horizontal */
+    .bt-ring {
+        width: 24px;
+        height: 45px;
+        margin: auto 6px;
+        border: none;
+        box-shadow: none;
+        filter: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='45' viewBox='0 0 24 45'%3E%3Cdefs%3E%3ClinearGradient id='metal' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0%25' stop-color='%23111'/%3E%3Cstop offset='20%25' stop-color='%23ccc'/%3E%3Cstop offset='40%25' stop-color='%23fff'/%3E%3Cstop offset='70%25' stop-color='%23666'/%3E%3Cstop offset='100%25' stop-color='%23111'/%3E%3C/linearGradient%3E%3Cfilter id='sombra'%3E%3CfeDropShadow dx='3' dy='0' stdDeviation='1.5' flood-color='%23000' flood-opacity='0.4'/%3E%3C/filter%3E%3C/defs%3E%3Cg filter='url(%23sombra)'%3E%3Crect x='3' y='4' width='6' height='37' rx='3' fill='url(%23metal)'/%3E%3Crect x='13' y='4' width='6' height='37' rx='3' fill='url(%23metal)'/%3E%3C/g%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+    }
+
+    /* Ajustamos los agujeros troquelados de las argollas */
+    .bt-ring::before, .bt-ring::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    .bt-ring::before { top: 0px; left: 50%; }
+    .bt-ring::after { bottom: 0px; top: auto; right: auto; left: 50%; }
+
+    /* Pestañas (Tabs) a la parte superior */
+    .bt-tabs {
+        flex-direction: row;
+        top: -38px;
+        right: auto;
+        left: 15px;
+        gap: 5px;
+    }
+
+    .bt-tab {
+        writing-mode: horizontal-tb;
+        padding: 10px 18px;
+        border-radius: 10px 10px 0 0;
+    }
+
+    /* Grilla a una columna */
+    .bt-workers-grid {
+        grid-template-columns: 1fr !important; 
+    }
+
+    .bt-weather-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .bt-photo-area {
+        width: 350px;
+        max-width: 350px;
+    }
+}
+
+/* 3. Celulares muy estrechos */
+@container (max-width: 480px) {
+    .bt-tab {
+        font-size: 11px;
+        padding: 8px 10px;
+    }
+    
+    .bt-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .bt-photo-area {
+        width: 170px;
+        max-width: 170px;
+    }
+}

@@ -1,0 +1,156 @@
+.ps-container {
+    width: 100%;
+    padding: 10px 15px;
+    box-sizing: border-box;
+}
+
+/* Título Verde Corporativo Inria Serif */
+.ps-main-title {
+    font-family: 'Inria Serif', serif;
+    color: #A3BD31;
+    font-size: clamp(26px, 4vw, 36px);
+    font-weight: 700;
+    margin: 0 0 12px 0;
+    letter-spacing: 0.5px;
+}
+
+/* Subtítulo o Texto de Instrucción */
+.ps-subtitle {
+    font-family: sans-serif;
+    color: #222222;
+    font-size: 19px;
+    margin: 0 0 30px 0;
+    line-height: 1.4;
+}
+
+/* --- Grilla Responsiva (Sin necesidad de Media Queries complejos) --- */
+.ps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 35px;
+    width: 100%;
+}
+
+/* --- Estructura de la Tarjeta Estática (Selector Directo) --- */
+.ps-card {
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    border: 1px solid #eef0f2;
+}
+
+/* Interacción limpia al pasar el cursor (Efecto Elevación) */
+.ps-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.14);
+}
+
+/* Contenedor de Imagen */
+.ps-card-header {
+    position: relative;
+    width: 100%;
+    height: 175px;
+    background-color: #d8d8d8; /* Gris base del boceto */
+}
+
+.ps-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ps-img-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.ps-img-placeholder i {
+    font-size: 60px;
+    color: #4b5563;
+}
+
+/* --- Badges Dinámicos de Estado --- */
+.ps-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    color: #ffffff;
+    font-family: sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 12px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    text-transform: uppercase;
+    z-index: 2;
+}
+
+.ps-badge-activo { background-color: #A3BD31; }
+.ps-badge-pausado { background-color: #f1c40f; color: #333; }
+.ps-badge-terminado { background-color: #e74c3c; }
+.ps-badge-escrituracion { background-color: #2980b9; }
+
+/* --- Cuerpo de la Tarjeta --- */
+.ps-card-body {
+    padding: 18px 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #f0f2f5;
+}
+
+.ps-project-name {
+    font-family: sans-serif;
+    font-weight: 700;
+    color: #000000;
+    font-size: 20px;
+    margin: 0;
+}
+
+.ps-project-location {
+    font-family: sans-serif;
+    color: #666666;
+    font-size: 15px;
+    margin: 0;
+}
+
+/* --- Footer de la Tarjeta --- */
+.ps-card-footer {
+    padding: 12px 20px;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ps-footer-icon {
+    color: #718096;
+    font-size: 14px;
+}
+
+.ps-footer-text {
+    font-family: sans-serif;
+    font-size: 13px;
+    color: #4a5568;
+}
+
+/* Mensaje de grilla vacía */
+.ps-no-data {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #718096;
+    font-size: 18px;
+    margin-top: 50px;
+}

@@ -24,7 +24,7 @@
     
     <a href="#"><span id="btn-filtro" class="material-symbols-outlined">filter_alt</span></a>
 
-    {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,descarga" %}
+    {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,descargar" %}
         <a href="javascript:void(0);" id="btn-descarga" onclick="descargarExcel()"><span class="material-symbols-outlined">download</span></a>
     {% endif %}
 

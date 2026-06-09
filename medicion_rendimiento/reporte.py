@@ -326,6 +326,9 @@ def diagnostico_rendimiento_real(mediciones_qs):
     }
 
 def diagnostico_costo_por_unidad(registros, presupuesto_unitario):
+    if presupuesto_unitario is None:
+        presupuesto_unitario = 0
+        
     costos = []
 
     for r in registros:

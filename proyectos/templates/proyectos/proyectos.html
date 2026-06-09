@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% load static %}
+{% load dict_filters %}
+
+{% block title %}
+    Proyectos - SYMA PRO
+{% endblock %}
+
+{% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'proyectos/css/proyectos.css' %}">
+{% endblock %}
+
+{% block search_bar %}{% endblock %}
+
+{% block content %}
+    <div class="proyectos-wrapper">
+        
+        <div class="proyectos-header">
+            <h2 class="proyectos-titulo">PROYECTOS DE SYMA</h2>
+
+            {% if user|has_perm:"proyectos,proyectos,registrar" %}
+                <a href="{% url 'formulario_proyectos' %}" class="btn-crear-proyecto">
+                    <i class="fa-solid fa-plus"></i> Crear nuevo proyecto
+                </a>
+            {% endif %}
+
+        </div>
+
+        <div class="grid-proyectos">
+            {% for proyecto in proyectos %}
+            <div class="card-wrapper">
+                <div class="card-proyecto">
+                    <div class="card-front">
+                        <div class="card-img-wrapper">
+                            <span class="badge-estado badge-{{ proyecto.estado|lower }}">{{ proyecto.estado }}</span>
+                            
+                            {% if proyecto.imagen_portada %}
+                                <img src="{{ proyecto.imagen_portada.url }}" alt="{{ proyecto.nombre }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% else %}
+                                <i class="fa-solid fa-camera"></i>
+                            {% endif %}
+                        </div>
+                        <div class="card-info">
+                            <h3 class="info-nombre">{{ proyecto.nombre }}</h3>
+                            <p class="info-ubicacion">{{ proyecto.ubicacion }}</p>
+                            <div class="info-footer">
+                                <i class="fa-solid fa-gear"></i>
+                                <span>{{ proyecto.sistema_constructivo }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-back">
+
+                        <a href="{% url 'eliminar_proyecto' proyecto.id_proyectos %}" class="btn-borrar-proyecto" onclick="return confirm('¿Estás seguro de que deseas eliminar este proyecto?');">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </a>
+
+                        <h3 class="back-titulo">Ficha técnica del proyecto</h3>
+                        <div class="back-grid">
+
+                            <div class="back-item">
+                                <i class="fa-solid fa-house back-icon"></i>
+                                <div class="back-text">
+                                    <strong>{{ proyecto.cant_viviendas }}</strong>
+                                    <span>Unidades</span>
+                                </div>
+                            </div>
+
+                            <div class="back-item">
+                                <i class="fa-regular fa-compass back-icon"></i>
+                                <div class="back-text">
+                                    <strong>{{ proyecto.m2_urbanismo }} m²</strong>
+                                    <span>Urbanismo</span>
+                                </div>
+                            </div>
+
+                            <div class="back-item">
+                                <i class="fa-solid fa-tree back-icon"></i>
+                                <div class="back-text">
+                                    <strong>{{ proyecto.m2_zona_verde }} m²</strong>
+                                    <span>Zonas verdes</span>
+                                </div>
+                            </div>
+
+                            <div class="back-item">
+                                <i class="fa-regular fa-building back-icon"></i>
+                                <div class="back-text">
+                                    <strong>{{ proyecto.numero_pisos }} Pisos</strong>
+                                    <span></span>
+                                </div>
+                            </div>
+
+                            <div class="back-item">
+                                <i class="fa-solid fa-cubes back-icon"></i>
+                                <div class="back-text">
+                                    <strong>{{ proyecto.numero_bloques }} Bloques</strong>
+                                    <span></span>
+                                </div>
+                            </div>
+
+                            <div class="back-item">
+                                <i class="fa-solid fa-user-group back-icon"></i>
+                                <div class="back-text">
+                                    <strong>{{ proyecto.cant_empleados }}</strong>
+                                    <span>empleados</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <a href="{{ proyecto.link_planos }}" target="_blank" style="text-decoration: none;">
+                            <button class="btn-ver-planos">Ver carpeta de planos</button>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+                <h3 style="color: #666; width: 100%; text-align: center; margin-top: 50px;">Aún no hay proyectos registrados.</h3>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'personal',
     'usuario',
     'medicion_rendimiento',
-    'entrada_y_salida_del_personal',
+    'proyectos',
+    'bitacora',
 ]
 
 MIDDLEWARE = [
@@ -80,7 +81,7 @@ database_url = os.environ.get('DATABASE_URL')
 if database_url:
     db_config = dj_database_url.config(
         default=database_url,
-        conn_max_age=600,
+        conn_max_age=0,
         ssl_require=True
     )
     

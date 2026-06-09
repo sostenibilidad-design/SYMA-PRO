@@ -5,11 +5,13 @@ from django_apscheduler.jobstores import DjangoJobStore, register_events
 
 from personal.google_drive_utils import fetch_and_store_empleados
 from medicion_rendimiento.tasks import alerta_recordatorio_usuario, alerta_incumplimiento_control
+from django.db import close_old_connections
 
 logger = logging.getLogger(__name__)
 
 def scheduled_fetch():
     try:
+        close_old_connections()
         logger.info("APScheduler: Iniciando sincronización automática de empleados...")
         result = fetch_and_store_empleados("1aN_dq95lckVrCo6NWMMqjRinV3XTkOCP")
         logger.info(f"APScheduler: Sincronización completada: {result}")

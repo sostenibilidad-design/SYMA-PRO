@@ -2,9 +2,11 @@ import logging
 from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import timezone
+from django.db import close_old_connections
 from .models import MedicionCuadrilla, ConfiguracionAlerta
 
 def alerta_recordatorio_usuario():
+    close_old_connections()
     hoy = timezone.now().date()
     print(f"⏰ TAREA INICIADA (Recordatorio). Fecha: {hoy}")
     pendientes = MedicionCuadrilla.objects.filter(fecha=hoy, hora_fin__isnull=True)
@@ -26,6 +28,7 @@ def alerta_recordatorio_usuario():
                 print(f"Error enviando correo: {e}")
 
 def alerta_incumplimiento_control():
+    close_old_connections()
     hoy = timezone.now().date()
     pendientes = MedicionCuadrilla.objects.filter(fecha=hoy, hora_fin__isnull=True)
 

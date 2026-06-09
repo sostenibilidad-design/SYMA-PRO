@@ -1,0 +1,121 @@
+{% load static %}
+
+<div id="modal-firmas" class="modal-overlay" 
+    data-user-nombre="{{ request.user.nombre_visible }}" 
+    data-user-cedula="{% if request.user.cedula %}{{ request.user.cedula }}{% else %}{{ request.user.empleado.cedula|default:'' }}{% endif %}">
+    
+    <div class="modal modal-firma-content">
+        <h2 class="titulo-firmas">VALIDACIÓN Y CIERRE DE BITÁCORA - FIRMAS</h2>
+        <hr class="dashed-line">
+
+        <form id="form-firmas" method="POST" enctype="multipart/form-data" action="#">
+            {% csrf_token %}
+            <input type="hidden" name="id_bitacora_firma" id="id_bitacora_firma">
+
+            <div class="firmas-grid">
+                
+                <div class="firma-col">
+                    <div class="firma-header">
+                        <i class="fa-solid fa-helmet-safety icon-firma"></i>
+                        <div class="firma-textos">
+                            <h3>FIRMA DEL AUTOR</h3>
+                            <p>(quien realizó el registro)</p>
+                        </div>
+                    </div>
+                    
+                    {% if bitacora.firma_autor_url %}
+                        <label class="firma-label">Nombre completo</label>
+                        <input type="text" class="firma-input input-readonly" value="{{ bitacora.autor.nombre_visible }}" readonly>
+
+                        <label class="firma-label">Cédula de ciudadanía</label>
+                        <input type="text" class="firma-input input-readonly" value="{% if bitacora.autor.cedula %}{{ bitacora.autor.cedula }}{% elif bitacora.autor.empleado %}{{ bitacora.autor.empleado.cedula }}{% endif %}" readonly>
+
+                        <div class="firma-ya-guardada">
+                            <img src="{{ bitacora.firma_autor_url.url }}" alt="Firma autor guardada">
+                            <p><i class="fa-solid fa-circle-check"></i> Firma registrada</p>
+                        </div>
+                    {% else %}
+                        <label class="firma-label">Nombre completo</label>
+                        <input type="text" name="nombre_autor" id="input_nombre_autor" class="firma-input" placeholder="Ingresa su nombre completo">
+
+                        <label class="firma-label">Cédula de ciudadanía</label>
+                        <input type="number" name="cedula_autor" id="input_cedula_autor" class="firma-input" placeholder="Ingresa su cedula de ciudadania">
+
+                        <div class="canvas-container">
+                            <canvas id="canvas-autor" class="firma-canvas" width="320" height="120"></canvas>
+                            <div class="canvas-placeholder" id="placeholder-autor">
+                                <i class="fa-solid fa-pen-nib"></i> Dibuje su firma aquí
+                            </div>
+                        </div>
+                        
+                        <input type="hidden" name="firma_dibujada_autor" id="firma_dibujada_autor">
+                        <input type="file" name="firma_archivo_autor" id="file_autor" style="display:none;" accept="image/*">
+
+                        <div class="canvas-actions">
+                            <button type="button" class="btn-sm" onclick="document.getElementById('file_autor').click()">
+                                <i class="fa-solid fa-paperclip"></i> Adjuntar
+                            </button>
+                            <button type="button" class="btn-sm" onclick="limpiarCanvas('canvas-autor')">
+                                <i class="fa-solid fa-eraser"></i> Limpiar
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="firma-col">
+                    <div class="firma-header">
+                        <i class="fa-solid fa-user-check icon-firma"></i>
+                        <div class="firma-textos">
+                            <h3>FIRMA DEL SUPERVISOR</h3>
+                            <p>(quien revisa y aprueba)</p>
+                        </div>
+                    </div>
+                    
+                    {% if bitacora.firma_supervisor_url %}
+                        <label class="firma-label">Nombre completo</label>
+                        <input type="text" class="firma-input input-readonly" value="{{ bitacora.supervisor.nombre_visible }}" readonly>
+
+                        <label class="firma-label">Cédula de ciudadanía</label>
+                        <input type="text" class="firma-input input-readonly" value="{% if bitacora.supervisor.cedula %}{{ bitacora.supervisor.cedula }}{% elif bitacora.supervisor.empleado %}{{ bitacora.supervisor.empleado.cedula }}{% endif %}" readonly>
+
+                        <div class="firma-ya-guardada">
+                            <img src="{{ bitacora.firma_supervisor_url.url }}" alt="Firma supervisor guardada">
+                            <p><i class="fa-solid fa-circle-check"></i> Firma registrada</p>
+                        </div>
+                    {% else %}
+                        <label class="firma-label">Nombre completo</label>
+                        <input type="text" name="nombre_supervisor" id="input_nombre_supervisor" class="firma-input" placeholder="Ingresa su nombre completo">
+
+                        <label class="firma-label">Cédula de ciudadanía</label>
+                        <input type="number" name="cedula_supervisor" id="input_cedula_supervisor" class="firma-input" placeholder="Ingresa su cedula de ciudadania">
+
+                        <div class="canvas-container">
+                            <canvas id="canvas-supervisor" class="firma-canvas" width="320" height="120"></canvas>
+                            <div class="canvas-placeholder" id="placeholder-supervisor">
+                                <i class="fa-solid fa-pen-nib"></i> Dibuje su firma aquí
+                            </div>
+                        </div>
+                        
+                        <input type="hidden" name="firma_dibujada_supervisor" id="firma_dibujada_supervisor">
+                        <input type="file" name="firma_archivo_supervisor" id="file_supervisor" style="display:none;" accept="image/*">
+
+                        <div class="canvas-actions">
+                            <button type="button" class="btn-sm" onclick="document.getElementById('file_supervisor').click()">
+                                <i class="fa-solid fa-paperclip"></i> Adjuntar
+                            </button>
+                            <button type="button" class="btn-sm" onclick="limpiarCanvas('canvas-supervisor')">
+                                <i class="fa-solid fa-eraser"></i> Limpiar
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <hr class="dashed-line">
+            <div class="botones-firmas">
+                <button type="button" class="btn-cancelar" data-modal="modal-firmas">Cancelar</button>
+                <button type="submit" class="btn-guardar">Firmar bitácora</button>
+            </div>
+        </form>
+    </div>
+</div>

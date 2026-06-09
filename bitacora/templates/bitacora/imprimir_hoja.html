@@ -1,0 +1,398 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Descargando Reporte...</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        /* ==============================================================
+            PANTALLA DE CARGA VISIBLE PARA EL USUARIO
+           ============================================================== */
+        body { margin: 0; background-color: #f3f4f6; font-family: sans-serif; }
+        
+        #loading-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            background: #ffffff; z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center;
+        }
+
+        .spinner {
+            border: 5px solid #f3f3f3; border-top: 5px solid #A3BD31;
+            border-radius: 50%; width: 50px; height: 50px; 
+            animation: spin 1s linear infinite; margin-bottom: 20px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* ==============================================================
+            DISEÑO SGC CORPORATIVO (Lo que captura el PDF)
+           ============================================================== */
+        #pdf-wrapper {
+            display: flex;
+            justify-content: center;
+        }
+
+        #pdf-content {
+            background: #fff;
+            width: 720px; 
+            padding: 30px;
+            box-sizing: border-box;
+            color: #000;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        /* 1. ENCABEZADO TIPO ISO / SGC */
+        table.sgc-header {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1.5px solid #000;
+            margin-bottom: 20px;
+            table-layout: fixed;
+        }
+        table.sgc-header td {
+            border: 1px solid #000;
+            vertical-align: middle;
+            text-align: center;
+        }
+        .header-logo {
+            width: 25%;
+            padding: 10px;
+        }
+        .header-logo img {
+            max-width: 90%;
+            max-height: 60px;
+            object-fit: contain;
+        }
+        .header-title {
+            width: 50%;
+            font-weight: bold;
+            font-size: 14pt;
+            text-transform: uppercase;
+            padding: 10px;
+        }
+        .header-title span {
+            display: block;
+            font-size: 11pt;
+            margin-top: 5px;
+        }
+        .header-meta {
+            width: 25%;
+            padding: 0 !important;
+        }
+        table.meta-table {
+            width: 100%;
+            height: 100%;
+            border-collapse: collapse;
+        }
+        table.meta-table tr:not(:last-child) td, table.meta-table tr:not(:last-child) th {
+            border-bottom: 1px solid #000;
+        }
+        table.meta-table th {
+            width: 40%;
+            text-align: left;
+            padding: 4px 6px;
+            font-size: 9pt;
+            font-weight: bold;
+            border-right: 1px solid #000;
+        }
+        table.meta-table td {
+            width: 60%;
+            text-align: center;
+            padding: 4px 6px;
+            font-size: 9pt;
+            border: none;
+        }
+
+        /* 2. DATOS DEL PROYECTO (CORREGIDO) */
+        .info-proyecto {
+            width: 100%;
+            border: 1.5px solid #000;
+            border-bottom: none;
+            border-collapse: collapse;
+            font-size: 10pt;
+            table-layout: fixed;
+        }
+        .info-proyecto td {
+            padding: 8px 10px;
+            border-bottom: 1.5px solid #000;
+            word-wrap: break-word;
+            word-break: break-word;
+            vertical-align: middle;
+        }
+        .info-proyecto .label {
+            font-weight: bold;
+            background-color: #f5f5f5;
+            width: 25%; /* Ancho fijo para las etiquetas */
+            border-right: 1px solid #000;
+        }
+        .info-proyecto .value {
+            width: 75%; /* Ancho fijo para los valores */
+            border-right: none;
+        }
+
+        /* 3. TABLAS DE CONTENIDO CORPORATIVO */
+        table.formal-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            table-layout: fixed; 
+            border: 1.5px solid #000;
+            margin-bottom: 20px;
+        }
+        table.formal-table th.verde-syma {
+            background-color: #A3BD31; 
+            color: #000;
+            text-align: center;
+            font-size: 10pt;
+            text-transform: uppercase;
+            padding: 8px;
+            border-bottom: 1.5px solid #000;
+            border-right: 1px solid #000;
+        }
+        table.formal-table th.sub-label {
+            background-color: #f5f5f5;
+            text-align: left;
+            font-size: 9pt;
+            padding: 8px;
+            border-bottom: 1px solid #000;
+            border-right: 1px solid #000;
+            width: 25%;
+        }
+        table.formal-table td {
+            border-bottom: 1px solid #000; 
+            border-right: 1px solid #000;
+            padding: 8px; 
+            vertical-align: middle; 
+            font-size: 10pt;
+            text-align: center;
+            word-wrap: break-word;
+            word-break: break-word;
+        }
+        table.formal-table th:last-child, table.formal-table td:last-child { border-right: none; }
+        
+        /* Cajas de texto descriptivo */
+        .text-box {
+            border: 1.5px solid #000;
+            margin-bottom: 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .text-box .text-header {
+            background-color: #A3BD31;
+            color: #000;
+            font-weight: bold;
+            font-size: 10pt;
+            padding: 8px;
+            border-bottom: 1.5px solid #000;
+            text-transform: uppercase;
+        }
+        .text-box .text-body {
+            padding: 12px;
+            font-size: 10pt;
+            text-align: justify;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        /* Fotos */
+        .fotos-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 12px; }
+        .foto-img { width: 100%; height: 160px; object-fit: cover; border: 1px solid #ccc; }
+
+        /* 4. SECCIÓN DE FIRMAS */
+        .firmas-container {
+            border: 1.5px solid #000;
+            page-break-inside: avoid;
+            margin-top: 10px;
+        }
+        .firmas-header {
+            background-color: #A3BD31;
+            color: #000;
+            font-weight: bold;
+            font-size: 10pt;
+            padding: 8px;
+            border-bottom: 1.5px solid #000;
+            text-transform: uppercase;
+            text-align: center;
+        }
+        .firmas-section { 
+            display: flex; 
+            justify-content: space-around; 
+            padding: 30px 20px 20px 20px; 
+        }
+        .firma-box { text-align: center; width: 45%; }
+        .firma-espacio { height: 70px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 5px; }
+        .firma-img { max-height: 70px; max-width: 100%; mix-blend-mode: multiply; }
+        .sin-firma { color: #888; font-style: italic; font-size: 9pt; margin-bottom: 5px; }
+        .firma-linea { border-top: 1px solid #000; padding-top: 5px; font-weight: bold; font-size: 10pt; }
+        .firma-rol { font-size: 9pt; color: #555; margin: 2px 0 0 0; }
+    </style>
+</head>
+<body>
+
+    <div id="loading-screen">
+        <div class="spinner" id="spinner"></div>
+        <h2 style="color: #333;" id="status-text">Generando documento SGC...</h2>
+        <p style="color: #666;" id="status-sub">No cierres esta pestaña, la descarga iniciará automáticamente.</p>
+    </div>
+
+    <div id="pdf-wrapper">
+        <div id="pdf-content">
+            
+            <table class="sgc-header">
+                <tr>
+                    <td class="header-logo">
+                        <img src="{% static 'img/logo_syma.png' %}" alt="SYMA">
+                    </td>
+                    <td class="header-title">
+                        FORMATO DE REGISTRO
+                        <span>Bitácora Diaria de Obra</span>
+                    </td>
+                    <td class="header-meta">
+                        <table class="meta-table">
+                            <tr><th>Código:</th><td>F-OBR-01</td></tr>
+                            <tr><th>Versión:</th><td>01</td></tr>
+                            <tr><th>Fecha:</th><td>{% now "d/m/Y" %}</td></tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+
+            <table class="info-proyecto">
+                <tr>
+                    <td class="label">PROYECTO:</td>
+                    <td class="value"><strong>{{ proyecto.nombre|upper }}</strong></td>
+                </tr>
+                <tr>
+                    <td class="label">FECHA OBRA:</td>
+                    <td class="value">{{ bitacora.fecha|date:'d/m/Y'|default:'Sin especificar' }}</td>
+                </tr>
+                <tr>
+                    <td class="label">REGISTRO N°:</td>
+                    <td class="value"><strong>{{ bitacora.id_bitacora|stringformat:"02d" }}</strong></td>
+                </tr>
+            </table>
+
+            <br>
+
+            <table class="formal-table">
+                <tr>
+                    <th colspan="4" class="verde-syma">ESTADO DEL CLIMA</th>
+                </tr>
+                <tr>
+                    <th class="sub-label">Mañana</th>
+                    <td>{{ bitacora.clima_manana|title|default:'N/A' }}</td>
+                    <th class="sub-label">Tarde</th>
+                    <td>{{ bitacora.clima_tarde|title|default:'N/A' }}</td>
+                </tr>
+            </table>
+
+            <table class="formal-table">
+                <tr>
+                    <th colspan="4" class="verde-syma">PERSONAL EN OBRA</th>
+                </tr>
+                <tr>
+                    <th class="sub-label">Maestros</th>
+                    <td>{{ bitacora.cant_maestros }}</td>
+                    <th class="sub-label">Oficiales</th>
+                    <td>{{ bitacora.cant_oficiales }}</td>
+                </tr>
+                <tr>
+                    <th class="sub-label">Ayudantes</th>
+                    <td>{{ bitacora.cant_ayudantes }}</td>
+                    <th class="sub-label">Contratistas</th>
+                    <td>{{ bitacora.cant_contratistas }}</td>
+                </tr>
+            </table>
+
+            <div class="text-box">
+                <div class="text-header">1. EQUIPO Y MAQUINARIA UTILIZADA</div>
+                <div class="text-body">{{ bitacora.equipo_obra|default:'Ningún equipo registrado para esta jornada.' }}</div>
+            </div>
+
+            <div class="text-box">
+                <div class="text-header">2. DESCRIPCIÓN DE ACTIVIDADES REALIZADAS</div>
+                <div class="text-body">{{ bitacora.actividades|default:'Ninguna actividad registrada para esta jornada.' }}</div>
+            </div>
+
+            <div class="text-box">
+                <div class="text-header">3. REGISTRO FOTOGRÁFICO</div>
+                {% if bitacora.fotos.exists %}
+                    <div class="fotos-grid">
+                        {% for foto in bitacora.fotos.all %}
+                            <div>
+                                <img src="{{ foto.url_imagen.url }}" class="foto-img" alt="Evidencia fotográfica">
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-body" style="font-style: italic; color: #555;">No hay evidencia fotográfica adjunta en este registro.</div>
+                {% endif %}
+            </div>
+
+            <div class="firmas-container">
+                <div class="firmas-header">4. APROBACIÓN DEL REGISTRO</div>
+                <div class="firmas-section">
+                    <div class="firma-box">
+                        <div class="firma-espacio">
+                            {% if bitacora.firma_autor_url %}
+                                <img src="{{ bitacora.firma_autor_url.url }}" class="firma-img" alt="Firma">
+                            {% else %}
+                                <span class="sin-firma">Pendiente de firma</span>
+                            {% endif %}
+                        </div>
+                        <div class="firma-linea">{{ bitacora.autor.nombre_visible|default:"AUTOR"|upper }}</div>
+                        <p class="firma-rol">Elaborado por (Autor)</p>
+                        <p class="firma-rol">CC: {% if bitacora.autor.cedula %}{{ bitacora.autor.cedula }}{% elif bitacora.autor.empleado %}{{ bitacora.autor.empleado.cedula }}{% else %}No registrada{% endif %}</p>
+                    </div>
+
+                    <div class="firma-box">
+                        <div class="firma-espacio">
+                            {% if bitacora.firma_supervisor_url %}
+                                <img src="{{ bitacora.firma_supervisor_url.url }}" class="firma-img" alt="Firma">
+                            {% else %}
+                                <span class="sin-firma">Pendiente de firma</span>
+                            {% endif %}
+                        </div>
+                        <div class="firma-linea">{{ bitacora.supervisor.nombre_visible|default:"SUPERVISOR"|upper }}</div>
+                        <p class="firma-rol">Aprobado por (Supervisor)</p>
+                        <p class="firma-rol">CC: {% if bitacora.supervisor.cedula %}{{ bitacora.supervisor.cedula }}{% elif bitacora.supervisor.empleado %}{{ bitacora.supervisor.empleado.cedula }}{% else %}No registrada{% endif %}</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            const element = document.getElementById('pdf-content');
+            
+            const opt = {
+                margin:       10, 
+                filename:     'Bitacora_SYMA_N{{ bitacora.id_bitacora|stringformat:"04d" }}.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak:    { mode: ['css', 'legacy'] } 
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                document.getElementById('spinner').style.display = 'none';
+                document.getElementById('status-text').innerText = "¡Documento Descargado!";
+                document.getElementById('status-text').style.color = "#A3BD31";
+                document.getElementById('status-sub').innerText = "Cerrando pestaña automáticamente...";
+                
+                setTimeout(() => {
+                    window.close();
+                }, 1500);
+            });
+        };
+    </script>
+</body>
+</html>

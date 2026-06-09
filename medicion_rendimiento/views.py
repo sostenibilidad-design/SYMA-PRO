@@ -1048,8 +1048,8 @@ def reporte_cuadrilla (request):
 
     costo_presupuestado = (
         cumplimiento.cumplimiento_presupuestal
-        if cumplimiento and cumplimiento.cumplimiento_presupuestal
-        else None
+        if cumplimiento and cumplimiento.cumplimiento_presupuestal is not None
+        else 0
     )
 
     diagnostico_costo = diagnostico_costo_por_unidad(

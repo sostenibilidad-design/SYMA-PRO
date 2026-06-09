@@ -45,6 +45,10 @@
             <ul>
                 <li><a href="{% url 'home' %}"><i class="fa fa-home"></i> Inicio</a></li>
 
+                {% if user|has_perm:"proyectos,proyectos,ver" %}
+                <li><a href="{% url 'proyectos' %}"><i class="fa fa-project-diagram"></i> Proyectos </a></li>
+                {% endif %}
+
                 {% if user|has_perm:"personal,personal,ver" %}
                     <li><a href="{% url 'personal' %}"><i class="fa fa-users"></i> Personal</a></li>
                 {% endif %}
@@ -64,16 +68,14 @@
                     </li>
                 {% endif %}
                 
-
-                <li><a href="{% url 'entrada_salida_personal' %}"><i class="fa fa-clock"></i> Entrada y salida del personal</a></li>
+                {% if user|has_perm:"bitacora,cuaderno_bitacora,ver" %}
+                <li><a href="{% url 'bitacora' %}"><i class="fa fa-book"></i> Bitácora</a></li>
+                {% endif %}
 
                 {% if user|has_perm:"usuario,usuario,ver" %}
                     <li><a href="{% url 'usuario' %}"><i class="fa fa-user-gear"></i> Usuarios</a></li>
                 {% endif %}
 
-                {% if user|has_perm:"Posventa,Posventa,ver" %}
-                    <li><a href="#"><i class="fa fa-tools"></i> Posventa</a></li>
-                {% endif %}
                 <li><a href="{% url 'logout' %}"><i class="fa fa-sign-out-alt"></i> Cerrar sesión</a></li>
             </ul>
         </div>
