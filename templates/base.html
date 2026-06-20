@@ -62,7 +62,7 @@
                             {% endif %}
 
                             {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,ver" %}
-                                <li><a href="{% url 'actividad_cuadrilla' %}"><i class="fa fa-people-group"></i> Medición por cuadrilla</a></li>
+                                <li><a href="{% url 'selector_rendimiento' %}"><i class="fa fa-people-group"></i> Medición por cuadrilla</a></li>
                             {% endif %}
                         </ul>
                     </li>

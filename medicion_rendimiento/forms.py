@@ -8,11 +8,8 @@ class MedicionInicioForm(forms.ModelForm):
     class Meta:
         model = MedicionCuadrilla
         fields = [
-            'cuadrilla',
             'empleados',
             'actividad',
-            'ubicacion',
-            'proyecto',
             'foto_inicio',
             'hora_inicio',
         ]
@@ -22,6 +19,7 @@ class MedicionFinForm(forms.ModelForm):
         fields = [
             'hora_fin',
             'cantidad_producida',
+            'ubicacion',
         ]
 
 class HistorialCambiosCuadrillaForm(forms.ModelForm):
@@ -33,17 +31,6 @@ class HistorialCambiosCuadrillaForm(forms.ModelForm):
             'hora_salida',
             'hora_entrada'
         ]
-
-
-class CumplimientoForm(forms.ModelForm):
-    class Meta:
-        model = Cumplimiento
-        fields = [
-            'cumplimiento_presupuestal', 
-            'cumplimiento_programado',
-            'actividad',
-            'unidad_medida',
-            ]
 
 class ConfiguracionAlertaForm(forms.ModelForm):
 

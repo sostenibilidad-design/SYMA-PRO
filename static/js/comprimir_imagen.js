@@ -67,12 +67,25 @@ document.querySelectorAll('input[type="file"]').forEach(fileInput => {
 
                 // ¡Liberamos el botón!
                 if(submitBtn) submitBtn.disabled = false;
-            }, 'image/jpeg', 0.6); 
+
+                if (typeof window.cerrarOpcionesFoto === "function") {
+                    window.cerrarOpcionesFoto();
+                } else {
+                    const modalOpciones = document.getElementById('modal-opciones-foto');
+                    if (modalOpciones) modalOpciones.classList.remove('active');
+                }
+            }, 'image/jpeg', 0.6);
         };
 
         img.onerror = function() {
             if(submitBtn) submitBtn.disabled = false;
             if(textSpan) textSpan.innerText = "❌ Error al leer imagen";
+            if (typeof window.cerrarOpcionesFoto === "function") {
+                    window.cerrarOpcionesFoto();
+                } else {
+                    const modalOpciones = document.getElementById('modal-opciones-foto');
+                    if (modalOpciones) modalOpciones.classList.remove('active');
+                }
         };
 
         // 🚀 ESTA ES LA CLAVE: Usamos un puntero ligero en lugar de leer todo el texto

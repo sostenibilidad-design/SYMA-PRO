@@ -1,23 +1,24 @@
-from django.contrib.auth import views as auth_views
 from django.urls import path
 from medicion_rendimiento import views
 
 urlpatterns = [
-    # Medición de rendimiento por cuadrilla
-    path('actividad_cuadrilla/', views.medicion_por_cuadrilla, name='actividad_cuadrilla'),
+    # Selector principal
+    path('', views.selector_rendimiento, name='selector_rendimiento'),
+    
+    # Vistas ancladas al proyecto
+    path('actividad_cuadrilla/<int:id_proyecto>/', views.medicion_por_cuadrilla, name='actividad_cuadrilla'),
+    path('registrar-inicio/<int:id_proyecto>/', views.registrar_inicio_medicion, name='registrar_inicio_medicion'),
+    
+    # Resto de vistas
     path('reporte_cuadrilla/', views.reporte_cuadrilla, name='reporte_cuadrilla'),
-    path('registrar-inicio/', views.registrar_inicio_medicion, name='registrar_inicio_medicion'),
     path('actualizar_cuadrilla/<int:id>/', views.actualizar_cuadrilla, name='actualizar_cuadrilla'),
     path('registrar-fin/<int:id>/', views.registrar_fin_medicion, name='registrar_fin_medicion'),
-    path('registrar-cumplimiento/', views.registrar_cumplimiento, name='registrar_cumplimiento'),
     path('obtener-cumplimiento/', views.obtener_cumplimiento, name='obtener_cumplimiento'),
-    path("api/demanda-empleados/",views.api_demanda_empleados,name="api_demanda_empleados"),
-    # Medición de rendimiento individual
+    path("api/demanda-empleados/", views.api_demanda_empleados, name="api_demanda_empleados"),
     path('medicion_individual/', views.medicion_individual, name='medicion_individual'),
-    
     path('guardar-alertas/', views.guardar_configuracion_alertas, name='guardar_alertas'),
     path('eliminar-alerta/<int:alerta_id>/', views.eliminar_alerta, name='eliminar_alerta'),
-
     path('exportar-excel-cuadrilla/', views.exportar_mediciones_excel, name='exportar_mediciones_excel'),
     path('exportar-drive-cuadrilla/', views.exportar_mediciones_drive, name='exportar_mediciones_drive'),
+    path('api/actividades/<int:id_proyecto>/', views.api_actividades_proyecto, name='api_actividades'),
 ]

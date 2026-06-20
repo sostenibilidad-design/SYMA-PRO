@@ -15,7 +15,7 @@ Reporte por Cuadrilla
 {% endblock %}
 
 {% block iconos %}
-    <a href="{% url 'actividad_cuadrilla' %}" title="Volver">
+    <a href="{% url 'actividad_cuadrilla' proyecto.id_proyectos  %}" title="Volver">
         <span class="material-symbols-outlined">arrow_back</span>
     </a>
 {% endblock %}
@@ -29,8 +29,8 @@ Reporte por Cuadrilla
 
                     <div class="filtro-wrapper">
                         <select class="filtro proyecto" name="proyecto" onchange="this.form.submit()">
-                            <option value="{{ proyecto }}">
-                                Proyecto : {{ proyecto }}
+                            <option value="{{ proyecto.id_proyectos }}">
+                                Proyecto: {{ proyecto.nombre}}
                             </option>
                         </select>
                     </div>

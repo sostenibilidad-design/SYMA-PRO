@@ -13,13 +13,17 @@
                         onfocus="(this.type='time')" onblur="if(!this.value) this.type='text'">
                 </div>
 
-                <div class="file-wrapper">
-                    <span class="fileText" id="fileText_fin">Insertar imagen</span>
-                    <input type="file" name="foto_fin" id="id_foto_fin" accept="image/*" capture="environment">
+                <div class="file-wrapper" onclick="abrirOpcionesFoto('id_foto_fin')">
+                    <span class="fileText" id="fileText_fin">Insertar imagen fin</span>
+                    <input type="file" name="foto_fin" id="id_foto_fin" accept="image/*" style="display: none;">
                 </div>
 
                 <div class="input-wrapper">
                     <input type="number" name="cantidad_producida" step="any" min="0" placeholder="Cantidad producida" required>
+                </div>
+
+                <div class="input-wrapper">
+                    <input type="text" name="ubicacion" placeholder="Ubicación" required>
                 </div>
 
                 <div class="grupo-comidas comidas" id="grupo-comidas">
@@ -42,4 +46,4 @@
     </div>
 
     <script src="{% static 'medicion_rendimiento/js/registro_final_cuadrilla.js' %}"></script>
-    <script src="{% static 'js/comprimir_imagen.js' %}"></script>
+    <script src="{% static 'js/comprimir_imagen.js' %}?v=2"></script>

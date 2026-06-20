@@ -591,28 +591,65 @@ body,html{
 /* ===== MEDIA QUERIES ===== */
 @media (max-width: 800px) {
     .barra-left {
-        gap: 15px; /* espacio entre logo y barra */
+        gap: 10px; 
+        width: 100%;
+    }
+
+    .boton-menu-unificado {
+        margin-left: 0; 
+        padding: 5px 10px;
+    }
+
+    .logo-img {
+        max-width: 110px; 
+    }
+
+    .icono-hamburguesa {
+        font-size: 20px;
+    }
+
+    .iconos {
+        padding-right:  45px;
+        gap: 1px;
+    }
+
+    .iconos span {
+        font-size: 26px !important; 
+    }
+
+    .iconos i {
+        font-size: 20px !important;
+    }
+
+    .iconos a, .iconos button {
+        width: 30px; 
+        height: 30px; 
+        margin: 0px;
+        padding: 0px;
     }
 
     .menu-hamburguesa {
-        width: 44%; /* tablets */
-        height: 68%;
+        width: 80%; /* tablets */
+        height: 79%;
         left: -6000px; /* fuera de la pantalla */
-        margin: 140px 40px;
+        margin: 142px 9px;
+        border-radius: 33px;
+        margin-top: 117px;
     }
     
 
     .menu-hamburguesa ul li a {
-        font-size: clamp(25px, 2.5vw, 16px);
+        font-size: clamp(23px, 1.5vw, 5px);
     }
 
     .submenu .submenu-items li a {
-        font-size: clamp(25px, 2.5vw, 16px);
+        font-size: clamp(23px, 1.5vw, 5px);
     }
 
     .contenedor_principal {
         width: 85%;
         margin-left: 0;
+        margin-top: 115px;
     }
 
     .menu-hamburguesa.active ~ .content .contenedor_principal {
@@ -625,8 +662,11 @@ body,html{
     }
 
     .tabla-botones {
-        margin-right: 35px;
+        margin-right: 0;
+        justify-content: center;
     }
+
+    
 }
 
 /* === TABLET HORIZONTAL === */

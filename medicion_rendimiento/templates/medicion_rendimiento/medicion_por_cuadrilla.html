@@ -15,32 +15,34 @@
 <link rel="stylesheet" href="{% static 'css/modales.css' %}">
 <link rel="stylesheet" href="{% static 'css/modales_campos.css' %}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="{% static 'medicion_rendimiento/css/opciones_fotos.css' %}">
 {% endblock %}
 
 {% block iconos %}
-    <a href="javascript:void(0);" onclick="abrirModal('modal-config-alertas')" title="Configurar Alertas">
-        <span class="material-symbols-outlined">notifications_active</span>
-    </a>
-    
+
+    <form id="formularioIngreso" action="{% url 'actividad_cuadrilla' proyecto_actual.id_proyectos %}" method="post" class="form-accion">
+        {% csrf_token %}
+        <input type="hidden" name="elemento" id="elemento_oculto">
+
+        {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,eliminar" %}
+            <a href="#" id="eliminar"><span class="material-symbols-outlined">delete</span></a>
+        {% endif %}
+
+        {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,actualizar" %}
+            <a href="#" id="btn-actualizar" data-url-base="{% url 'actualizar_cuadrilla' 0 %}" ><span class="material-symbols-outlined">refresh</span></a>
+        {% endif %}
+    </form>
+
     <a href="#"><span id="btn-filtro" class="material-symbols-outlined">filter_alt</span></a>
 
     {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,descargar" %}
         <a href="javascript:void(0);" id="btn-descarga" onclick="descargarExcel()"><span class="material-symbols-outlined">download</span></a>
     {% endif %}
 
-    <form id="formularioIngreso" action="{% url 'actividad_cuadrilla' %}" method="post" class="form-accion">
-        {% csrf_token %}
-        <input type="hidden" name="elemento" id="elemento_oculto">
+    <a href="javascript:void(0);" onclick="abrirModal('modal-config-alertas')" title="Configurar Alertas">
+        <span class="material-symbols-outlined">notifications_active</span>
+    </a>
 
-        {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,actualizar" %}
-            <a href="#" id="btn-actualizar" data-url-base="{% url 'actualizar_cuadrilla' 0 %}" ><span class="material-symbols-outlined">refresh</span></a>
-        {% endif %}
-
-        {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,eliminar" %}
-            <a href="#" id="eliminar"><span class="material-symbols-outlined">delete</span></a>
-        {% endif %}
-
-    </form>
 {% endblock %}
 
 {% block filtro %} 
@@ -53,7 +55,7 @@
     <div class="tabla-contenedor-relativo">
         <section class="tabla">
             <div class="tabla-scroll-wrapper">
-                <form action="{% url 'actividad_cuadrilla' %}" method="post">
+                <form action="{% url 'actividad_cuadrilla' proyecto_actual.id_proyectos %}" method="post">
                     {% csrf_token %}
                     <table>
                         <thead>
@@ -68,11 +70,11 @@
                                 <th>Nombres del personal</th>
                                 <th>Precio hora trabajadores</th>
                                 <th>Actividad</th>
-                                <th>Ubicación</th>
                                 <th>Foto inicio</th>
                                 <th>Hora de inicio</th>
                                 <th>Hora fin</th>
                                 <th>Foto fin</th>
+                                <th>Ubicación</th>
                                 <th>Horas efectivas por trabajador</th>
                                 <th>Horas trabajadas totales</th>
                                 <th>Costo total oficiales</th>
@@ -108,7 +110,6 @@
                                     <td><label for="personal{{ item.id }}">{{ item.nombre_empleado|safe }}</label></td>
                                     <td><label for="personal{{ item.id }}">{{ item.precio_hora_trabajadores|safe }}</label></td>
                                     <td><label for="personal{{ item.id }}">{{ item.actividad }}</label></td>
-                                    <td><label for="personal{{ item.id }}">{{ item.ubicacion }}</label></td>
                                     <td class="celda-imagen"><label for="personal{{ item.id }}">{% if item.foto_inicio %}
                                                                                 <img src="{{ item.foto_inicio.url }}" alt="Foto de inicio" style="width: 80px; height: 80px; ">
                                                                             {% else %}
@@ -136,6 +137,7 @@
                                                                             {% endif %}
                                             </label>
                                         </td>
+                                        <td><label for="personal{{ item.id }}">{{ item.ubicacion }}</label></td>
                                         <td><label for="personal{{ item.id }}">{{item.horas_efectivas_trabajador|safe}}</label></td>
                                         <td><label for="personal{{ item.id }}">{{ item.horas_trabajadas_totales|default:"-" }} h</label></td>
                                         <td><label for="personal{{ item.id }}">$ {{ item.costo_total_oficiales|cop|default:"-" }}</label></td>
@@ -150,7 +152,7 @@
                                         <td><label for="personal{{ item.id }}">$ {{ item.diferencia_presupuestal|cop|default:"-" }}</label></td>
                                         <td><label for="personal{{ item.id }}">{{ item.comparacion_presupuestal|default:"-" }}%</label></td>
                                     {% else %}
-                                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
                                     {% endif %}
                                     
                                     <td><label for="personal{{ item.id }}">{{ item.usuario_cedula }}</label></td>
@@ -210,8 +212,8 @@
     
     {% include 'medicion_rendimiento/registrar_actividad_cuadrilla.html' %}
     {% include 'medicion_rendimiento/registrar_actividad_final_cuadrilla.html' %}
-    {% include 'medicion_rendimiento/registrar_valores_cumplimiento.html' %}
     {% include 'medicion_rendimiento/modal_configuracion_alertas.html' %}
+    {% include 'medicion_rendimiento/modal_opciones_foto.html' %}
     <div id="modal-container"></div>
 {% endblock %}
 
@@ -221,11 +223,7 @@
     {% endif %}
 
     {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,reporte" %}
-        <a href="{% url 'reporte_cuadrilla' %}" id="btnAgregar"class="gris"><i class="fa-solid fa-chart-column"></i>Reporte</a>
-    {% endif %}
-
-    {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,rendimiento" %}
-        <a href="javascript:void(0);" onclick="abrirModal('modal-cumplimiento')" id="btnAgregar"class="gris"><i class="fa-solid fa-chart-line"></i>Rendimiento</a>
+        <a href="{% url 'reporte_cuadrilla' %}?proyecto={{ proyecto_actual.id_proyectos }}" id="btnAgregar" class="gris"><i class="fa-solid fa-chart-column"></i>Reporte</a>
     {% endif %}
 
     {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,drive" %}
@@ -262,5 +260,11 @@
             window.location.href = "{% url 'exportar_mediciones_drive' %}" + queryParams;
         }
     </script>
+
+    <input type="hidden" id="url-api-actividades" value="{% url 'api_actividades' proyecto_actual.id_proyectos %}">
+    
+    <script src="{% static 'medicion_rendimiento/js/actualizacion_ninja.js' %}"></script>
+    <script src="{% static 'medicion_rendimiento/js/seleccion_actividad.js' %}"></script>
+    <script src="{% static 'medicion_rendimiento/js/opciones_fotos.js' %}"></script>
 {% endblock %}
 

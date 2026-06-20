@@ -4,6 +4,7 @@ import calendar
 import openpyxl
 import io
 import os
+import threading
 
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
@@ -22,10 +23,12 @@ from django.http import JsonResponse, HttpResponseRedirect,HttpResponse
 from django.db.models import Avg, Count, Case, When, Value, IntegerField
 from django.db.models.functions import Coalesce,  ExtractMonth
 
-from .forms import MedicionInicioForm, MedicionFinForm, CumplimientoForm, HistorialCambiosCuadrillaForm, ConfiguracionAlertaForm
+from .forms import MedicionInicioForm, MedicionFinForm, HistorialCambiosCuadrillaForm, ConfiguracionAlertaForm
 from .models import MedicionCuadrilla, Cumplimiento, HistorialCambiosCuadrilla, ConsumoAlimento, ConfiguracionAlerta
 from personal.models import Empleado
+from personal.tasks import fetch_empleados_task
 from usuario.models import Usuario
+from proyectos.models import Proyecto
 from medicion_rendimiento.reporte import (
     rendimiento_real_mensual, rendimiento_real_diario_por_cuadrilla, 
     costo_por_unidad_diario_por_cuadrilla, demanda_empleados_por_actividad,
@@ -128,8 +131,27 @@ def obtener_cumplimiento(request):
     else:
         return JsonResponse({'error': 'No se encontró cumplimiento para esta actividad'}, status=404)
 
+def selector_rendimiento(request):
+    proyectos = Proyecto.objects.all()
+    context = {
+        'proyectos': proyectos,
+        'url_destino': 'actividad_cuadrilla', # Apunta a la URL de la tabla
+    }
+    return render(request, 'medicion_rendimiento/selector_rendimiento_cuadrilla.html', context)
 
-def medicion_por_cuadrilla(request):
+def medicion_por_cuadrilla(request, id_proyecto):
+    proyecto_actual = get_object_or_404(Proyecto, id_proyectos=id_proyecto)
+
+    # Tarea en segundo plano
+    if request.method == "GET":
+        try:
+            # Creamos un hilo para que vaya a Drive sin congelar la página
+            hilo_sincronizacion = threading.Thread(target=fetch_empleados_task)
+            hilo_sincronizacion.start() # Arranca la tarea oculta
+            print("🚀 Tarea de sincronización a Drive iniciada en segundo plano...")
+        except Exception as e:
+            print("Error al iniciar la sincronización oculta:", e)
+
     # --- PRIMERO manejar borrado ---
     if request.method == "POST":
         seleccion = request.POST.get("elemento")
@@ -143,10 +165,10 @@ def medicion_por_cuadrilla(request):
         if accion == "borrar" and ids:
             MedicionCuadrilla.objects.filter(pk__in=ids).delete()
             messages.success(request, "Rendimiento(s) eliminado(s) correctamente.")
-            return redirect("actividad_cuadrilla")  # 🔥 evitar POST doble y refrescos erróneos
+            return redirect("actividad_cuadrilla", id_proyecto=id_proyecto)  
 
     # --- LUEGO cargar mediciones ---
-    mediciones = MedicionCuadrilla.objects.annotate(
+    mediciones = MedicionCuadrilla.objects.filter(proyecto=proyecto_actual).annotate(
         estado_orden=Case(
             When(hora_fin__isnull=True, then=Value(0)), 
             default=Value(1),                           
@@ -157,7 +179,7 @@ def medicion_por_cuadrilla(request):
     mediciones = filtrar_mediciones(request, mediciones)
 
     cumplimientos_dict = {
-        c.actividad.lower(): c.unidad_medida for c in Cumplimiento.objects.all()
+        c.actividad.lower(): c.unidad_medida for c in Cumplimiento.objects.filter(proyecto=proyecto_actual)
     }
 
     for m in mediciones:
@@ -166,18 +188,19 @@ def medicion_por_cuadrilla(request):
     filas_vacias = max(0, 20 - mediciones.count())
 
     empleados = Empleado.objects.filter(
-        Q(cargo__icontains='oficial') |
-        Q(cargo__icontains='ayudante')
+        (Q(cargo__icontains='oficial') | Q(cargo__icontains='ayudante')) &
+        Q(ubicacion__icontains=proyecto_actual.nombre)
     ).order_by('nombre_completo')
 
     usuarios = Usuario.objects.all().order_by('nombre_completo')
 
     form = MedicionInicioForm()
 
-    ultimo = Cumplimiento.objects.last()
-    cumplimientos = Cumplimiento.objects.all().order_by('actividad')
+    ultimo = Cumplimiento.objects.filter(proyecto=proyecto_actual).last()
+    cumplimientos = Cumplimiento.objects.filter(proyecto=proyecto_actual).order_by('actividad')
 
     context = {
+        "proyecto_actual": proyecto_actual,
         "Cuadrillas": mediciones,
         "filas_vacias": range(filas_vacias),
         "empleados": empleados,
@@ -189,25 +212,83 @@ def medicion_por_cuadrilla(request):
     }
     return render(request, 'medicion_rendimiento/medicion_por_cuadrilla.html', context)
 
-def registrar_inicio_medicion(request): 
+def registrar_inicio_medicion(request, id_proyecto):
+    proyecto_actual = get_object_or_404(Proyecto, id_proyectos=id_proyecto)
+
     if request.method == 'POST':
         form = MedicionInicioForm(request.POST, request.FILES)
         if form.is_valid():
             medicion = form.save(commit=False)
+            medicion.proyecto = proyecto_actual 
+
+            actividad = medicion.actividad
+            empleados_qs = form.cleaned_data.get('empleados')
+            empleados_ids_actuales = set(str(emp.cedula) for emp in empleados_qs)
+
+            # 1. Buscamos el histórico de cuadrillas de ESTA actividad
+            historico = MedicionCuadrilla.objects.filter(
+                proyecto=proyecto_actual, 
+                actividad=actividad
+            ).prefetch_related('empleados').order_by('-fecha', '-hora_inicio')
+
+            composicion_cuadrillas = {}
+            max_cuadrilla_historica = 0
+
+            # 2. Guardamos la "última foto" de quiénes conformaban cada cuadrilla
+            for h in historico:
+                try:
+                    c_num = int(h.cuadrilla)
+                    max_cuadrilla_historica = max(max_cuadrilla_historica, c_num)
+                    
+                    if c_num not in composicion_cuadrillas:
+                        # Extraemos las cédulas de ese equipo histórico
+                        composicion_cuadrillas[c_num] = set(str(e.cedula) for e in h.empleados.all())
+                except ValueError:
+                    pass # Si hay basura en la BD que no es número, la ignora
+
+            # 3. Verificamos qué cuadrillas YA están registradas HOY en esta actividad
+            hoy = timezone.now().date()
+            cuadrillas_ocupadas_hoy = set(
+                MedicionCuadrilla.objects.filter(
+                    proyecto=proyecto_actual, 
+                    actividad=actividad, 
+                    fecha=hoy
+                ).values_list('cuadrilla', flat=True)
+            )
+
+            # 4. Buscamos a qué equipo histórico se parecen más
+            cuadrilla_asignada = None
+            mejor_similitud = 0.0
+
+            for c_num, equipo_historico in composicion_cuadrillas.items():
+                # Regla de oro: No pueden haber dos "Cuadrilla 1" el mismo día
+                if str(c_num) in cuadrillas_ocupadas_hoy:
+                    continue 
+
+                # Fórmula de Similitud de Jaccard (Intersección dividida por Unión)
+                interseccion = len(empleados_ids_actuales.intersection(equipo_historico))
+                union = len(empleados_ids_actuales.union(equipo_historico))
+                similitud = interseccion / union if union > 0 else 0
+
+                # Si mantienen al menos un 40% de la alineación original, son el mismo equipo
+                if similitud > 0.4 and similitud > mejor_similitud:
+                    mejor_similitud = similitud
+                    cuadrilla_asignada = c_num
+
+            # 5. Si no hay parecido o todas están ocupadas, nace una nueva cuadrilla
+            if not cuadrilla_asignada:
+                cuadrilla_asignada = max_cuadrilla_historica + 1
+
+            # Inyectamos la decisión del sistema antes de guardar
+            medicion.cuadrilla = str(cuadrilla_asignada)
 
             if request.user.is_authenticated:
-                # CORRECCIÓN: Asignamos el usuario directamente
                 medicion.usuario = request.user 
-                
-                # Opcional: Si tu modelo Usuario tiene campo 'cedula' y 'nombre_completo'
                 medicion.usuario_cedula = getattr(request.user, 'cedula', None)
                 medicion.nombre_usuario = getattr(request.user, 'nombre_completo', str(request.user))
                         
-            medicion.save()  # Guarda la medición principal
-            form.save_m2m()  # Guarda la relación ManyToMany (empleados)
-
-            # Conteo dentro de la cuadrilla: contamos entre los empleados seleccionados
-            empleados_qs = form.cleaned_data.get('empleados', Empleado.objects.none())
+            medicion.save()  
+            form.save_m2m()  
 
             nombres = [f"{emp.nombre_completo}" for emp in empleados_qs]
             cedulas = [f"{emp.cedula}" for emp in empleados_qs]
@@ -234,14 +315,14 @@ def registrar_inicio_medicion(request):
             medicion.save()
 
             messages.success(request, f"Medición registrada con {oficiales + ayudantes} empleados.")
-            return redirect('actividad_cuadrilla')
+            return redirect('actividad_cuadrilla', id_proyecto=id_proyecto)
         else:
             print("Form errors:", form.errors)
             messages.error(request, "Por favor revisa los datos del formulario.")
-            return redirect('actividad_cuadrilla')
+            return redirect('actividad_cuadrilla', id_proyecto=id_proyecto)
     else:
         form = MedicionInicioForm()
-    return redirect('actividad_cuadrilla')
+    return redirect('actividad_cuadrilla', id_proyecto=id_proyecto)
 
 @transaction.atomic
 def actualizar_cuadrilla(request, id):
@@ -252,12 +333,12 @@ def actualizar_cuadrilla(request, id):
             registro_cambios_json = request.POST.get('registro_cambios')
             if not registro_cambios_json:
                 messages.error(request, "No se recibieron datos de cambios válidos.")
-                return redirect('actividad_cuadrilla')
+                return redirect('actividad_cuadrilla', id_proyecto=medicion.proyecto.id_proyectos)
 
             cambios = json.loads(registro_cambios_json)
             if not isinstance(cambios, list) or len(cambios) == 0:
                 messages.error(request, "Formato de datos inválido. No se procesaron cambios.")
-                return redirect('actividad_cuadrilla')
+                return redirect('actividad_cuadrilla', id_proyecto=medicion.proyecto.id_proyectos)
 
             # Listas para actualizaciones M2M
             empleados_a_remover = []  # Cédulas que salieron
@@ -326,13 +407,12 @@ def actualizar_cuadrilla(request, id):
 
             if not historiales_creados:
                 messages.error(request, "No se procesó ningún cambio válido.")
-                return redirect('actividad_cuadrilla')
+                return redirect('actividad_cuadrilla', id_proyecto=medicion.proyecto.id_proyectos)
 
             for empleado_entrada in empleados_a_agregar:
                 if not medicion.empleados.filter(cedula=empleado_entrada.cedula).exists():
                     medicion.empleados.add(empleado_entrada)
                     # también los añadimos a la lista local para la recomputación posterior
-                    
             empleados_actuales = list(medicion.empleados.all())
             empleados_unicos = []
             cedulas_seen = set()
@@ -423,12 +503,12 @@ def actualizar_cuadrilla(request, id):
             messages.error(request, "Error al procesar cambios.")
             print(f"DEBUG POST Error: {e}")
 
-        return redirect('actividad_cuadrilla')
+        return redirect('actividad_cuadrilla', id_proyecto=medicion.proyecto.id_proyectos)
 
     # GET: Renderizar modal 
     todos = Empleado.objects.filter(
-        Q(cargo__icontains='oficial') |
-        Q(cargo__icontains='ayudante')
+        (Q(cargo__icontains='oficial') | Q(cargo__icontains='ayudante')) &
+        Q(ubicacion__icontains=medicion.proyecto.nombre)
     ).order_by("nombre_completo")
 
     activos = []
@@ -720,35 +800,44 @@ def procesos(medicion):
     print(">>> PROCESO FINALIZADO:", medicion.horas_efectivas_trabajador)
 
 def registrar_fin_medicion(request, id):
-    if request.method == 'POST':
-        medicion = get_object_or_404(MedicionCuadrilla, id=id)
+    medicion = get_object_or_404(MedicionCuadrilla, id=id)
 
+    if request.method == 'POST':
         try:
             print("DEBUG registrar_fin_medicion: inicio para medicion id=", medicion.id)
 
-            # === ZONA BLINDADA: MANEJO DE FOTO ===
+            # === MANEJO DE FOTO ===
             if "foto_fin" in request.FILES:
-                # Si ya hay foto, intentamos 'olvidarla' antes de poner la nueva
-                # para evitar conflictos de rutas, pero SIN borrarla del disco (dejamos que AWS maneje eso)
                 if medicion.foto_fin:
                     print(f"Reemplazando foto anterior: {medicion.foto_fin.name}")
-                
                 medicion.foto_fin = request.FILES["foto_fin"]
-            # =====================================
 
             cantidad_producida = float(request.POST.get('cantidad_producida', 0))
             hora_fin_str = request.POST.get('hora_fin')
+            ubicacion_str = request.POST.get('ubicacion', '').strip()
 
             if not hora_fin_str:
                 messages.error(request, "Debe ingresar la hora de finalización.")
-                return redirect('actividad_cuadrilla')
+                return redirect('actividad_cuadrilla', id_proyecto=medicion.proyecto.id_proyectos)
 
-            # 1) Guardar hora fin y cantidad producida
+            # Guardar datos básicos de la medición
             hora_fin = datetime.strptime(hora_fin_str, "%H:%M").time()
+
+            if medicion.hora_inicio and hora_fin < medicion.hora_inicio:
+                hora_ini_formateada = medicion.hora_inicio.strftime("%I:%M %p")
+                hora_fin_formateada = hora_fin.strftime("%I:%M %p")
+                messages.error(
+                    request, 
+                    f"¡Error! La hora de fin ({hora_fin_formateada}) no puede ser menor a la hora de inicio ({hora_ini_formateada})."
+                )
+                return redirect('actividad_cuadrilla', id_proyecto=medicion.proyecto.id_proyectos)
+
             medicion.hora_fin = hora_fin
             medicion.cantidad_producida = cantidad_producida
 
-            # 2) Guardar consumos de alimento
+            if ubicacion_str:
+                medicion.ubicacion = ubicacion_str
+
             desayuno = request.POST.get('desayuno') == 'on'
             almuerzo = request.POST.get('almuerzo') == 'on'
 
@@ -773,7 +862,6 @@ def registrar_fin_medicion(request, id):
                         consumo.almuerzo = True
                     consumo.save()
 
-            # 3) Hora fin por empleado (visual)
             horas_fin_por_empleado = []
             empleados_qs = list(medicion.empleados.all())
 
@@ -836,57 +924,7 @@ def registrar_fin_medicion(request, id):
             print("Error al registrar fin:", e)
             messages.error(request, f"Ocurrió un error al finalizar: {str(e)}")
 
-    return redirect('actividad_cuadrilla')
-
-def registrar_cumplimiento(request):
-    if request.method == 'POST':
-        actividad = request.POST.get('actividad', '').lower().strip()
-        unidad_medida = request.POST.get('unidad_medida')
-
-        raw_presupuestal = request.POST.get('cumplimiento_presupuestal', '0')
-        clean_presupuestal = re.sub(r'[^\d]', '', raw_presupuestal)
-
-        if not clean_presupuestal:
-            clean_presupuestal = '0'
-        
-        cumplimiento_presupuestal = Decimal(clean_presupuestal)
-        cumplimiento_programado = Decimal(request.POST.get('cumplimiento_programado', '0'))
-
-        # Buscar si la actividad ya existe (independiente de mayúsculas)
-        cumplimiento_existente = Cumplimiento.objects.filter(actividad__iexact=actividad).first()
-
-        try:
-            if cumplimiento_existente:
-                # Si los valores son 0 → eliminar la actividad
-                if cumplimiento_presupuestal == 0 and cumplimiento_programado == 0:
-                    cumplimiento_existente.delete()
-                    messages.success(request, f"La actividad '{actividad}' fue eliminada (valores en 0).")
-
-                else:
-                    # Actualizar valores existentes
-                    cumplimiento_existente.unidad_medida = unidad_medida
-                    cumplimiento_existente.cumplimiento_presupuestal = cumplimiento_presupuestal
-                    cumplimiento_existente.cumplimiento_programado = cumplimiento_programado
-                    cumplimiento_existente.save()
-                    messages.success(request, f"Actividad '{actividad}' actualizada correctamente.")
-
-            else:
-                # Si no existe y los valores son mayores a 0 → crear nueva
-                if cumplimiento_presupuestal > 0 or cumplimiento_programado > 0:
-                    Cumplimiento.objects.create(
-                        actividad=actividad,
-                        unidad_medida=unidad_medida,
-                        cumplimiento_presupuestal=cumplimiento_presupuestal,
-                        cumplimiento_programado=cumplimiento_programado
-                    )
-                    messages.success(request, f"Actividad '{actividad}' registrada exitosamente.")
-                else:
-                    messages.warning(request, f"No se registró la actividad '{actividad}' porque sus valores son 0.")
-
-        except Exception as e:
-            messages.error(request, f"Ocurrió un error al guardar la actividad: {e}")
-
-    return redirect('actividad_cuadrilla')
+    return redirect('actividad_cuadrilla', id_proyecto=medicion.proyecto.id_proyectos)
 
 def calcular_estado(porcentaje):
     if porcentaje < 80:
@@ -921,7 +959,8 @@ def api_demanda_empleados(request):
 
 
 def reporte_cuadrilla (request):
-    proyecto = request.GET.get('proyecto', 'Ciudadela Andina')
+    proyecto = request.GET.get('proyecto')
+    proyecto_obj = get_object_or_404(Proyecto, id_proyectos=proyecto)
     actividad_get = request.GET.get('actividad')
 
     hoy = timezone.now().date()
@@ -940,7 +979,7 @@ def reporte_cuadrilla (request):
         fecha_fin = datetime.strptime(fecha_fin, "%Y-%m-%d").date()
 
     mediciones_base = MedicionCuadrilla.objects.filter(
-        proyecto=proyecto,
+        proyecto=proyecto_obj,
         fecha__range=(fecha_inicio, fecha_fin),
     )
 
@@ -1013,32 +1052,32 @@ def reporte_cuadrilla (request):
     cumplimiento_programado_width = float(min(promedio_programado, Decimal('100')))
 
     labels_rendimiento, data_rendimiento = rendimiento_real_mensual(
-        proyecto=proyecto,
+        proyecto=proyecto_obj,
         actividad=actividad_final
     )
 
     graficos_cuadrillas = rendimiento_real_diario_por_cuadrilla(
-        proyecto=proyecto,
+        proyecto=proyecto_obj,
         actividad=actividad_final,
         fecha_fin=fecha_fin,
         fecha_inicio=fecha_fin - timedelta(days=6),
     )
 
     graficos_costo_cuadrillas = costo_por_unidad_diario_por_cuadrilla(
-        proyecto=proyecto,
+        proyecto=proyecto_obj,
         actividad=actividad_final,
         fecha_fin=fecha_fin,
         fecha_inicio=fecha_fin - timedelta(days=6),
     )
 
     demanda_personal = demanda_empleados_por_actividad(
-        proyecto=proyecto,
+        proyecto=proyecto_obj,
         fecha_inicio=fecha_inicio,
         fecha_fin=fecha_fin,
     )
 
     mediciones_qs = MedicionCuadrilla.objects.filter(
-        proyecto=proyecto,
+        proyecto=proyecto_obj,
         actividad=actividad_final
     )
     
@@ -1059,7 +1098,7 @@ def reporte_cuadrilla (request):
     
     if actividad_final:
         comparativo_data = comparativo_rendimiento_cuadrillas(
-            proyecto=proyecto,
+            proyecto=proyecto_obj,
             actividad=actividad_final,
             fecha_inicio=fecha_inicio,
             fecha_fin=fecha_fin
@@ -1073,7 +1112,7 @@ def reporte_cuadrilla (request):
         }
 
     cronograma_data = cronograma_actividades(
-        proyecto=proyecto,
+        proyecto=proyecto_obj,
         fecha_inicio=fecha_inicio,
         fecha_fin=fecha_fin
     )
@@ -1090,7 +1129,7 @@ def reporte_cuadrilla (request):
         "unidad_medida": unidad_medida if actividad_final and cumplimiento else None,
         "cumplimiento_programado": cumplimiento_programado if actividad_final and cumplimiento else None,
         "cumplimiento_presupuestal": cumplimiento_presupuestal if actividad_final and cumplimiento else None,
-        "proyecto": proyecto, 
+        "proyecto": proyecto_obj, 
         "actividad": actividad_final,
         "actividades": actividades,
         "fecha_inicio": fecha_inicio,
@@ -1126,7 +1165,7 @@ def guardar_configuracion_alertas(request):
 
         if not usuario_ids:
             messages.warning(request, "Debe seleccionar al menos un usuario.")
-            return redirect('actividad_cuadrilla')
+            return redirect(request.META.get('HTTP_REFERER', '/'))
 
         # Obtenemos el modelo de usuario para buscar sus datos
         User = get_user_model()
@@ -1163,13 +1202,13 @@ def guardar_configuracion_alertas(request):
         else:
             messages.info(request, "Los usuarios seleccionados ya tienen esta alerta configurada.")
 
-    return redirect('actividad_cuadrilla')
+    return redirect(request.META.get('HTTP_REFERER', '/'))
     
 def eliminar_alerta(request, alerta_id):
     alerta = get_object_or_404(ConfiguracionAlerta, id=alerta_id)
     alerta.delete()
     messages.success(request, "Asignación eliminada correctamente.")
-    return redirect('actividad_cuadrilla')
+    return redirect(request.META.get('HTTP_REFERER', '/')) 
 
 def construir_excel_mediciones(mediciones):
     wb = openpyxl.Workbook()
@@ -1311,5 +1350,17 @@ def exportar_mediciones_drive(request):
         messages.error(request, f"Error al subir a Google Drive: {str(e)}")
         print(f"Error Drive: {e}")
 
-    return redirect('actividad_cuadrilla')
+    return redirect('actividad_cuadrilla', id_proyecto=medicion.proyecto.id_proyectos)
 
+def api_actividades_proyecto(request, id_proyecto):
+    """
+    Ruta silenciosa para que el frontend actualice sus selectores 
+    sin recargar la página.
+    """
+    # Buscamos las actividades frescas de la base de datos
+    actividades = Cumplimiento.objects.filter(proyecto__id_proyectos=id_proyecto).order_by('actividad')
+    
+    # Armamos una lista sencilla
+    data = [{"valor": c.actividad, "texto": c.actividad} for c in actividades]
+    
+    return JsonResponse({"actividades": data})

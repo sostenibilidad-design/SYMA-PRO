@@ -105,7 +105,7 @@ tbody tr:hover {
 
 .form-accion{
     display: flex;
-    gap:18px; 
+    gap:3px; 
     align-items:center;
 }
 

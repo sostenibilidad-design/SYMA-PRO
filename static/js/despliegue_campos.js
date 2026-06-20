@@ -34,7 +34,7 @@ function inicializarDespliegue(contenedor) {
             });
         });
 
-        // BUSCADOR CORREGIDO
+        // BUSCADOR 
         if (buscador) {
             buscador.addEventListener("input", () => { // Usamos 'input' en vez de 'keyup' para mayor fluidez
                 const texto = buscador.value.toLowerCase().trim();

@@ -17,6 +17,7 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 
 from .models import Empleado
+from core.sincronizacion_actividades import procesar_actividades_excel
 
 # CONFIGURACIÓN
 SCOPES = ["https://www.googleapis.com/auth/drive.readonly"]
@@ -194,7 +195,7 @@ def fetch_and_store_empleados(root_folder_id: str):
     tmp_path = os.path.join(tempfile.gettempdir(), "empleados.xlsx")
     download_file(service, file_meta, tmp_path)
 
-    # ---------------- EMPLEADOS ----------------
+# ---------------- EMPLEADOS ----------------
     df_emp = pd.read_excel(tmp_path, sheet_name="Cargos")
     df_emp.columns = df_emp.columns.str.lower().str.strip()
 
@@ -202,56 +203,89 @@ def fetch_and_store_empleados(root_folder_id: str):
     col_nombre = next((c for c in df_emp.columns if 'nombre' in c), None)
     col_cargo = next((c for c in df_emp.columns if 'cargo' in c), None)
     col_costos = next((c for c in df_emp.columns if 'costo' in c or 'salario' in c), None)
+    col_ubicacion = next((c for c in df_emp.columns if 'ubicaci' in c), None)
 
     if not col_cc:
         raise Exception(f"No se encontró columna de Cédula. Columnas: {list(df_emp.columns)}")
 
-    # 3. Limpieza de Cédula (Deja SOLO los números)
-    # NUEVO: Eliminamos los nulos reales antes de convertirlos a texto
+    # Limpieza estricta de cédulas
     df_emp = df_emp.dropna(subset=[col_cc])
-    
-    # Esta línea elimina CC, espacios, puntos y comas de un solo golpe
     df_emp[col_cc] = df_emp[col_cc].astype(str).str.replace(r'[^\d]', '', regex=True)
-    
-    # Filtramos para quitar filas que quedaron vacías
     df_emp = df_emp[df_emp[col_cc] != '']
-    
-    # 4. Filtro numérico final de seguridad
     df_emp = df_emp[df_emp[col_cc].str.isnumeric()]
-    
-    print(f"✅ Filas válidas para guardar: {len(df_emp)}")
 
-    # NUEVO: Lista para guardar las cédulas que sí vinieron en este archivo
     cedulas_excel = []
+    
+    # Contadores para la auditoría en tiempo real
+    nuevos_count = 0
+    actualizados_count = 0
 
     with transaction.atomic():
-        count = 0
         for _, row in df_emp.iterrows():
-            # NUEVO: Usamos pd.notna para asegurarnos de que no guarde "nan" como nombre
+            cedula_limpia = str(row[col_cc])
             valor_nombre = str(row[col_nombre]).strip() if col_nombre and pd.notna(row[col_nombre]) else "Sin Nombre"
             valor_cargo = str(row[col_cargo]).strip() if col_cargo and pd.notna(row[col_cargo]) else "Sin Cargo"
-            cedula_limpia = str(row[col_cc])
             valor_salario = clean_money(row[col_costos]) if col_costos and pd.notna(row[col_costos]) else Decimal('0.00')
+            valor_ubicacion = str(row[col_ubicacion]).strip() if col_ubicacion and pd.notna(row[col_ubicacion]) else ""
             
-            Empleado.objects.update_or_create(
-                cedula=cedula_limpia,
-                defaults={
-                    "nombre_completo": valor_nombre,
-                    "cargo": valor_cargo,
-                    "salario": valor_salario,
-                }
-            )
-            cedulas_excel.append(cedula_limpia) # Registramos que esta cédula existe
-            count += 1
-            
-        # NUEVO: Eliminar de la base de datos a los que NO están en la lista
-        eliminados, _ = Empleado.objects.exclude(cedula__in=cedulas_excel).delete()
-        print(f"🗑️ Se eliminaron {eliminados} empleados antiguos.")
-        
-    os.remove(tmp_path)
+            cedulas_excel.append(cedula_limpia)
 
-    print(f"✅ {count} empleados sincronizados correctamente")
-    return f"{count} empleados sincronizados, {eliminados} eliminados"
+            # 🔎 AUDITORÍA: Buscamos si el empleado ya existe en el sistema
+            empleado_db = Empleado.objects.filter(cedula=cedula_limpia).first()
+
+            if not empleado_db:
+                # 🟩 CASO 1: Es un empleado nuevo
+                Empleado.objects.create(
+                    cedula=cedula_limpia,
+                    nombre_completo=valor_nombre,
+                    cargo=valor_cargo,
+                    salario=valor_salario,
+                    ubicacion=valor_ubicacion
+                )
+                nuevos_count += 1
+                print(f"✨ [NUEVO] Empleado creado: {valor_nombre} (CC: {cedula_limpia})")
+            else:
+                # 🟨 CASO 2: Ya existe, verificamos si cambió ALGUN dato en el Excel
+                hubo_cambio = (
+                    empleado_db.nombre_completo != valor_nombre or
+                    empleado_db.cargo != valor_cargo or
+                    empleado_db.salario != valor_salario or
+                    empleado_db.ubicacion != valor_ubicacion
+                )
+                
+                if hubo_cambio:
+                    # Registramos qué cambió exactamente para los logs internos
+                    print(f"🔄 [ACTUALIZACIÓN] Detectados cambios para CC: {cedula_limpia}")
+                    
+                    empleado_db.nombre_completo = valor_nombre
+                    empleado_db.cargo = valor_cargo
+                    empleado_db.salario = valor_salario
+                    empleado_db.ubicacion = valor_ubicacion
+                    empleado_db.save()
+                    actualizados_count += 1
+
+        # 🟥 CASO 3: Eliminamos de la BD a quienes ya no aparecen en el Excel de Drive
+        eliminados_count, _ = Empleado.objects.exclude(cedula__in=cedulas_excel).delete()
+        if eliminados_count > 0:
+            print(f"🗑️ [ELIMINACIÓN] Se borraron {eliminados_count} empleados que ya no figuran en Drive.")
+
+        
+    # LLAMAMOS AL CORE PARA SINCRONIZAR LAS ACTIVIDADES CON EL MISMO EXCEL
+    try:
+        procesar_actividades_excel(tmp_path)
+    except Exception as e:
+        print(f"❌ Error en el CORE al sincronizar actividades: {e}")
+
+    resumen = f"Sincronización Empleados: {nuevos_count} nuevos, {actualizados_count} actualizados, {eliminados_count} eliminados."
+    print(f"📊 {resumen}")
+    
+    if os.path.exists(tmp_path):
+        os.remove(tmp_path)
+
+    # El reporte detallado final que devolverá Celery o la vista manual
+    resumen = f"Proceso completado con éxito: {nuevos_count} nuevos, {actualizados_count} actualizados, {eliminados_count} eliminados."
+    print(f"📊 RESUMEN SINCRONIZACIÓN: {resumen}")
+    return resumen
 """
 EJECUCIÓN:
 python manage.py shell

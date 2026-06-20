@@ -5,27 +5,28 @@
     <div class="modal">
         <h2 class="titulo">Registrar inicio de actividad</h2>
 
-        <form class="formulario" method="POST" enctype="multipart/form-data" action="{% url 'registrar_inicio_medicion' %}">
+        <form class="formulario" method="POST" enctype="multipart/form-data" action="{% url 'registrar_inicio_medicion' proyecto_actual.id_proyectos %}">
             {% csrf_token %}
-            
-            <div class="select-wrapper">
-                <select name="proyecto" required>
-                    <option value="" disabled selected>Seleccionar proyecto</option>
-                    <option value="Ciudadela Andina">Ciudadela Andina</option>
-                </select>
-            </div>
 
-            <div class="select-wrapper">
-                <select id="actividad" name="actividad" required>
-                    <option value="">Seleccione una actividad</option>
-                    {% for c in Cumplimientos %}
-                        <option value="{{ c.actividad }}">{{ c.actividad }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+            <div class="funcionalidades-box">  
+                <div class="titulo-funcionalidades" id="header-actividad"> 
+                    <strong id="texto-actividad-seleccionada">Seleccione una actividad</strong>
+                </div>
 
-            <div class="input-wrapper">
-                <input type="text" name="ubicacion" placeholder="Ubicación" required>
+                <div class="contenido-funcionalidades dropdown" id="dropdown-actividad" style="display: none;">
+                    <input type="text" id="busqueda-actividad" class="input-busqueda-empleado" placeholder="Buscar actividad...">
+
+                    <div class="lista-actividades" style="max-height: 200px; overflow-y: auto;"> 
+                        {% for c in Cumplimientos %}
+                        <div class="area-item actividad-item">
+                            <label class="area-label">
+                                <input type="radio" name="actividad" class="area-checkbox radio-actividad" value="{{ c.actividad }}" required>
+                                <strong>{{ c.actividad }}</strong>
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
 
             <div class="input-wrapper">
@@ -33,9 +34,9 @@
                     onfocus="(this.type='time')" onblur="if(!this.value) this.type='text'" required>
             </div>
 
-            <div class="file-wrapper">
+            <div class="file-wrapper" onclick="abrirOpcionesFoto('id_foto_inicio')">
                 <span class="fileText" id="fileText_inicio">Insertar imagen</span>
-                <input type="file" name="foto_inicio" id="id_foto_inicio" accept="image/*" capture="environment">
+                <input type="file" name="foto_inicio" id="id_foto_inicio" accept="image/*" style="display: none;">
             </div>
 
             <!-- BLOQUE DE SELECCIÓN DE EMPLEADOS (adaptado) -->
@@ -62,10 +63,6 @@
                 </div>
             </div>
 
-            <div class="input-wrapper">
-                <input type="number" name="cuadrilla" placeholder="Cuadrilla" required>
-            </div>
-
             <div class="botones">
                 <button type="submit" class="btn-guardar">Guardar</button>
                 <button type="button" id="btnCerrar" data-modal="modal-actividad" class="btn-cancelar">Cancelar</button>
@@ -74,5 +71,5 @@
     </div>
 </div>
 
-<script src="{% static 'js/comprimir_imagen.js' %}"></script>
+<script src="{% static 'js/comprimir_imagen.js' %}?v=2"></script>
 

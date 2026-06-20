@@ -1,0 +1,23 @@
+<div id="modal-opciones-foto" class="modal-overlay modal-foto-overlay">
+    <div class="modal modal-foto-container">
+        <h3 class="modal-foto-titulo">Añadir imagen</h3>
+        
+        <div class="modal-foto-opciones">
+            <div onclick="elegirOrigenFoto('camara')" class="modal-foto-btn-wrapper">
+                <div class="modal-foto-icon bg-camara">
+                    <i class="fa-solid fa-camera"></i>
+                </div>
+                <span class="modal-foto-label">Cámara</span>
+            </div>
+            
+            <div onclick="elegirOrigenFoto('galeria')" class="modal-foto-btn-wrapper">
+                <div class="modal-foto-icon bg-galeria">
+                    <i class="fa-solid fa-images"></i>
+                </div>
+                <span class="modal-foto-label">Galería</span>
+            </div>
+        </div>
+
+        <button type="button" onclick="cerrarOpcionesFoto()" class="modal-foto-btn-cancelar">Cancelar</button>
+    </div>
+</div>

@@ -27,6 +27,7 @@
                             <th>Nombre completo</th>
                             <th>Cargo</th>
                             <th>Salario</th>
+                            <th>Ubicación</th>
                         </tr>
                     </thead>
                     
@@ -38,16 +39,19 @@
                                 <td>{{ item.nombre_completo }}</td>
                                 <td>{{ item.cargo }}</td>
                                 <td>$ {{ item.salario|cop }}</td>
+                                <td>{{ item.ubicacion }}</td>
                             </tr>
                             {% endfor %}
                         {% else %}
                             <tr>
-                                <td colspan="5">No hay empleados registrados.</td>
+                                <td colspan="6">No hay empleados registrados.</td>
                             </tr>
                         {% endif %}
 
                         {% for i in filas_vacias %}
                             <tr>
+                                <td></td>
+                                <td></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>

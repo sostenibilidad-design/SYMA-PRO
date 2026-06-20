@@ -3,17 +3,14 @@ from django.conf import settings
 from personal.models import Empleado
 from usuario.models import Usuario
 from django.contrib.auth.models import User
+from proyectos.models import Proyecto
 
 # Modelo para la medición de rendimiento por cuadrilla
 
 class MedicionCuadrilla(models.Model):
-    OPCIONES_PROYECTO = [
-        ('Ciudadela Andina', 'Ciudadela Andina'),
-    ]
-
     id = models.BigAutoField(primary_key=True)
 
-    proyecto = models.CharField(max_length=100, choices=OPCIONES_PROYECTO, default='Ciudadela Andina')
+    proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE, related_name='mediciones_rendimiento')
     fecha = models.DateField(auto_now_add=True)
     cuadrilla = models.CharField(max_length=100, verbose_name="Número de cuadrilla")
     numero_oficiales_ayudantes = models.CharField(max_length=100, blank=True, null=True)
@@ -94,27 +91,19 @@ class HistorialCambiosCuadrilla(models.Model):
 
 
 class Cumplimiento(models.Model):
-    OPCIONES_UNIDAD = [
-        ('u', 'u'),
-        ('m³', 'm³'),
-        ('m²', 'm²'),
-        ('m', 'm'),
-        ('kg', 'kg'),
-    ]
-
-    id = models.BigAutoField(primary_key=True)
-    actividad = models.CharField(max_length=100)
-    unidad_medida = models.CharField(max_length=100, choices=OPCIONES_UNIDAD, default='u')
-    cumplimiento_presupuestal = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    cumplimiento_programado = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-
+    proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE, null=True, blank=True)
+    
+    actividad = models.CharField(max_length=255)
+    unidad_medida = models.CharField(max_length=50, null=True, blank=True)
+    cumplimiento_presupuestal = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
+    cumplimiento_programado = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
     class Meta:
         db_table = 'cumplimientos'
         verbose_name = 'Cumplimiento'
         verbose_name_plural = 'Cumplimientos'
 
     def __str__(self):
-        return f'Cumplimiento Presupuestal: {self.cumplimiento_presupuestal}%, Cumplimiento Programado: {self.cumplimiento_programado}%'
+        return f"{self.actividad} - {self.proyecto.nombre if self.proyecto else 'Sin proyecto'}"
 
 class ConsumoAlimento(models.Model):
     medicion = models.ForeignKey(MedicionCuadrilla, on_delete=models.CASCADE, related_name="consumos")
