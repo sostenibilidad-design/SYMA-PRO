@@ -229,57 +229,64 @@ def registrar_inicio_medicion(request, id_proyecto):
             historico = MedicionCuadrilla.objects.filter(
                 proyecto=proyecto_actual, 
                 actividad=actividad
-            ).prefetch_related('empleados').order_by('-fecha', '-hora_inicio')
+            ).prefetch_related('empleados').order_by('-fecha', '-hora_inicio')[:30]
 
             composicion_cuadrillas = {}
             max_cuadrilla_historica = 0
 
             # 2. Guardamos la "última foto" de quiénes conformaban cada cuadrilla
             for h in historico:
-                try:
-                    c_num = int(h.cuadrilla)
-                    max_cuadrilla_historica = max(max_cuadrilla_historica, c_num)
+                if not h.cuadrilla:
+                    continue
+                
+                # Extraer el número de la cuadrilla de forma segura
+                numeros = re.findall(r'\d+', str(h.cuadrilla))
+                if not numeros:
+                    continue
                     
-                    if c_num not in composicion_cuadrillas:
-                        # Extraemos las cédulas de ese equipo histórico
-                        composicion_cuadrillas[c_num] = set(str(e.cedula) for e in h.empleados.all())
-                except ValueError:
-                    pass # Si hay basura en la BD que no es número, la ignora
-
+                c_num = int(numeros[0])
+                if c_num > max_cuadrilla_historica:
+                    max_cuadrilla_historica = c_num
+                
+                # Guardamos el equipo más reciente de esa cuadrilla si no lo tenemos
+                if c_num not in composicion_cuadrillas:
+                    composicion_cuadrillas[c_num] = {str(e.cedula) for e in h.empleados.all()}
+            
             # 3. Verificamos qué cuadrillas YA están registradas HOY en esta actividad
             hoy = timezone.now().date()
-            cuadrillas_ocupadas_hoy = set(
-                MedicionCuadrilla.objects.filter(
-                    proyecto=proyecto_actual, 
-                    actividad=actividad, 
-                    fecha=hoy
-                ).values_list('cuadrilla', flat=True)
-            )
+            cuadrillas_hoy_qs = MedicionCuadrilla.objects.filter(
+                proyecto=proyecto_actual, 
+                actividad=actividad, 
+                fecha=hoy
+            ).values_list('cuadrilla', flat=True)
+            
+            cuadrillas_ocupadas_hoy = set()
+            for c_str in cuadrillas_hoy_qs:
+                nums = re.findall(r'\d+', str(c_str))
+                if nums:
+                    cuadrillas_ocupadas_hoy.add(int(nums[0]))
 
             # 4. Buscamos a qué equipo histórico se parecen más
             cuadrilla_asignada = None
             mejor_similitud = 0.0
 
             for c_num, equipo_historico in composicion_cuadrillas.items():
-                # Regla de oro: No pueden haber dos "Cuadrilla 1" el mismo día
-                if str(c_num) in cuadrillas_ocupadas_hoy:
+                if c_num in cuadrillas_ocupadas_hoy:
                     continue 
 
-                # Fórmula de Similitud de Jaccard (Intersección dividida por Unión)
-                interseccion = len(empleados_ids_actuales.intersection(equipo_historico))
-                union = len(empleados_ids_actuales.union(equipo_historico))
+                # Intersección y Unión directa
+                interseccion = len(empleados_ids_actuales & equipo_historico)
+                union = len(empleados_ids_actuales | equipo_historico)
                 similitud = interseccion / union if union > 0 else 0
 
-                # Si mantienen al menos un 40% de la alineación original, son el mismo equipo
-                if similitud > 0.4 and similitud > mejor_similitud:
+                if similitud >= 0.4 and similitud > mejor_similitud:
                     mejor_similitud = similitud
                     cuadrilla_asignada = c_num
 
-            # 5. Si no hay parecido o todas están ocupadas, nace una nueva cuadrilla
+            # 5. Asignación final
             if not cuadrilla_asignada:
                 cuadrilla_asignada = max_cuadrilla_historica + 1
 
-            # Inyectamos la decisión del sistema antes de guardar
             medicion.cuadrilla = str(cuadrilla_asignada)
 
             if request.user.is_authenticated:
