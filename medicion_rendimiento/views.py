@@ -1367,7 +1367,18 @@ def api_actividades_proyecto(request, id_proyecto):
     # Buscamos las actividades frescas de la base de datos
     actividades = Cumplimiento.objects.filter(proyecto__id_proyectos=id_proyecto).order_by('actividad')
     
-    # Armamos una lista sencilla
-    data = [{"valor": c.actividad, "texto": c.actividad} for c in actividades]
+    # Armamos una lista sencilla (¡AHORA CON LA UNIDAD DE MEDIDA!)
+    data = []
+    for c in actividades:
+        # Si tiene unidad de medida, la concatenamos; si no, solo mandamos el nombre
+        if c.unidad_medida:
+            texto_mostrar = f"{c.actividad} - ({c.unidad_medida})"
+        else:
+            texto_mostrar = c.actividad
+            
+        data.append({
+            "valor": c.actividad, 
+            "texto": texto_mostrar
+        })
     
     return JsonResponse({"actividades": data})
