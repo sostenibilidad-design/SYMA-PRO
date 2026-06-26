@@ -942,7 +942,7 @@ def calcular_estado(porcentaje):
         return "excelente"
 
 def api_demanda_empleados(request):
-    proyecto = request.GET.get("proyecto", "Ciudadela Andina")
+    proyecto = request.GET.get("proyecto")
     modo = request.GET.get("modo", "mes")  # 👈 POR DEFECTO MES
 
     hoy = timezone.now().date()

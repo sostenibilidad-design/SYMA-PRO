@@ -316,16 +316,20 @@ function activarBoton(modo) {
 }
 
 function cargarDemanda(modo) {
-    let url = `/medicion_rendimiento/api/demanda-empleados/?modo=${modo}`;
-    if (modo === "dia") {
-        const fechaInicio = document.getElementById("fecha_inicio").value;
-        const fechaFin = document.getElementById("fecha_fin").value;
-        url += `&fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
-    }
+    const proyectoId = document.querySelector('.filtro.proyecto').value;
+    const fechaInicio = document.getElementById("fecha_inicio").value;
+    const fechaFin = document.getElementById("fecha_fin").value;
+
+    let url = `/medicion_rendimiento/api/demanda-empleados/?modo=${modo}&proyecto=${proyectoId}&fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
 
     fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
-        .then(res => { if (!res.ok) throw new Error("Respuesta inválida"); return res.json(); })
-        .then(data => { renderGraficoDemanda("grafico-demanda-personal", data.labels, data.datasets); })
+        .then(res => { 
+            if (!res.ok) throw new Error("Respuesta inválida del servidor"); 
+            return res.json(); 
+        })
+        .then(data => { 
+            renderGraficoDemanda("grafico-demanda-personal", data.labels, data.datasets); 
+        })
         .catch(err => console.error("Error cargando demanda:", err));
 }
 
