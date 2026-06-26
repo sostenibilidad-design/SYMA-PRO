@@ -1246,7 +1246,7 @@ def construir_excel_mediciones(mediciones):
         horas_efectivas = (m.horas_efectivas_trabajador or "").replace("<br>", "\n")
 
         row = [
-            m.id, m.proyecto, m.fecha.strftime("%Y-%m-%d") if m.fecha else "",
+            m.id, m.proyecto.nombre if m.proyecto else "", m.fecha.strftime("%Y-%m-%d") if m.fecha else "",
             f"Cuadrilla #{m.cuadrilla}" if m.cuadrilla else "", num_trabajadores,
             cedulas, nombres, precios, m.actividad, m.ubicacion, hora_ini_emp, hora_fin_emp,
             horas_efectivas, float(m.horas_trabajadas_totales) if m.horas_trabajadas_totales else 0,
@@ -1357,7 +1357,7 @@ def exportar_mediciones_drive(request):
         messages.error(request, f"Error al subir a Google Drive: {str(e)}")
         print(f"Error Drive: {e}")
 
-    return redirect('actividad_cuadrilla', id_proyecto=medicion.proyecto.id_proyectos)
+    return redirect(request.META.get('HTTP_REFERER', '/'))
 
 def api_actividades_proyecto(request, id_proyecto):
     """
