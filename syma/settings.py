@@ -244,9 +244,17 @@ else:
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # ----------------------------------------------------
-# CONFIGURACIÓN DE ARCHIVOS MULTIMEDIA (GOOGLE CLOUD)
+# CONFIGURACIÓN DE MULTIMEDIA (DJANGO 5+
 # ----------------------------------------------------
-DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 GS_BUCKET_NAME = 'syma-storage-anyi-2026'
 GS_LOCATION = 'syma-media-files'
 GS_FILE_OVERWRITE = False
+
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.gcloud.GoogleCloudStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
