@@ -1,3 +1,6 @@
+import os
+import traceback
+
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login, logout
 from django.contrib import messages
@@ -17,7 +20,9 @@ from django.contrib.auth.views import ( PasswordResetView, PasswordResetConfirmV
 from django.db.models import Q, CharField, TextField
 from usuario.forms import CustomPasswordResetForm
 from django.conf import settings
-import traceback
+from django.db import close_old_connections
+from personal.google_drive_utils import fetch_and_store_empleados
+from medicion_rendimiento.tasks import alerta_recordatorio_usuario, alerta_incumplimiento_control
 
 
 def buscar(request):
@@ -153,5 +158,33 @@ class PasswordResetConfirmNoRedirectView(PasswordResetConfirmView):
 
         return render(self.request, self.template_name, context)
 
+def ejecutar_tareas_cron(request, nombre_tarea):
+    # Candado de seguridad: solo quien tenga el token puede ejecutar esto
+    token_secreto = os.environ.get('CRON_SECRET_TOKEN', 'mi-clave-super-secreta-123')
+    token_recibido = request.GET.get('token', '')
 
+    if token_recibido != token_secreto:
+        return HttpResponse("No autorizado 🛑", status=401)
 
+    # Limpiamos conexiones viejas a la base de datos
+    close_old_connections()
+
+    try:
+        if nombre_tarea == 'recordatorio':
+            alerta_recordatorio_usuario()
+            return HttpResponse("✅ Alerta de recordatorio ejecutada")
+            
+        elif nombre_tarea == 'control':
+            alerta_incumplimiento_control()
+            return HttpResponse("✅ Alerta de control ejecutada")
+            
+        elif nombre_tarea == 'drive':
+            # Ejecutamos tu función con el ID de la carpeta de Google Drive
+            resultado = fetch_and_store_empleados("1aN_dq95lckVrCo6NWMMqjRinV3XTkOCP")
+            return HttpResponse(f"✅ Sincronización Drive completada: {resultado}")
+            
+        else:
+            return HttpResponse("Tarea no existe", status=404)
+            
+    except Exception as e:
+        return HttpResponse(f"❌ Error ejecutando {nombre_tarea}: {str(e)}", status=500)

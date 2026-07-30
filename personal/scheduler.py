@@ -48,5 +48,5 @@ def start():
     )
 
     register_events(scheduler)
-    scheduler.start()
+    #scheduler.start()
     print(">>> ⏰ Motor APScheduler encendido: Todas las tareas programadas listas.")
