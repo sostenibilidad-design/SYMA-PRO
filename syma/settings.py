@@ -247,9 +247,9 @@ else:
 # CONFIGURACIÓN DE MULTIMEDIA (DJANGO 5+)
 # ----------------------------------------------------
 GS_BUCKET_NAME = 'syma-storage-anyi-2026'
-GS_LOCATION = ''
+GS_LOCATION = 'syma-media-files/media'  
 GS_FILE_OVERWRITE = False
-GS_QUERYSTRING_AUTH = False  # <--- ¡Esta línea apaga la seguridad extrema!
+GS_QUERYSTRING_AUTH = False
 
 STORAGES = {
     "default": {
