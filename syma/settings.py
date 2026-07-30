@@ -242,3 +242,11 @@ else:
     # Configuración para cuando estás en tu PC local (sin nube)
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# ----------------------------------------------------
+# CONFIGURACIÓN DE ARCHIVOS MULTIMEDIA (GOOGLE CLOUD)
+# ----------------------------------------------------
+DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+GS_BUCKET_NAME = 'syma-storage-anyi-2026'
+GS_LOCATION = 'syma-media-files'
+GS_FILE_OVERWRITE = False
