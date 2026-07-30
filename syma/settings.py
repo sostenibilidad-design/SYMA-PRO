@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'medicion_rendimiento',
     'proyectos',
     'bitacora',
-    'registro_asistencia',
 ]
 
 MIDDLEWARE = [
