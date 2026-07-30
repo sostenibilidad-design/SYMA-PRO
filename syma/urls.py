@@ -12,7 +12,6 @@ urlpatterns = [
     path('medicion_rendimiento/', include('medicion_rendimiento.urls')),
     path('proyectos/', include('proyectos.urls')),
     path('bitacora/', include('bitacora.urls')),
-    path('registro_asistencia/', include('registro_asistencia.urls')),
     path('cron/<str:nombre_tarea>/', ejecutar_tareas_cron, name='cron_tasks'),
 ]
 
