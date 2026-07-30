@@ -14,10 +14,11 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = [
-    'coral-app-g5qh8.ondigitalocean.app', 
-    'syma-pro.me', 
-    'www.syma-pro.me', 
-    'localhost', 
+    'syma-pro-527664656835.us-central1.run.app',
+    'coral-app-g5qh8.ondigitalocean.app',
+    'syma-pro.me',
+    'www.syma-pro.me',
+    'localhost',
     '127.0.0.1'
 ]
 
@@ -242,3 +243,20 @@ else:
     # Configuración para cuando estás en tu PC local (sin nube)
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# ----------------------------------------------------
+# CONFIGURACIÓN DE MULTIMEDIA (DJANGO 5+)
+# ----------------------------------------------------
+GS_BUCKET_NAME = 'syma-storage-anyi-2026'
+GS_LOCATION = 'syma-media-files/media'  
+GS_FILE_OVERWRITE = False
+GS_QUERYSTRING_AUTH = False
+
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.gcloud.GoogleCloudStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
