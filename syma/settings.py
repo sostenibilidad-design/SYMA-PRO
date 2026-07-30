@@ -244,11 +244,12 @@ else:
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # ----------------------------------------------------
-# CONFIGURACIÓN DE MULTIMEDIA (DJANGO 5+
+# CONFIGURACIÓN DE MULTIMEDIA (DJANGO 5+)
 # ----------------------------------------------------
 GS_BUCKET_NAME = 'syma-storage-anyi-2026'
 GS_LOCATION = 'syma-media-files'
 GS_FILE_OVERWRITE = False
+GS_QUERYSTRING_AUTH = False  # <--- ¡Esta línea apaga la seguridad extrema!
 
 STORAGES = {
     "default": {
