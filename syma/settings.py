@@ -14,10 +14,11 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = [
-    'coral-app-g5qh8.ondigitalocean.app', 
-    'syma-pro.me', 
-    'www.syma-pro.me', 
-    'localhost', 
+    'syma-pro-527664656835.us-central1.run.app',
+    'coral-app-g5qh8.ondigitalocean.app',
+    'syma-pro.me',
+    'www.syma-pro.me',
+    'localhost',
     '127.0.0.1'
 ]
 
