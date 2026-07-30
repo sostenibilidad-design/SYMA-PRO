@@ -19,6 +19,8 @@ from googleapiclient.http import MediaIoBaseDownload
 from .models import Empleado
 from core.sincronizacion_actividades import procesar_actividades_excel
 
+
+
 # CONFIGURACIÓN
 SCOPES = ["https://www.googleapis.com/auth/drive.readonly"]
 
