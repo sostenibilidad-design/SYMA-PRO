@@ -64,3 +64,4 @@ wcwidth==0.2.14
 whitenoise==6.11.0
 django-storages
 google-cloud-storage
+weasyprint==63.0
