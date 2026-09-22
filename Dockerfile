@@ -39,4 +39,4 @@ EXPOSE 8080
 # 9. COMANDO REAL DE PRODUCCIÓN
 # Quitamos runserver. Usamos gunicorn.
 # Asegúrate de que tu carpeta principal se llame 'syma' (donde está wsgi.py)
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--timeout", "600", "syma.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--timeout", "600", "syma.wsgi:application"]
