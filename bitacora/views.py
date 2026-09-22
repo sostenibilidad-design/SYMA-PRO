@@ -1,4 +1,7 @@
 import base64
+import tempfile
+import gc
+from django.http import FileResponse
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse, HttpResponse
 from django.template.loader import render_to_string
@@ -134,16 +137,30 @@ def imprimir_bitacora_completa(request, id_proyecto):
         'request': request,
     }
 
+    # 1. Renderizamos el HTML a String
     html_string = render_to_string('bitacora/imprimir_completa.html', context)
-    html = HTML(string=html_string, base_url=request.build_absolute_uri('/'))
-    pdf = html.write_pdf()
     
-    response = HttpResponse(pdf, content_type='application/pdf')
-    # Definimos el nombre y lo asignamos correctamente
-    nombre_archivo = f'Bitacora_Completa_SYMA_{slugify(proyecto.nombre)}.pdf'
-    response['Content-Disposition'] = f'attachment; filename="{nombre_archivo}"'
+    # 2. Creamos un archivo temporal en el disco del contenedor
+    temp_pdf = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
     
-    return response
+    try:
+        # 3. Escribimos el PDF en disco en lugar de cargarlo en la memoria RAM
+        HTML(string=html_string, base_url=request.build_absolute_uri('/')).write_pdf(target=temp_pdf.name)
+        
+        # 4. Definimos el nombre de descarga
+        nombre_archivo = f'Bitacora_Completa_SYMA_{slugify(proyecto.nombre)}.pdf'
+        
+        # 5. FileResponse envía el archivo en flujo (stream), evitando el límite de respuesta de Cloud Run
+        return FileResponse(
+            open(temp_pdf.name, 'rb'), 
+            content_type='application/pdf',
+            as_attachment=True,
+            filename=nombre_archivo
+        )
+
+    finally:
+        # 6. Liberamos la memoria de WeasyPrint
+        gc.collect()
 
 def guardar_firmas_bitacora(request, id_proyecto):
     if request.method == 'POST':
