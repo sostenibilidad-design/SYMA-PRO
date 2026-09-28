@@ -9,6 +9,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 GOOGLE_CREDENTIALS_FILE = os.path.join(BASE_DIR, "credentials.json")
 
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_CREDENTIALS_FILE
+
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'

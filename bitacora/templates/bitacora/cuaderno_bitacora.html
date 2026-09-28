@@ -13,9 +13,8 @@
 {% block search_bar %}{% endblock %}
 
 {% block iconos %}
-
     {% if user|has_perm:"bitacora,cuaderno_bitacora,descargar" %}
-        <a href="{% url 'imprimir_bitacora_completa' proyecto.id_proyectos %}" target="_blank" title="Descargar bitácora completa">
+        <a href="{% url 'imprimir_bitacora_completa' proyecto.id_proyectos %}" title="Descargar bitácora completa" id="btn-descargar-completa">
             <span class="material-symbols-outlined">download</span>
         </a>
     {% endif %}
@@ -26,6 +25,11 @@
 {% endblock %}
 
 {% block content %}
+
+<div id="caja-progreso-descarga" style="display: none; padding: 15px; background-color: #f1f8e9; border: 1px solid #c5e1a5; color: #33691e; border-radius: 5px; margin: 10px auto; max-width: 800px; text-align: center; font-weight: bold; position: sticky; top: 10px; z-index: 1000; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+    <span class="spinner">⏳</span> Iniciando proceso de generación...
+</div>
+
 <div class="bt-wrapper">
     <form id="form-bitacora" method="POST" enctype="multipart/form-data">
         {% csrf_token %}

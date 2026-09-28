@@ -22,5 +22,5 @@ urlpatterns = [
 
     # Endpoint para guardar las firmas (tanto de autor como de supervisor)  
     path('api/guardar_firmas/<int:id_proyecto>/', views.guardar_firmas_bitacora, name='guardar_firmas_bitacora'),
-    
+    path('api/estado_descarga/<int:exportacion_id>/', views.consultar_estado_descarga, name='consultar_estado_descarga'),
 ]

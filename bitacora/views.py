@@ -7,9 +7,10 @@ from django.http import JsonResponse, HttpResponse
 from django.template.loader import render_to_string
 from django.utils.text import slugify
 from proyectos.models import Proyecto
-from .models import Bitacora, BitacoraFoto
+from .models import Bitacora, BitacoraFoto, ExportacionBitacora
 from django.core.files.base import ContentFile
 from weasyprint import HTML
+from .tasks import generar_pdf_bitacora_async
 from usuario.models import Usuario
 
 
@@ -128,39 +129,32 @@ def imprimir_bitacora_hoja(request, id_proyecto, id_bitacora):
 def imprimir_bitacora_completa(request, id_proyecto):
     proyecto = get_object_or_404(Proyecto, id_proyectos=id_proyecto)
     
-    # Traemos todos los registros del proyecto ordenados desde el más antiguo al más reciente
-    bitacoras = Bitacora.objects.filter(proyecto=proyecto).order_by('creado_en')
+    # 1. Creamos el registro en la BD
+    exportacion = ExportacionBitacora.objects.create(proyecto=proyecto)
     
-    context = {
-        'proyecto': proyecto,
-        'bitacoras': bitacoras,
-        'request': request,
-    }
+    # 2. Enviamos la tarea a la cola de Redis/Celery
+    base_url = request.build_absolute_uri('/')
+    generar_pdf_bitacora_async.delay(exportacion.id, base_url)
+    
+    # 3. Liberamos el servidor web instantáneamente devolviendo el ID
+    return JsonResponse({
+        'status': 'success', 
+        'exportacion_id': exportacion.id, 
+        'mensaje': 'Generación iniciada en segundo plano.'
+    }, status=202)
 
-    # 1. Renderizamos el HTML a String
-    html_string = render_to_string('bitacora/imprimir_completa.html', context)
+def consultar_estado_descarga(request, exportacion_id):
+    exportacion = get_object_or_404(ExportacionBitacora, id=exportacion_id)
     
-    # 2. Creamos un archivo temporal en el disco del contenedor
-    temp_pdf = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
-    
-    try:
-        # 3. Escribimos el PDF en disco en lugar de cargarlo en la memoria RAM
-        HTML(string=html_string, base_url=request.build_absolute_uri('/')).write_pdf(target=temp_pdf.name)
-        
-        # 4. Definimos el nombre de descarga
-        nombre_archivo = f'Bitacora_Completa_SYMA_{slugify(proyecto.nombre)}.pdf'
-        
-        # 5. FileResponse envía el archivo en flujo (stream), evitando el límite de respuesta de Cloud Run
-        return FileResponse(
-            open(temp_pdf.name, 'rb'), 
-            content_type='application/pdf',
-            as_attachment=True,
-            filename=nombre_archivo
-        )
+    url_archivo = None
+    if exportacion.archivo and exportacion.estado == 'COMPLETADO':
+        url_archivo = exportacion.archivo.url
 
-    finally:
-        # 6. Liberamos la memoria de WeasyPrint
-        gc.collect()
+    return JsonResponse({
+        'estado': exportacion.estado,
+        'url_archivo': url_archivo,
+        'error': exportacion.mensaje_error
+    })
 
 def guardar_firmas_bitacora(request, id_proyecto):
     if request.method == 'POST':

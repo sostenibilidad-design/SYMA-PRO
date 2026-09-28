@@ -33,10 +33,13 @@ COPY . /app/
 # Si no haces esto, Nginx no encuentra nada.
 RUN python manage.py collectstatic --noinput
 
-# 8. Exponemos el puerto (informativo)
+# 8. Dar permisos de ejecución al script de arranque
+RUN chmod +x /app/start.sh
+
+# 9. Exponemos el puerto (informativo)
 EXPOSE 8080
 
 # 9. COMANDO REAL DE PRODUCCIÓN
 # Quitamos runserver. Usamos gunicorn.
 # Asegúrate de que tu carpeta principal se llame 'syma' (donde está wsgi.py)
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--timeout", "600", "syma.wsgi:application"]
+CMD ["/app/start.sh"]
