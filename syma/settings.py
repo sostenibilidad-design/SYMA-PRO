@@ -9,7 +9,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 GOOGLE_CREDENTIALS_FILE = os.path.join(BASE_DIR, "credentials.json")
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_CREDENTIALS_FILE
+if os.path.exists(GOOGLE_CREDENTIALS_FILE):
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_CREDENTIALS_FILE
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
@@ -221,7 +222,6 @@ if 'AWS_ACCESS_KEY_ID' in os.environ:
     AWS_LOCATION = 'media'
     AWS_DEFAULT_ACL = 'public-read'
     
-    # --- AQUÍ ESTÁ EL CAMBIO CLAVE PARA DJANGO MODERNO ---
     STORAGES = {
         "default": {
             "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
@@ -231,7 +231,7 @@ if 'AWS_ACCESS_KEY_ID' in os.environ:
             },
         },
         "staticfiles": {
-            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
         },
     }
 
@@ -258,7 +258,7 @@ STORAGES = {
         "BACKEND": "storages.backends.gcloud.GoogleCloudStorage",
     },
     "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
 
