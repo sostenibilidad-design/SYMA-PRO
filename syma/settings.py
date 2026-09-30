@@ -25,6 +25,8 @@ ALLOWED_HOSTS = [
     '127.0.0.1'
 ]
 
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+
 
 # Application definition
 
