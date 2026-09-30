@@ -217,3 +217,81 @@ function turnPage(url, direction) {
         window.location.href = url;
     }, 600); 
 }
+
+// --- 4. DESCARGA ASÍNCRONA DE BITÁCORA ---
+document.addEventListener('DOMContentLoaded', () => {
+    const btnDescarga = document.getElementById('btn-descargar-completa');
+    
+    if(btnDescarga) {
+        btnDescarga.addEventListener('click', function(e) {
+            e.preventDefault(); // Evita que la página intente descargar de inmediato
+            
+            let urlDisparo = this.href;
+            let cajaProgreso = document.getElementById('caja-progreso-descarga');
+
+            if(!cajaProgreso) return; // Seguridad en caso de que falte el HTML
+
+            // Bloqueamos visualmente el botón para que el usuario no envíe 10 peticiones
+            btnDescarga.style.pointerEvents = 'none';
+            btnDescarga.style.opacity = '0.4';
+            
+            cajaProgreso.style.display = 'block';
+            cajaProgreso.innerHTML = '⏳ Solicitando generación del documento al servidor...';
+
+            // 1. Iniciamos la tarea en el servidor enviando la petición
+            fetch(urlDisparo)
+            .then(response => response.json())
+            .then(data => {
+                if(data.exportacion_id) {
+                    cajaProgreso.innerHTML = '⚙️ Construyendo PDF... Esto puede tomar varios minutos. Puedes seguir usando la plataforma.';
+                    verificarEstado(data.exportacion_id);
+                } else {
+                    cajaProgreso.innerHTML = '❌ ' + (data.mensaje || 'Error al iniciar la descarga.');
+                    restaurarBoton();
+                }
+            })
+            .catch(error => {
+                cajaProgreso.innerHTML = '❌ Error de red al intentar conectar con el servidor.';
+                restaurarBoton();
+            });
+
+            // 2. Función que consulta el estado cada 5 segundos
+            function verificarEstado(exportacionId) {
+                let interval = setInterval(() => {
+                    fetch(`/bitacora/api/estado_descarga/${exportacionId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.estado === 'COMPLETADO') {
+                            clearInterval(interval); // Detiene las consultas
+                            cajaProgreso.innerHTML = '✅ ¡Bitácora generada! La descarga iniciará automáticamente.';
+                            restaurarBoton();
+                            
+                            // Forzamos la descarga nativa abriendo la URL del archivo
+                            let link = document.createElement('a');
+                            link.href = data.url_archivo;
+                            link.download = '';
+                            link.target = '_blank';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            
+                            // Ocultamos la caja de progreso después de 5 segundos
+                            setTimeout(() => { cajaProgreso.style.display = 'none'; }, 5000);
+                            
+                        } else if (data.estado === 'ERROR') {
+                            clearInterval(interval);
+                            cajaProgreso.innerHTML = '❌ Ocurrió un error interno: ' + data.error;
+                            restaurarBoton();
+                        }
+                    })
+                    .catch(error => console.error("Error consultando estado:", error));
+                }, 5000); // Consulta cada 5000ms (5 segundos)
+            }
+
+            function restaurarBoton() {
+                btnDescarga.style.pointerEvents = 'auto';
+                btnDescarga.style.opacity = '1';
+            }
+        });
+    }
+});

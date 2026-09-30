@@ -42,3 +42,20 @@ class BitacoraFoto(models.Model):
 
     class Meta:
         db_table = 'bitacora_fotos'
+
+class ExportacionBitacora(models.Model):
+    ESTADOS = (
+        ('PENDIENTE', 'Pendiente'),
+        ('PROCESANDO', 'Procesando'),
+        ('COMPLETADO', 'Completado'),
+        ('ERROR', 'Error'),
+    )
+    proyecto = models.ForeignKey('proyectos.Proyecto', on_delete=models.CASCADE)
+    task_id = models.CharField(max_length=255, blank=True, null=True)
+    estado = models.CharField(max_length=20, choices=ESTADOS, default='PENDIENTE')
+    archivo = models.FileField(upload_to='exportaciones_bitacora/', blank=True, null=True)
+    mensaje_error = models.TextField(blank=True, null=True)
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Exportación {self.proyecto.nombre} - {self.estado}"
