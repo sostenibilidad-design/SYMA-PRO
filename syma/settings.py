@@ -25,29 +25,6 @@ ALLOWED_HOSTS = [
     '127.0.0.1'
 ]
 
-CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
-CELERY_RESULT_BACKEND = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = TIME_ZONE
-
-# Forzar a usar redis si el backend está configurado
-if 'upstash' in CELERY_RESULT_BACKEND:
-    CACHES = {
-        "default": {
-            "BACKEND": "django_redis.cache.RedisCache",
-            "LOCATION": CELERY_RESULT_BACKEND,
-            "OPTIONS": {
-                "CLIENT_CLASS": "django_redis.client.DefaultClient",
-                "CONNECTION_POOL_KWARGS": {
-                    "ssl": True,
-                    "ssl_cert_reqs": "none",
-                }
-            }
-        }
-    }
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -160,6 +137,31 @@ TIME_ZONE = 'America/Bogota'
 USE_I18N = True
 
 USE_TZ = True
+
+# Configuración celery
+
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+
+# Forzar a usar redis si el backend está configurado
+if 'upstash' in CELERY_RESULT_BACKEND:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": CELERY_RESULT_BACKEND,
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "CONNECTION_POOL_KWARGS": {
+                    "ssl": True,
+                    "ssl_cert_reqs": "none",
+                }
+            }
+        }
+    }
 
 
 # ARCHIVOS ESTÁTICOS
