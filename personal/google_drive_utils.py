@@ -204,6 +204,7 @@ def fetch_and_store_empleados(root_folder_id: str):
     col_cargo = next((c for c in df_emp.columns if 'cargo' in c), None)
     col_costos = next((c for c in df_emp.columns if 'costo' in c or 'salario' in c), None)
     col_ubicacion = next((c for c in df_emp.columns if 'ubicaci' in c), None)
+    col_cuadrilla = next((c for c in df_emp.columns if 'cuadrilla' in c), None)
 
     if not col_cc:
         raise Exception(f"No se encontró columna de Cédula. Columnas: {list(df_emp.columns)}")
@@ -227,7 +228,11 @@ def fetch_and_store_empleados(root_folder_id: str):
             valor_cargo = str(row[col_cargo]).strip() if col_cargo and pd.notna(row[col_cargo]) else "Sin Cargo"
             valor_salario = clean_money(row[col_costos]) if col_costos and pd.notna(row[col_costos]) else Decimal('0.00')
             valor_ubicacion = str(row[col_ubicacion]).strip() if col_ubicacion and pd.notna(row[col_ubicacion]) else ""
-            
+            valor_cuadrilla = str(row[col_cuadrilla]).strip() if col_cuadrilla and pd.notna(row[col_cuadrilla]) else ""
+            # "N/A" en Drive significa que la persona no tiene cuadrilla
+            if valor_cuadrilla.upper() in ("N/A", "NA", "-"):
+                valor_cuadrilla = ""
+
             cedulas_excel.append(cedula_limpia)
 
             # 🔎 AUDITORÍA: Buscamos si el empleado ya existe en el sistema
@@ -240,7 +245,8 @@ def fetch_and_store_empleados(root_folder_id: str):
                     nombre_completo=valor_nombre,
                     cargo=valor_cargo,
                     salario=valor_salario,
-                    ubicacion=valor_ubicacion
+                    ubicacion=valor_ubicacion,
+                    cuadrilla=valor_cuadrilla
                 )
                 nuevos_count += 1
                 print(f"✨ [NUEVO] Empleado creado: {valor_nombre} (CC: {cedula_limpia})")
@@ -250,7 +256,8 @@ def fetch_and_store_empleados(root_folder_id: str):
                     empleado_db.nombre_completo != valor_nombre or
                     empleado_db.cargo != valor_cargo or
                     empleado_db.salario != valor_salario or
-                    empleado_db.ubicacion != valor_ubicacion
+                    empleado_db.ubicacion != valor_ubicacion or
+                    (empleado_db.cuadrilla or "") != valor_cuadrilla
                 )
                 
                 if hubo_cambio:
@@ -261,6 +268,7 @@ def fetch_and_store_empleados(root_folder_id: str):
                     empleado_db.cargo = valor_cargo
                     empleado_db.salario = valor_salario
                     empleado_db.ubicacion = valor_ubicacion
+                    empleado_db.cuadrilla = valor_cuadrilla
                     empleado_db.save()
                     actualizados_count += 1
 

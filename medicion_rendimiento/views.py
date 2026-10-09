@@ -192,6 +192,23 @@ def medicion_por_cuadrilla(request, id_proyecto):
         Q(ubicacion__icontains=proyecto_actual.nombre)
     ).order_by('nombre_completo')
 
+    # Agrupar por la columna "Cuadrilla" de Drive (vacía = sin cuadrilla)
+    grupos_cuadrilla = {}
+    empleados_sin_cuadrilla = []
+    for emp in empleados:
+        nombre_cuadrilla = (emp.cuadrilla or "").strip()
+        if nombre_cuadrilla:
+            grupos_cuadrilla.setdefault(nombre_cuadrilla, []).append(emp)
+        else:
+            empleados_sin_cuadrilla.append(emp)
+
+    cuadrillas = [
+        {"id": i, "nombre": nombre, "empleados": integrantes}
+        for i, (nombre, integrantes) in enumerate(
+            sorted(grupos_cuadrilla.items(), key=lambda g: g[0].lower()), start=1
+        )
+    ]
+
     usuarios = Usuario.objects.all().order_by('nombre_completo')
 
     form = MedicionInicioForm()
@@ -204,6 +221,8 @@ def medicion_por_cuadrilla(request, id_proyecto):
         "Cuadrillas": mediciones,
         "filas_vacias": range(filas_vacias),
         "empleados": empleados,
+        "cuadrillas": cuadrillas,
+        "empleados_sin_cuadrilla": empleados_sin_cuadrilla,
         "usuarios": usuarios,
         "form": form,
         "ultimo": ultimo,
