@@ -39,26 +39,64 @@
                 <input type="file" name="foto_inicio" id="id_foto_inicio" accept="image/*" style="display: none;">
             </div>
 
-            <!-- BLOQUE DE SELECCIÓN DE EMPLEADOS (adaptado) -->
-            <div class="funcionalidades-box">  
-                <div class="titulo-funcionalidades"> 
+            <!-- SELECCIÓN DE EMPLEADOS AGRUPADOS POR CUADRILLA -->
+            <div class="funcionalidades-box funcionalidades-box--cuadrillas">
+                <div class="titulo-funcionalidades">
                     <strong>Seleccionar empleados</strong>
                 </div>
 
-                <div class="contenido-funcionalidades dropdown" style="display: none;">  <!-- QUITADO id="area-dropdown" -->
-                    <input type="text" class="input-busqueda-empleado" placeholder="Buscar usuario...">  <!-- QUITADO id="busqueda-empleado" -->
+                <div class="contenido-funcionalidades dropdown" style="display: none;">
+                    <input type="text" class="input-busqueda-empleado" placeholder="Buscar usuario o cuadrilla...">
 
-                    <div class="lista-empleados">  <!-- CAMBIADO id → class -->
-                        {% for emp in empleados %}
-                            {% if  "oficial" in emp.cargo|lower or "ayudante" in emp.cargo|lower %}
-                            <div class="area-item">
-                                <label class="area-label">
-                                    <input type="checkbox" name="empleados" class="area-checkbox" value="{{ emp.cedula }}">
-                                    <strong>{{ emp.nombre_completo|capfirst }}</strong>
-                                </label>
+                    <div class="lista-empleados lista-cuadrillas">
+
+                        {% for cuadrilla in cuadrillas %}
+                        <div class="cuadrilla-grupo" data-cuadrilla="{{ cuadrilla.id }}">
+                            <!-- Sin "area-checkbox" para que el contador del título solo cuente personas -->
+                            <label class="cuadrilla-cabeza">
+                                <input type="checkbox" class="cuadrilla-checkbox" aria-label="Seleccionar toda la cuadrilla {{ cuadrilla.nombre }}">
+                                <strong class="cuadrilla-nombre">{{ cuadrilla.nombre }}</strong>
+                                <span class="cuadrilla-contador">0 de {{ cuadrilla.empleados|length }}</span>
+                            </label>
+
+                            <div class="cuadrilla-integrantes">
+                                {% for emp in cuadrilla.empleados %}
+                                <div class="area-item">
+                                    <label class="area-label">
+                                        <input type="checkbox" name="empleados" class="area-checkbox" value="{{ emp.cedula }}">
+                                        <strong>{{ emp.nombre_completo|capfirst }}</strong>
+                                        <span class="cuadrilla-cargo">{{ emp.cargo|default:"" }}</span>
+                                    </label>
+                                </div>
+                                {% endfor %}
                             </div>
-                            {% endif %}
+                        </div>
                         {% endfor %}
+
+                        {% if empleados_sin_cuadrilla %}
+                        <div class="cuadrilla-grupo" data-cuadrilla="sin-cuadrilla">
+                            <label class="cuadrilla-cabeza">
+                                <input type="checkbox" class="cuadrilla-checkbox" aria-label="Seleccionar a todos los empleados sin cuadrilla">
+                                <strong class="cuadrilla-nombre">Sin cuadrilla</strong>
+                                <span class="cuadrilla-contador">0 de {{ empleados_sin_cuadrilla|length }}</span>
+                            </label>
+                            <div class="cuadrilla-integrantes">
+                                {% for emp in empleados_sin_cuadrilla %}
+                                <div class="area-item">
+                                    <label class="area-label">
+                                        <input type="checkbox" name="empleados" class="area-checkbox" value="{{ emp.cedula }}">
+                                        <strong>{{ emp.nombre_completo|capfirst }}</strong>
+                                        <span class="cuadrilla-cargo">{{ emp.cargo|default:"" }}</span>
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if not cuadrillas and not empleados_sin_cuadrilla %}
+                        <p class="cuadrilla-vacio">No hay empleados para seleccionar.</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>

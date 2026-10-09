@@ -1,0 +1,160 @@
+/* Un poco más de alto que el dropdown normal (160px): aquí hay grupos */
+.funcionalidades-box--cuadrillas .dropdown {
+    max-height: 300px;
+}
+
+/* Cada cuadrilla separada por una línea suave */
+.cuadrilla-grupo {
+    padding: 6px 0 8px;
+}
+
+.cuadrilla-grupo + .cuadrilla-grupo {
+    border-top: 1px solid #e3e3e3;
+}
+
+/* Fila de la cuadrilla: casilla + nombre + contador "N de M" */
+.cuadrilla-cabeza {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 5px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.cuadrilla-cabeza:hover {
+    background-color: #f2f2f2;
+}
+
+.cuadrilla-nombre {
+    flex: 1;
+    min-width: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #222;
+}
+
+.cuadrilla-contador {
+    font-size: 12px;
+    color: #888;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Cuadrilla a medias: verde con una rayita blanca (en vez del chulito) */
+.cuadrilla-checkbox:indeterminate {
+    background-color: #A3BD31;
+    border-color: #A3BD31;
+}
+
+.cuadrilla-checkbox:indeterminate::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 7px;
+    height: 2px;
+    border-radius: 1px;
+    background-color: #fff;
+    transform: translate(-50%, -50%);
+}
+
+/* Integrantes identados con una línea guía a la izquierda */
+.cuadrilla-integrantes {
+    margin: 2px 0 0 14px;
+    padding-left: 22px;
+    border-left: 2px solid #e6ead2;
+}
+
+.funcionalidades-box--cuadrillas .area-item {
+    margin-bottom: 0;
+}
+
+.funcionalidades-box--cuadrillas .area-item label {
+    width: 100%;
+    padding: 4px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.funcionalidades-box--cuadrillas .area-item label:hover {
+    background-color: #f2f2f2;
+}
+
+/* Fila de la persona marcada con fondo verde muy suave */
+.funcionalidades-box--cuadrillas .area-item label:has(.area-checkbox:checked) {
+    background-color: #f1f5df;
+}
+
+.cuadrilla-cargo {
+    margin-left: auto;
+    padding-left: 8px;
+    font-size: 12px;
+    color: #888;
+}
+
+.cuadrilla-vacio {
+    margin: 10px 6px;
+    font-size: 14px;
+    font-style: italic;
+    color: #888;
+}
+
+/* Celular: menos sangría y sin cargo */
+@media (max-width: 480px) {
+    .cuadrilla-integrantes {
+        margin-left: 8px;
+        padding-left: 14px;
+    }
+
+    .cuadrilla-cargo {
+        display: none;
+    }
+}
+
+/* =========================================================
+   ANIMACIONES (las activa seleccion_cuadrillas.js)
+   ========================================================= */
+
+/* La casilla de la cuadrilla "salta" un poco al marcarla */
+.cuadrilla-checkbox--pop {
+    animation: cuadrilla-pop 0.25s ease-out;
+}
+
+@keyframes cuadrilla-pop {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.25); }
+    100% { transform: scale(1); }
+}
+
+/* Las personas que se marcan juntas destellan en verde */
+.cuadrilla-item--destello label {
+    animation: cuadrilla-destello 0.5s ease-out;
+}
+
+@keyframes cuadrilla-destello {
+    0%   { background-color: #dfe9b4; }
+    100% { background-color: transparent; }
+}
+
+/* El contador "N de M" sube un poquito al cambiar */
+.cuadrilla-contador--salto {
+    display: inline-block;
+    animation: cuadrilla-salto 0.3s ease-out;
+}
+
+@keyframes cuadrilla-salto {
+    0%   { transform: translateY(0); color: #888; }
+    40%  { transform: translateY(-3px); color: #6d7f1f; }
+    100% { transform: translateY(0); color: #888; }
+}
+
+/* Usuarios con "reducir movimiento" activado: sin animaciones */
+@media (prefers-reduced-motion: reduce) {
+    .cuadrilla-checkbox--pop,
+    .cuadrilla-item--destello label,
+    .cuadrilla-contador--salto {
+        animation: none;
+    }
+}
