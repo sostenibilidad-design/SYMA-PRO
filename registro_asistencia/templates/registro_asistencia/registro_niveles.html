@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% load static %}
+{% load dict_filters %}
+
+{% block title %}
+    Registro de entrada y salida - SYMA PRO
+{% endblock %}
+
+{% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'css/tablas.css' %}">
+    <link rel="stylesheet" href="{% static 'css/modales_campos.css' %}">
+    <link rel="stylesheet" href="{% static 'registro_asistencia/css/modal_confirmacion.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inria+Serif:wght@300;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'registro_asistencia/css/registro_niveles.css' %}">
+{% endblock %}
+
+{# Vistas 1 a 4 (años, meses, quincenas, días): salto rápido entre carpetas. La vista 5 es registro_asistencia.html #}
+{% block search_bar %}
+    <form class="syma-search rn-salto" id="rn-salto" role="search" onsubmit="return false;">
+        <input id="rn-salto-input" class="syma-search__input" type="text" autocomplete="off"
+            role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="rn-salto-lista"
+            aria-label="Ir a un año, mes, quincena o día"
+            placeholder="{% if nivel == 1 %}Ej.: 5 octubre 2026, octubre 2026 o 2025{% elif nivel == 2 %}Ej.: octubre, 5 octubre 2026{% elif nivel == 3 %}Ej.: 2Q, 15 octubre{% else %}Ej.: viernes, 3, 5/10/2026{% endif %}">
+        <ul id="rn-salto-lista" class="syma-search__list rn-salto__lista" role="listbox"></ul>
+    </form>
+    {{ salto_config|json_script:"rn-salto-config" }}
+{% endblock %}
+
+{% block iconos %}
+    {% if nivel == 4 %}
+        {% if user|has_perm:"registro_asistencia,registro_asistencia,eliminar" %}
+        <a href="javascript:void(0);" id="btn-eliminar-dias" title="Eliminar días" aria-label="Eliminar días">
+            <span class="material-symbols-outlined">delete</span>
+        </a>
+        {% endif %}
+        <a href="{{ url_descarga }}" id="btn-descarga" title="Descargar Excel de la quincena" aria-label="Descargar Excel de la quincena">
+            <span class="material-symbols-outlined">download</span>
+        </a>
+    {% endif %}
+
+    <span class="rn-separador" aria-hidden="true"></span>
+
+    <a href="{{ url_volver }}" class="rn-volver" title="Devolverse" aria-label="Devolverse">
+        <span class="material-symbols-outlined">arrow_back</span>
+    </a>
+{% endblock %}
+
+{% block content %}
+    <h2 class="titulo-seccion rn-titulo">Registro de entrada y salida</h2>
+
+    <!-- Proyecto > Año > Mes > Quincena > Día -->
+    <nav aria-label="Ubicación">
+        <ol class="rn-migas">
+            {% for miga in migas %}
+                {% if not forloop.first %}
+                    <li class="rn-migas__sep" aria-hidden="true">
+                        <span class="material-symbols-outlined">chevron_right</span>
+                    </li>
+                {% endif %}
+
+                {% if forloop.last %}
+                    <li><span class="rn-migas__actual" aria-current="page">{{ miga.nombre }}</span></li>
+                {% else %}
+                    <li><a href="{{ miga.url }}" class="rn-migas__link">{{ miga.nombre }}</a></li>
+                {% endif %}
+            {% endfor %}
+        </ol>
+    </nav>
+
+    {% if nivel == 1 or nivel == 2 %}
+        <!-- Vista 1 (años) y Vista 2 (meses): misma tarjeta de carpeta -->
+        <section class="rn-carpetas" aria-label="{% if nivel == 1 %}Años{% else %}Meses{% endif %}">
+            {% for carpeta in carpetas %}
+                <a href="{{ carpeta.url }}" class="rn-carpeta" aria-label="Abrir {{ carpeta.nombre }}">
+                    {% if carpeta.actual %}
+                        <span class="rn-badge">Actual</span>
+                    {% endif %}
+                    <i class="fa-solid fa-folder rn-carpeta__icono" aria-hidden="true"></i>
+                    <strong class="rn-carpeta__nombre">{{ carpeta.nombre }}</strong>
+                    <small class="rn-carpeta__detalle">{{ carpeta.detalle }}</small>
+                </a>
+            {% empty %}
+                <p class="rn-vacio">Aún no hay registros en este proyecto.</p>
+            {% endfor %}
+        </section>
+
+    {% elif nivel == 3 %}
+        <!-- Vista 3: dos tarjetas de quincena con esqueleto de tabla -->
+        <section class="rn-quincenas" aria-label="Quincenas">
+            {% for q in quincenas %}
+                <a href="{{ q.url }}" class="rn-quincena" aria-label="Abrir quincena {{ q.codigo }}, {{ q.rango }}">
+                    <div class="rn-esqueleto" aria-hidden="true">
+                        <div class="rn-esqueleto__cabecera">
+                            <span></span><span></span><span></span><span></span><span></span>
+                        </div>
+                        {% for fila in "123456" %}
+                            <div class="rn-esqueleto__fila">
+                                <span></span><span></span><span></span><span></span><span></span>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <footer class="rn-quincena__pie">
+                        <div>
+                            <div class="rn-quincena__titulo">
+                                <b class="rn-quincena__codigo">{{ q.codigo }}</b>
+                                {% if q.horas_base is not None %}
+                                    <span class="rn-quincena__horas" title="Horas mínimas de la quincena: la jornada de sus días hábiles (sin fines de semana ni festivos)">{{ q.horas_base|floatformat:"2g" }} h</span>
+                                {% endif %}
+                            </div>
+                            <small class="rn-quincena__rango">{{ q.rango }}</small>
+                        </div>
+                        <span class="rn-estado rn-estado--{{ q.estado }}">{{ q.estado }}</span>
+                    </footer>
+                </a>
+            {% endfor %}
+        </section>
+
+    {% elif nivel == 4 %}
+        <!-- Vista 4: un día por carpeta dentro de la quincena -->
+        <div class="rn-barra-seleccion" id="barra-seleccion" hidden>
+            <span id="conteo-seleccion">0 seleccionados</span>
+            <button type="button" id="btn-confirmar-eliminar" class="rn-barra-seleccion__eliminar" disabled>Eliminar</button>
+            <button type="button" id="btn-cancelar-seleccion">Cancelar</button>
+        </div>
+
+        <section class="rn-dias" id="rn-dias" data-url-eliminar="{{ url_eliminar_dias }}" aria-label="Días de la quincena">
+            {% for dia in dias %}
+                {% if dia.registrado %}
+                    <a href="{{ dia.url }}" data-fecha="{{ dia.fecha_iso }}"
+                        class="rn-dia{% if dia.hoy %} rn-dia--hoy{% endif %}"
+                        aria-label="Abrir {{ dia.dia_semana }} {{ dia.numero }} de {{ dia.mes }}">
+                        {% if dia.hoy %}
+                            <span class="rn-dia__etiqueta">Hoy</span>
+                        {% elif dia.festivo %}
+                            <span class="rn-dia__etiqueta rn-dia__etiqueta--gris">Festivo</span>
+                        {% endif %}
+                        <span class="rn-dia__semana">{{ dia.dia_semana|slice:":3" }}</span>
+                        <span class="rn-dia__numero">{{ dia.numero }}</span>
+                        <span class="rn-dia__mes">{{ dia.mes }}</span>
+                    </a>
+                {% else %}
+                    <!-- Día sin registro: carpeta gris, no se puede abrir ni seleccionar -->
+                    <div class="rn-dia rn-dia--descanso rn-dia--sin-registro" aria-disabled="true"
+                        aria-label="{{ dia.dia_semana }} {{ dia.numero }} de {{ dia.mes }}, sin registro">
+                        {% if dia.hoy %}
+                            <span class="rn-dia__etiqueta">Hoy</span>
+                        {% endif %}
+                        <span class="rn-dia__semana">{{ dia.dia_semana|slice:":3" }}</span>
+                        <span class="rn-dia__numero">{{ dia.numero }}</span>
+                        <span class="rn-dia__mes">{{ dia.mes }}</span>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </section>
+
+    {% endif %}
+
+    {% include 'registro_asistencia/modal_confirmacion_db.html' %}
+    {% include 'registro_asistencia/modal_calendario.html' %}
+    {{ fechas_registradas|json_script:"fechas-registradas" }}
+    {{ festivos_calendario|json_script:"festivos-calendario" }}
+    {% if nivel == 4 %}{% include 'registro_asistencia/modal_informe_incompleto.html' %}{% endif %}
+{% endblock %}
+
+{% block tabla_botones %}
+    <a href="javascript:void(0);" onclick="abrirModal('modal-confirmacion-db')"><i class="fa fa-plus"></i>Registrar</a>
+
+    {% if nivel == 4 %}
+        {% if user|has_perm:"registro_asistencia,registro_asistencia,informe" %}
+        <a href="javascript:void(0);" id="btn-informe" class="gris" data-url-validar="{{ url_informe_validar }}">
+            <i class="fa-solid fa-chart-line"></i> Informe
+        </a>
+        {% endif %}
+
+        {% if user|has_perm:"registro_asistencia,registro_asistencia,resumen" %}
+        <a href="javascript:void(0);" id="btn-resumen" class="gris" data-url-validar="{{ url_resumen_validar }}"
+            data-nombre="el resumen de actividades" data-parametro="resumen_incompleto">
+            <i class="fa-solid fa-table-list"></i> Resumen de actividades
+        </a>
+        {% endif %}
+
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'js/init_global.js' %}"></script>
+    <script src="{% static 'js/modales_campos.js' %}"></script>
+    <script src="{% static 'registro_asistencia/js/sincronizacion_inicial.js' %}"></script>
+    <script src="{% static 'registro_asistencia/js/salto_rapido.js' %}"></script>
+    {% if nivel == 4 %}
+        <script src="{% static 'registro_asistencia/js/eliminar_dias.js' %}"></script>
+        <script src="{% static 'registro_asistencia/js/informe_quincenal.js' %}"></script>
+    {% endif %}
+{% endblock %}

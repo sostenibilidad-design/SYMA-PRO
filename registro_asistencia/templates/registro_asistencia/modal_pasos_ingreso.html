@@ -1,0 +1,84 @@
+{% comment %}
+    Paso a paso de «Editar fecha de ingreso» cuando la nueva fecha es ANTERIOR a la actual: un formulario por cada día
+    que falta y un resumen al final. Todo se guarda junto al pulsar «Guardar» (o no se guarda nada).
+    Lo maneja fecha_ingreso.js.
+{% endcomment %}
+
+<div id="modal-pasos-ingreso" class="modal-overlay" data-fi="pasos"
+    data-url-agregar="{{ url_agregar }}" data-url-comidas="{{ url_comidas }}"
+    data-nueva="{{ nueva|date:'Y-m-d' }}" data-actual="{{ actual|date:'Y-m-d' }}">
+    <div class="modal ar-modal fi-modal fi-modal--pasos" role="dialog" aria-modal="true" aria-labelledby="fi-titulo-pasos">
+        <h2 class="titulo ar-titulo fi-titulo" id="fi-titulo-pasos">Registrar los días anteriores al ingreso</h2>
+
+        <div class="ar-persona">
+            <div><span>Empleado</span><strong id="fi-nombre">{{ empleado.nombre_completo }}</strong></div>
+            <div><span>Ingreso actual</span><strong>{{ actual|date:"d/m/Y" }}</strong></div>
+            <div><span>Nuevo ingreso</span><strong>{{ nueva_texto }}</strong></div>
+        </div>
+
+        <ol class="fi-pasos" id="fi-pasos">
+            {% for dia in dias %}
+                <li>
+                    <button type="button" class="fi-paso{% if not dia.habil %} fi-paso--descanso{% endif %}" data-paso="{{ forloop.counter0 }}">
+                        <span class="fi-paso__numero">{{ forloop.counter }}</span>
+                        <span>{{ dia.corto }}</span>
+                    </button>
+                </li>
+            {% endfor %}
+            <li>
+                <button type="button" class="fi-paso" data-paso="{{ dias|length }}">
+                    <span class="fi-paso__numero"><i class="fa-solid fa-check"></i></span>
+                    <span>Resumen</span>
+                </button>
+            </li>
+        </ol>
+
+        <div class="fi-cuerpo ar-form" id="fi-cuerpo">
+            <!-- Un día por paso. Los campos son los mismos de «Actualizar registro» (ar_campos_registro.html): el diseño es
+                idéntico y el servidor los valida con las mismas reglas. Hábiles: Asistencia; sábados, domingos y festivos: Descanso. -->
+            {% for dia in dias %}
+                <section class="fi-dia{% if not dia.habil %} fi-dia--sin-asistencia{% endif %}" id="fi-dia-{{ forloop.counter0 }}"
+                        data-iso="{{ dia.iso }}" data-texto="{{ dia.texto }}"{% if not forloop.first %} hidden{% endif %}>
+                    <div class="fi-cabecera">
+                        <h3>{{ dia.texto }}</h3>
+                        <span class="fi-etiqueta{% if dia.habil %} fi-etiqueta--habil{% endif %}">{% if dia.habil %}Día hábil{% else %}Sábado, domingo o festivo{% endif %}</span>
+                    </div>
+                    <form class="fi-form-dia" autocomplete="off" data-iso="{{ dia.iso }}">
+                        {% include "registro_asistencia/componentes/ar_campos_registro.html" with novedad_actual=dia.novedad_inicial %}
+                    </form>
+                </section>
+            {% endfor %}
+
+            <section class="fi-resumen" id="fi-resumen" hidden>
+                <h3>Resumen de lo que se va a guardar</h3>
+                <p class="fi-aviso fi-aviso--ok">
+                    <i class="fa-solid fa-circle-plus"></i>
+                    <span>Se registrarán {{ dias|length }} día{{ dias|length|pluralize }} y el ingreso de <strong>{{ empleado.nombre_completo }}</strong> pasará a ser el <strong>{{ nueva_texto }}</strong>.</span>
+                </p>
+                {% if omitidos %}
+                    <p class="fi-aviso fi-aviso--info">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <span>Estos días no tienen registro en el proyecto, por eso no se editan (en el informe ya cuentan como descanso): {{ omitidos|join:", " }}.</span>
+                    </p>
+                {% endif %}
+                <div class="fi-tabla-scroll">
+                    <table class="fi-tabla">
+                        <thead>
+                            <tr><th>Día</th><th>Novedad</th><th>Horario</th><th>Actividad</th></tr>
+                        </thead>
+                        <tbody id="fi-resumen-filas"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <div class="ar-errores" id="fi-errores" role="alert" hidden></div>
+
+        <div class="botones">
+            <button type="button" class="btn-cancelar" id="fi-cancelar">Cancelar</button>
+            <button type="button" class="btn-cancelar" id="fi-anterior" disabled>Anterior</button>
+            <button type="button" class="btn-guardar" id="fi-siguiente">Siguiente</button>
+            <button type="button" class="btn-guardar" id="fi-guardar" hidden>Guardar</button>
+        </div>
+    </div>
+</div>

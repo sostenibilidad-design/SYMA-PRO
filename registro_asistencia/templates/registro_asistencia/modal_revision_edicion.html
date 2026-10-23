@@ -1,0 +1,39 @@
+<div id="modal-revision" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    
+    <!-- Contenedor con el borde exterior gris oscuro (opcional, como en el diseño) -->
+    <div class="modal" style="background: #d4d4d4; width: 680px; border-radius: 12px; padding: 6px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
+        
+        <!-- Fondo blanco interior -->
+        <div style="background: #fff; border-radius: 10px; padding: 25px;">
+            <h2 id="modal-revision-titulo" style="font-family: 'Inria Serif', serif; font-size: 26px; font-weight: bold; text-align: center; color: #333; margin-top: 0; margin-bottom: 20px;">
+                Revisión y edición: Novedades
+            </h2>
+            
+            <!-- Buscador redondeado -->
+            <div class="rp-search-box" style="margin-bottom: 20px; border-radius: 20px; border: 1px solid #ccc; padding: 8px 15px; display: flex; align-items: center;">
+                <i class="fas fa-search" style="color: #999;"></i>
+                <input type="text" id="buscador-modal" placeholder="Buscar empleado..." style="width: 100%; border: none; outline: none; margin-left: 10px; font-family: 'Inria Serif', serif; font-size: 15px;">
+            </div>
+
+            <!-- Tabla (Contenedor principal con borde) -->
+            <div style="border: 1px solid #ccc; border-radius: 8px; overflow: hidden; margin-bottom: 20px;">
+                
+                <!-- Cabecera gris -->
+                <div style="display: flex; justify-content: space-between; background-color: #eaeaea; padding: 12px 20px; font-weight: bold; color: #777; font-size: 14px; font-family: 'Inria Serif', serif; border-bottom: 1px solid #ccc;">
+                    <span>Empleados</span>
+                    <span id="modal-revision-columna-der">Novedad asignada</span>
+                </div>
+
+                <!-- Contenedor con scroll (Aquí JS meterá las filas) -->
+                <div id="modal-revision-contenido" style="max-height: 250px; overflow-y: auto;">
+                </div>
+            </div>
+
+            <!-- Botones centrados -->
+            <div class="botones" style="display: flex; justify-content: flex-end; gap: 15px;">
+                <button type="button" class="btn-cancelar" onclick="document.getElementById('modal-revision').style.display='none'" style="font-size: 16px; padding: 8px 25px; border-radius: 8px; background: #e2e2e2; border: 1px solid #b5b5b5; cursor: pointer; font-family: 'Inria Serif', serif; color: #333; box-shadow: 0 3px 5px rgba(0,0,0,0.1);">Cancelar</button>
+                <button type="button" id="btn-guardar-modal" class="btn-siguiente" style="font-size: 16px; padding: 8px 25px; border-radius: 8px; background: #A3BD31; border: none; color: white; cursor: pointer; font-family: 'Inria Serif', serif; box-shadow: 0 3px 5px rgba(0,0,0,0.1);">Guardar cambios</button>
+            </div>
+        </div>
+    </div>
+</div>

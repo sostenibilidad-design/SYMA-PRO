@@ -1,0 +1,10 @@
+.git
+.env
+.env.*
+env/
+venv/
+node_modules/
+media/
+*.pyc
+__pycache__/
+celerybeat-schedule

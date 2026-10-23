@@ -29,6 +29,8 @@ from personal.models import Empleado
 from personal.tasks import fetch_empleados_task
 from usuario.models import Usuario
 from proyectos.models import Proyecto
+from core.excel import texto_excel
+from usuario.decoradores import permiso_requerido
 from medicion_rendimiento.reporte import (
     rendimiento_real_mensual, rendimiento_real_diario_por_cuadrilla, 
     costo_por_unidad_diario_por_cuadrilla, demanda_empleados_por_actividad,
@@ -36,9 +38,17 @@ from medicion_rendimiento.reporte import (
     comparativo_rendimiento_cuadrillas, cronograma_actividades,
     )
 
+
+
+def json_para_script(objeto, **opciones):
+    """json.dumps para incrustar dentro de un <script>: «<», «>» y «&» van escapados para que un texto
+    con «</script>» no pueda cerrar la etiqueta (sigue siendo JSON y JavaScript válidos)."""
+    texto = json.dumps(objeto, **opciones)
+    return texto.replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026')
+
+
 def formato_colombia(valor):
     return "$ {:,.0f}".format(valor).replace(",", "X").replace(".", ",").replace("X", ".")
-
 # --- Medición de rendimiento por cuadrilla ---
 
 def calcular_valor_hora_empleado(emp):
@@ -114,6 +124,7 @@ def filtrar_mediciones(request, queryset):
 
     return queryset.filter(filtros)
 
+@permiso_requerido('medicion_rendimiento', 'medicion_por_cuadrilla', 'ver', json=True)
 def obtener_cumplimiento(request):
     """Retorna los datos de cumplimiento para una actividad dada."""
     actividad = request.GET.get('actividad')
@@ -131,6 +142,7 @@ def obtener_cumplimiento(request):
     else:
         return JsonResponse({'error': 'No se encontró cumplimiento para esta actividad'}, status=404)
 
+@permiso_requerido('medicion_rendimiento', 'medicion_por_cuadrilla', 'ver')
 def selector_rendimiento(request):
     proyectos = Proyecto.objects.all()
     context = {
@@ -139,6 +151,7 @@ def selector_rendimiento(request):
     }
     return render(request, 'medicion_rendimiento/selector_rendimiento_cuadrilla.html', context)
 
+@permiso_requerido('medicion_rendimiento', 'medicion_por_cuadrilla', 'ver')
 def medicion_por_cuadrilla(request, id_proyecto):
     proyecto_actual = get_object_or_404(Proyecto, id_proyectos=id_proyecto)
 
@@ -188,7 +201,7 @@ def medicion_por_cuadrilla(request, id_proyecto):
     filas_vacias = max(0, 20 - mediciones.count())
 
     empleados = Empleado.objects.filter(
-        (Q(cargo__icontains='oficial') | Q(cargo__icontains='ayudante')) &
+        (Q(cargo__icontains='oficial') | Q(cargo__icontains='ayudante') | Q(cargo__icontains='contratista')) &
         Q(ubicacion__icontains=proyecto_actual.nombre)
     ).order_by('nombre_completo')
 
@@ -214,7 +227,11 @@ def medicion_por_cuadrilla(request, id_proyecto):
     form = MedicionInicioForm()
 
     ultimo = Cumplimiento.objects.filter(proyecto=proyecto_actual).last()
-    cumplimientos = Cumplimiento.objects.filter(proyecto=proyecto_actual).order_by('actividad')
+    
+    cumplimientos = Cumplimiento.objects.filter(
+        Q(cumplimiento_presupuestal__gt=0) | Q(cumplimiento_programado__gt=0),
+        proyecto=proyecto_actual
+    ).order_by('actividad')
 
     context = {
         "proyecto_actual": proyecto_actual,
@@ -231,6 +248,7 @@ def medicion_por_cuadrilla(request, id_proyecto):
     }
     return render(request, 'medicion_rendimiento/medicion_por_cuadrilla.html', context)
 
+@permiso_requerido('medicion_rendimiento', 'medicion_por_cuadrilla', 'registrar')
 def registrar_inicio_medicion(request, id_proyecto):
     proyecto_actual = get_object_or_404(Proyecto, id_proyectos=id_proyecto)
 
@@ -335,8 +353,9 @@ def registrar_inicio_medicion(request, id_proyecto):
 
             oficiales = empleados_qs.filter(cargo__icontains='oficial').count()
             ayudantes = empleados_qs.filter(cargo__icontains='ayudante').count()
+            contratistas = empleados_qs.filter(cargo__icontains='contratista').count()
 
-            medicion.numero_oficiales_ayudantes = f"Oficiales: {oficiales} <br> Ayudantes: {ayudantes}"
+            medicion.numero_oficiales_ayudantes = f"Oficiales: {oficiales} <br> Ayudantes: {ayudantes} <br> Contratistas: {contratistas}"
 
             medicion.save()
 
@@ -350,6 +369,7 @@ def registrar_inicio_medicion(request, id_proyecto):
         form = MedicionInicioForm()
     return redirect('actividad_cuadrilla', id_proyecto=id_proyecto)
 
+@permiso_requerido('medicion_rendimiento', 'medicion_por_cuadrilla', 'actualizar')
 @transaction.atomic
 def actualizar_cuadrilla(request, id):
     medicion = get_object_or_404(MedicionCuadrilla, id=id)
@@ -379,7 +399,7 @@ def actualizar_cuadrilla(request, id):
                 almuerzo = cambio.get('almuerzo', False)  # Bool del JS, default False
 
                 if not all([cedula, tipo in ['salio', 'entro'], hora_str]):
-                    print(f"Warning: Cambio inválido omitido: {cedula} ({tipo})")
+                    print(f"Warning: Cambio inválido omitido ({tipo})")
                     continue
 
                 try:
@@ -425,10 +445,10 @@ def actualizar_cuadrilla(request, id):
                     consumo.save()
 
                 except ValueError as ve:
-                    print(f"Warning: Hora inválida para {cedula}: {hora_str}. Omitido.")
+                    print(f"Warning: Hora inválida: {hora_str}. Omitido.")
                     continue
                 except Empleado.DoesNotExist:
-                    print(f"Warning: Empleado {cedula} no encontrado. Omitido.")
+                    print(f"Warning: Empleado no encontrado. Omitido.")
                     continue
 
             if not historiales_creados:
@@ -452,8 +472,9 @@ def actualizar_cuadrilla(request, id):
 
             oficiales_final = sum(1 for emp in empleados_unicos if 'oficial' in (emp.cargo or '').lower())
             ayudantes_final = sum(1 for emp in empleados_unicos if 'ayudante' in (emp.cargo or '').lower())
+            contratistas_final = sum(1 for emp in empleados_unicos if 'contratista' in (emp.cargo or '').lower()) 
 
-            medicion.numero_oficiales_ayudantes = f"Oficiales: {oficiales_final} <br> Ayudantes: {ayudantes_final}"
+            medicion.numero_oficiales_ayudantes = f"Oficiales: {oficiales_final} <br> Ayudantes: {ayudantes_final} <br> Contratistas: {contratistas_final}"
             costos_empleados = [formato_colombia(calcular_valor_hora_empleado(emp)) for emp in empleados_unicos]
             medicion.precio_hora_trabajadores = "<br>".join(costos_empleados)
 
@@ -533,7 +554,7 @@ def actualizar_cuadrilla(request, id):
 
     # GET: Renderizar modal 
     todos = Empleado.objects.filter(
-        (Q(cargo__icontains='oficial') | Q(cargo__icontains='ayudante')) &
+        (Q(cargo__icontains='oficial') | Q(cargo__icontains='ayudante') | Q(cargo__icontains='contratista')) &
         Q(ubicacion__icontains=medicion.proyecto.nombre)
     ).order_by("nombre_completo")
 
@@ -581,7 +602,7 @@ def procesos(medicion):
         try:
             empleados_ordenados.append(Empleado.objects.get(cedula=ced))
         except Empleado.DoesNotExist:
-            print(f">>> WARN: cédula no encontrada: {ced}")
+            print(f">>> WARN: cédula no encontrada")
 
     restantes = [
         e for e in medicion.empleados.all()
@@ -695,7 +716,7 @@ def procesos(medicion):
         resultado_final.append(f"{float(horas):.2f} h")
         total_horas_trabajadas += horas 
 
-        print(f">>> RESULTADO {emp.cedula}: {minutos_totales} min → {horas} h")
+        print(f">>> RESULTADO empleado {emp.pk}: {minutos_totales} min → {horas} h")
 
     # 5) CÁLCULO COSTOS TOTALES POR CARGO
 
@@ -825,6 +846,7 @@ def procesos(medicion):
 
     print(">>> PROCESO FINALIZADO:", medicion.horas_efectivas_trabajador)
 
+@permiso_requerido('medicion_rendimiento', 'medicion_por_cuadrilla', 'registrar')
 def registrar_fin_medicion(request, id):
     medicion = get_object_or_404(MedicionCuadrilla, id=id)
 
@@ -960,6 +982,7 @@ def calcular_estado(porcentaje):
     else:
         return "excelente"
 
+@permiso_requerido('medicion_rendimiento', 'medicion_por_cuadrilla', 'ver', json=True)
 def api_demanda_empleados(request):
     proyecto = request.GET.get("proyecto")
     modo = request.GET.get("modo", "mes")  # 👈 POR DEFECTO MES
@@ -984,6 +1007,7 @@ def api_demanda_empleados(request):
     return JsonResponse(data)
 
 
+@permiso_requerido('medicion_rendimiento', 'medicion_por_cuadrilla', 'reporte')
 def reporte_cuadrilla (request):
     proyecto = request.GET.get('proyecto')
     proyecto_obj = get_object_or_404(Proyecto, id_proyectos=proyecto)
@@ -1163,14 +1187,14 @@ def reporte_cuadrilla (request):
         "labels_rendimiento": labels_rendimiento,
         "data_rendimiento": data_rendimiento,
         "graficos_cuadrillas": graficos_cuadrillas,
-        "graficos_cuadrillas_json": json.dumps(graficos_cuadrillas),
+        "graficos_cuadrillas_json": json_para_script(graficos_cuadrillas),
         "graficos_costo_cuadrillas": graficos_costo_cuadrillas,
-        "graficos_costo_cuadrillas_json": json.dumps(graficos_costo_cuadrillas),
-        "DEMANDA_PERSONAL": json.dumps(demanda_personal),
-        "diagnostico_rendimiento": json.dumps(diagnostico_rendimiento),
-        "diagnostico_costo": json.dumps(diagnostico_costo),
-        "comparativo_cuadrillas_json": json.dumps(comparativo_data),
-        "cronograma_data_json": json.dumps(cronograma_data, default=str),
+        "graficos_costo_cuadrillas_json": json_para_script(graficos_costo_cuadrillas),
+        "DEMANDA_PERSONAL": json_para_script(demanda_personal),
+        "diagnostico_rendimiento": json_para_script(diagnostico_rendimiento),
+        "diagnostico_costo": json_para_script(diagnostico_costo),
+        "comparativo_cuadrillas_json": json_para_script(comparativo_data),
+        "cronograma_data_json": json_para_script(cronograma_data, default=str),
     }
 
     print("DEMANDA_PERSONAL >>>", demanda_personal)
@@ -1179,11 +1203,7 @@ def reporte_cuadrilla (request):
     return render (request, 'medicion_rendimiento/reporte_cuadrilla.html', context)
 
 
-# Medicion de rendimiento indicidual
-
-def medicion_individual(request):
-    return render(request, 'medicion_rendimiento/medicion_individual.html')
-
+@permiso_requerido('medicion_rendimiento', 'medicion_por_cuadrilla', 'actualizar', json=True)
 def guardar_configuracion_alertas(request):
     if request.method == 'POST':
         tipo_alerta = request.POST.get('tipo_alerta')
@@ -1230,6 +1250,7 @@ def guardar_configuracion_alertas(request):
 
     return redirect(request.META.get('HTTP_REFERER', '/'))
     
+@permiso_requerido('medicion_rendimiento', 'medicion_por_cuadrilla', 'eliminar', json=True)
 def eliminar_alerta(request, alerta_id):
     alerta = get_object_or_404(ConfiguracionAlerta, id=alerta_id)
     alerta.delete()
@@ -1265,9 +1286,9 @@ def construir_excel_mediciones(mediciones):
         horas_efectivas = (m.horas_efectivas_trabajador or "").replace("<br>", "\n")
 
         row = [
-            m.id, m.proyecto.nombre if m.proyecto else "", m.fecha.strftime("%Y-%m-%d") if m.fecha else "",
+            m.id, texto_excel(m.proyecto.nombre) if m.proyecto else "", m.fecha.strftime("%Y-%m-%d") if m.fecha else "",
             f"Cuadrilla #{m.cuadrilla}" if m.cuadrilla else "", num_trabajadores,
-            cedulas, nombres, precios, m.actividad, m.ubicacion, hora_ini_emp, hora_fin_emp,
+            texto_excel(cedulas), texto_excel(nombres), texto_excel(precios), texto_excel(m.actividad), texto_excel(m.ubicacion), hora_ini_emp, hora_fin_emp,
             horas_efectivas, float(m.horas_trabajadas_totales) if m.horas_trabajadas_totales else 0,
             float(m.costo_total_oficiales) if m.costo_total_oficiales else 0,
             float(m.costo_total_ayudantes) if m.costo_total_ayudantes else 0,
@@ -1280,7 +1301,7 @@ def construir_excel_mediciones(mediciones):
             float(m.cumplimiento_presupuestal) if m.cumplimiento_presupuestal else 0,
             float(m.diferencia_presupuestal) if m.diferencia_presupuestal else 0,
             float(m.comparacion_presupuestal) if m.comparacion_presupuestal else 0,
-            m.usuario_cedula, m.nombre_usuario
+            texto_excel(m.usuario_cedula), texto_excel(m.nombre_usuario)
         ]
         ws.append(row)
 
@@ -1304,15 +1325,13 @@ def construir_excel_mediciones(mediciones):
                 cell.alignment = alineacion_encabezado
             else:
                 cell.alignment = alineacion_datos
-            try:
-                lineas = str(cell.value).split('\n')
-                for linea in lineas:
-                    if len(linea) > max_length: max_length = len(linea)
-            except: pass
+            for linea in str(cell.value).split('\n'):
+                max_length = max(max_length, len(linea))
         ws.column_dimensions[column_letter].width = min(max_length + 2, 45)
 
     return wb
 
+@permiso_requerido('medicion_rendimiento', 'medicion_por_cuadrilla', 'descargar')
 def exportar_mediciones_excel(request):
     mediciones = MedicionCuadrilla.objects.all().order_by('-fecha', '-hora_inicio')
     mediciones = filtrar_mediciones(request, mediciones)
@@ -1324,6 +1343,7 @@ def exportar_mediciones_excel(request):
     wb.save(response)
     return response
 
+@permiso_requerido('medicion_rendimiento', 'medicion_por_cuadrilla', 'drive', json=True)
 def exportar_mediciones_drive(request):
     mediciones = MedicionCuadrilla.objects.all().order_by('-fecha', '-hora_inicio')
     mediciones = filtrar_mediciones(request, mediciones)
@@ -1378,13 +1398,20 @@ def exportar_mediciones_drive(request):
 
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
-def api_actividades_proyecto(request, id_proyecto):
+@permiso_requerido('medicion_rendimiento', 'medicion_por_cuadrilla', 'ver', json=True)
+def api_actividades_proyecto(request, id_proyecto, modulo='medicion'):
     """
     Ruta silenciosa para que el frontend actualice sus selectores 
     sin recargar la página.
     """
-    # Buscamos las actividades frescas de la base de datos
-    actividades = Cumplimiento.objects.filter(proyecto__id_proyectos=id_proyecto).order_by('actividad')
+
+    if modulo == 'medicion':
+        actividades = Cumplimiento.objects.filter(
+            Q(cumplimiento_presupuestal__gt=0) | Q(cumplimiento_programado__gt=0),
+            proyecto__id_proyectos=id_proyecto
+        ).order_by('actividad')
+    else:
+        actividades = Cumplimiento.objects.filter(proyecto__id_proyectos=id_proyecto).order_by('actividad')
     
     # Armamos una lista sencilla (¡AHORA CON LA UNIDAD DE MEDIDA!)
     data = []

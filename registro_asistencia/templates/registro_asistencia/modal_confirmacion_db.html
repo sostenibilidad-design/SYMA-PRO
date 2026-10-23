@@ -1,0 +1,27 @@
+<div id="modal-confirmacion-db" class="modal-overlay">
+    <div class="modal modal-confirmacion-container">
+        
+        <div class="icon-db-wrapper">
+            <i class="fa-solid fa-database"></i>
+            <i class="fa-solid fa-check icon-check-overlay"></i>
+        </div>
+
+        <h2 class="titulo-hora-base" style="margin-bottom: 15px;">Antes de comenzar el registro...</h2>
+        
+        <p class="texto-confirmacion">
+            Para garantizar la exactitud de los datos en el registro, es obligatorio verificar que la base de datos de los empleados del Drive esté completamente actualizada.<br>
+            <strong>¿Confirmas que los datos al día de hoy son correctos?</strong>
+        </p>
+
+        <div class="botones" style="gap: 15px;">
+            <button type="button" class="btn-cancelar" data-modal="modal-confirmacion-db">Cancelar</button>
+            
+            <button type="button" id="btn-iniciar-registro" class="btn-guardar" 
+                    data-url-sync="{% url 'sincronizar_drive_inicial' proyecto_actual.id_proyectos %}"
+                    data-url-redirect="{% url 'paso_1_novedades' proyecto_actual.id_proyectos %}">
+                Base de datos al día, Iniciar
+            </button>
+        </div>
+    </div>
+</div>
+

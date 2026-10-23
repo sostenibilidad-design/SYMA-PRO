@@ -14,7 +14,7 @@ def limpiar_numero(val):
     except InvalidOperation:
         return Decimal('0.00')
 
-def procesar_actividades_excel(tmp_path):
+def procesar_actividades_excel(tmp_path, modulo='registro'):
     with pd.ExcelFile(tmp_path) as xls:
         hojas_excel = xls.sheet_names
         proyectos_db = Proyecto.objects.all()
@@ -57,21 +57,16 @@ def procesar_actividades_excel(tmp_path):
 
                     estado = str(row[col_estado]).strip().lower() if col_estado and pd.notna(row[col_estado]) else ""
 
-                    if 'terminad' in estado or 'finaliz' in estado or 'complet' in estado:
+                    if 'sin iniciar' in estado or 'finalizado' in estado:
                         Cumplimiento.objects.filter(proyecto=proyecto, actividad__iexact=act_nombre).delete()
                         continue
 
                     val_presup = limpiar_numero(row[col_presup]) if col_presup else Decimal('0.00')
                     val_prog_dia = limpiar_numero(row[col_prog]) if col_prog else Decimal('0.00')
 
-                    if val_presup <= 0 and val_prog_dia <= 0:
-                        Cumplimiento.objects.filter(proyecto=proyecto, actividad__iexact=act_nombre).delete()
-                        omitidas_cero += 1
-                        continue
-
                     val_prog_hora = Decimal('0.00')
                     if val_prog_dia > 0:
-                        val_prog_hora = (val_prog_dia / Decimal('7.33')).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                        val_prog_hora = val_prog_dia
 
                     val_presup = val_presup.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
                     unidad = str(row[col_und]).strip() if col_und and pd.notna(row[col_und]) else ""

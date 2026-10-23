@@ -1,0 +1,48 @@
+{% comment %}
+    Modal para actualizar el registro de UN empleado en un día (se carga por AJAX en #modal-container).
+    Editable: novedad, horas, actividad, comidas, salidas múltiples, horas históricas, comentario y enlace
+    (los campos están en componentes/ar_campos_registro.html, que comparte con «Editar fecha de ingreso»).
+    No editable: datos del empleado, fecha y lo que calcula el sistema (jornada base, comida habitual, horas extra).
+{% endcomment %}
+
+<div id="modal-actualizar-registro" class="modal-overlay">
+    <div class="modal ar-modal">
+        <h2 class="titulo ar-titulo">Actualizar registro</h2>
+
+        <!-- Datos personales: solo lectura -->
+        <div class="ar-persona">
+            <div><span>Empleado</span><strong>{{ registro.empleado.nombre_completo }}</strong></div>
+            <div><span>Código</span><strong>{{ registro.empleado.cedula }}</strong></div>
+            <div><span>Cargo</span><strong>{{ registro.empleado.cargo|default:"--" }}</strong></div>
+            <div><span>Fecha</span><strong>{{ registro.maestro.fecha|date:"d/m/Y" }}</strong></div>
+        </div>
+        <p class="ar-nota">
+            <i class="fa-solid fa-calculator"></i>
+            La jornada, el tiempo de comida habitual y las horas extra los calcula el sistema al guardar.
+        </p>
+
+        <form id="form-actualizar-registro" class="ar-form" data-url="{{ url_guardar }}" autocomplete="off">
+            {% csrf_token %}
+            {% include "registro_asistencia/componentes/ar_campos_registro.html" with novedad_actual=registro.novedad %}
+        </form>
+
+        <div class="ar-errores" id="ar-errores" role="alert" hidden></div>
+
+        <div class="botones" id="ar-botones">
+            <button type="button" class="btn-cancelar" id="ar-cancelar">Cancelar</button>
+            <button type="button" class="btn-guardar" id="ar-guardar">Guardar cambios</button>
+        </div>
+
+        <!-- Confirmación: nada se guarda hasta que se confirma -->
+        <div class="ar-confirmacion" id="ar-confirmacion" hidden>
+            <p>
+                <strong>¿Confirmas la actualización del registro de {{ registro.empleado.nombre_completo }}?</strong><br>
+                Al confirmar, el sistema recalculará la jornada, la comida y las horas extra de esta persona.
+            </p>
+            <div class="botones">
+                <button type="button" class="btn-cancelar" id="ar-volver">Volver a editar</button>
+                <button type="button" class="btn-guardar" id="ar-confirmar">Sí, actualizar</button>
+            </div>
+        </div>
+    </div>
+</div>

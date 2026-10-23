@@ -1,4 +1,4 @@
-import random
+import secrets
 import string
 import json
 from django.core.mail import EmailMultiAlternatives
@@ -9,19 +9,22 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import PermissionDenied, ValidationError
 
 
 from .forms import UsuarioForm
 from .models import Usuario, Funcionalidad
 from personal.models import Empleado
-from usuario.utils import sincronizar_permisos_usuario, eliminar_permisos_usuario
+from usuario.decoradores import permiso_requerido
+from usuario.utils import sincronizar_permisos_usuario, eliminar_permisos_usuario, armar_permisos
 
-def generar_contraseña(longitud=6):
-    """Genera una contraseña aleatoria segura."""
+def generar_contraseña(longitud=12):
+    """Genera una contraseña temporal aleatoria con `secrets`."""
     caracteres = string.ascii_letters + string.digits
-    return ''.join(random.choices(caracteres, k=longitud))
+    return ''.join(secrets.choice(caracteres) for _ in range(longitud))
 
-@login_required
+@permiso_requerido('usuario', 'usuario', 'ver')
 def usuario(request):
     user = request.user  # Usuario actual logueado
 
@@ -37,11 +40,15 @@ def usuario(request):
             return redirect("actualizar", pk=pk)
 
         elif accion == "borrar" and ids:
-                for user_id in ids:
-                    usuario_eliminar = Usuario.objects.filter(pk=user_id).first()
-                    if usuario_eliminar:
-                        usuario_eliminar.delete()
-                messages.success(request, "Usuario(s) eliminado(s) correctamente.")
+            if not user.tiene_permiso('usuario', 'usuario', 'eliminar'):
+                raise PermissionDenied
+            # Nadie se borra a sí mismo por esta vía, y solo un superusuario puede borrar cuentas de administrador
+            candidatos = Usuario.objects.filter(pk__in=ids).exclude(pk=user.pk)
+            if not user.is_superuser:
+                candidatos = candidatos.exclude(is_superuser=True).exclude(is_staff=True)
+            for usuario_eliminar in candidatos:
+                usuario_eliminar.delete()
+            messages.success(request, "Usuario(s) eliminado(s) correctamente.")
 
     cantidad_filas_vacias = max (0, 20 - usuarios.count())
 
@@ -60,6 +67,7 @@ def usuario(request):
 
     return render(request, 'usuario/usuario.html',context)
 
+@permiso_requerido('usuario', 'usuario', 'registrar')
 def registrar_usuario (request):
 
     empleados = Empleado.objects.all()
@@ -99,20 +107,8 @@ def registrar_usuario (request):
             usuario.is_active = True                  
             usuario.debe_cambiar_password = True 
 
-            # Armar estructura de permisos
-            permisos = {}
-            for area, subareas in tree.items():
-                for sub, acciones in subareas.items():
-                    key = f"perm__{area}__{sub}"
-                    seleccionadas = request.POST.getlist(key)
-                    
-                    if seleccionadas:
-                        if 'ver' not in seleccionadas:
-                            seleccionadas.append('ver')
-                        permisos.setdefault(area, {})
-                        permisos[area][sub] = seleccionadas
-
-            usuario.permisos = permisos
+            # Armar estructura de permisos: solo se pueden dar los que quien registra tiene (ver armar_permisos)
+            usuario.permisos = armar_permisos(request.user, tree, request.POST)
             usuario.save()
             sincronizar_permisos_usuario(usuario)
 
@@ -145,6 +141,7 @@ def registrar_usuario (request):
     return render(request, "usuario/registrar_usuario.html", context)
 
 
+@permiso_requerido('usuario', 'usuario', 'actualizar')
 def actualizar_usuario(request, pk):
     usuario = get_object_or_404(Usuario, pk=pk)
 
@@ -172,20 +169,8 @@ def actualizar_usuario(request, pk):
         if areas_seleccionadas:
             usuario.area_asignada = ", ".join(areas_seleccionadas)
         
-        # --- Reconstruir estructura de permisos ---
-        permisos = {}
-        for area, subareas in tree.items():
-            for sub, acciones in subareas.items():
-                key = f"perm__{area}__{sub}"
-                seleccionadas = request.POST.getlist(key)
-                
-                if seleccionadas:
-                    if 'ver' not in seleccionadas:
-                        seleccionadas.append('ver')
-                    permisos.setdefault(area, {})
-                    permisos[area][sub] = seleccionadas
-        
-        usuario.permisos = permisos
+        # --- Reconstruir estructura de permisos: solo se pueden dar o quitar los que quien edita tiene (ver armar_permisos) ---
+        usuario.permisos = armar_permisos(request.user, tree, request.POST, actuales=usuario.permisos)
         usuario.save()
         sincronizar_permisos_usuario(usuario)
         messages.success(request, "Usuario actualizado correctamente.")
@@ -211,11 +196,17 @@ def cambiar_password(request):
         password1 = request.POST.get('password1')
         password2 = request.POST.get('password2')
 
-        if password1 != password2:
+        if not password1 or password1 != password2:
             messages.error(request, 'Las contraseñas no coinciden.')
             return redirect('home')
 
         user = request.user
+        try:
+            validate_password(password1, user)
+        except ValidationError as e:
+            messages.error(request, ' '.join(e.messages))
+            return redirect('home')
+
         user.set_password(password1)
         user.debe_cambiar_password = False
         user.save()

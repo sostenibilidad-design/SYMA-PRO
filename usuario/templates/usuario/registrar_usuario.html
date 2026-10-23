@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load dict_filters %}
 
 {% block title %}
     Registrar usuario
@@ -35,12 +36,21 @@
             </div>
 
             <div id="seleccion-fields" style="display: none;">
-                <select name="empleado">
-                    <option value="">Seleccionar empleado</option>
-                    {% for emp in empleados %}
-                        <option value="{{ emp.cedula }}">{{ emp.nombre_completo }}</option>
-                    {% endfor %}
-                </select>
+                <input type="hidden" name="empleado" id="empleado-valor">
+
+                <div class="funcionalidades-box" id="box-empleado">
+                    <div class="titulo-funcionalidades" id="empleado-toggle">
+                        <strong id="empleado-texto">Seleccionar empleado</strong>
+                    </div>
+
+                    <div class="contenido-funcionalidades dropdown" id="empleado-dropdown" style="display: none;">
+                        <input type="text" id="empleado-busqueda" class="input-busqueda-empleado" placeholder="Buscar empleado..." autocomplete="off">
+
+                        {% for emp in empleados %}
+                        <div class="empleado-opcion" data-valor="{{ emp.cedula }}">{{ emp.nombre_completo }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
 
             <input type="email" name="correo" placeholder="Correo electrónico" required>
@@ -56,7 +66,7 @@
                     <div class="area-item">
                         <label class="area-label">
                             <input type="checkbox" name="area_asignada" class="area-checkbox" value="{{ area }}">
-                            <strong>{{ area|capfirst }}</strong>
+                            <strong>{{ area|espaciar|capfirst }}</strong>
                         </label>
                     </div>
                     {% endfor %}
@@ -75,7 +85,7 @@
                             <div class="subarea-item">
                                 <label>
                                     <input type="checkbox" class="subarea-checkbox" data-area="{{ area }}">
-                                    {{ sub|capfirst }}
+                                    {{ sub|espaciar|capfirst }}
                                 </label>
 
                                 <ul class="acciones" style="margin-left: 5px;">

@@ -1,0 +1,123 @@
+{% extends "registro_asistencia/registro_maestro.html" %}
+{% load static %}
+
+{% block custom_styles %}
+    <link rel="stylesheet" href="{% static 'registro_asistencia/css/pasos.css' %}?v=20261006">
+{% endblock %}
+
+{% block area_trabajo %}
+    {% if errores %}
+        <p class="rc-error" style="margin: 0 0 10px;">No se pudo guardar: {% for e in errores %}{{ e }}{% if not forloop.last %} {% endif %}{% endfor %}</p>
+    {% endif %}
+    <p class="rp-subtitle-full">Revisa a cada uno de los empleados para verificar si los datos ingresados son correctos. <b>(Puedes modificar los datos directamente en la tabla)</b>.</p>
+    
+    <div class="rp-table-wrapper">
+        <table class="rp-preview-table">
+            <thead>
+                <tr>
+                    <!-- Aplicamos tu clase sticky-col para que el nombre no se pierda al hacer scroll horizontal -->
+                    <th class="col-left sticky-col">Empleados</th>
+                    <th>Novedades</th>
+                    <th>Hora de entrada</th>
+                    <th>Hora de salida</th>
+                    <th>Tiempo de comida</th>
+                    <th>Entradas y salidas múltiples</th>
+                    <th>Actividad Asignada</th>
+                    <th>Horas pendientes</th>
+                    <th>Horas a deducir</th>
+                    <th>Comentario</th>
+                    <th>Enlace de soporte</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fila in consolidado %}
+                <tr data-emp="{{ fila.empleado.pk }}" data-nombre="{{ fila.empleado.nombre_completo }}"{% if fila.multiples %} data-tiene-multiples="1"{% endif %}>
+                    <td class="col-left sticky-col">
+                        <i class="fa-regular fa-user" style="color:#777; margin-right:8px;"></i>
+                        {{ fila.empleado.nombre_completo }}
+                    </td>
+                    
+                    <!-- Campo Novedad usando tu clase rp-preview-select -->
+                    <td>
+                        <select name="final_novedad_{{ fila.empleado.pk }}" class="rp-preview-select" style="border-radius:12px; font-weight:500;">
+                            {% for cod, texto in novedades_lista.items %}
+                                <option value="{{ cod }}" {% if fila.cod_novedad == cod %}selected{% endif %}>{{ texto }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    
+                    <!-- Campo Entrada usando tu clase rp-editable-field y el input transparente -->
+                    <td>
+                        <div class="rp-editable-field">
+                            <!-- type="time" es lo que invoca al reloj de tu 2da foto -->
+                            <input type="time" name="final_entrada_{{ fila.empleado.pk }}" class="rp-input-transparente" value="{{ fila.hora_entrada_24h }}" style="cursor: pointer;">
+                        </div>
+                    </td>
+                    
+                    <!-- Campo Salida -->
+                    <td>
+                        <div class="rp-editable-field">
+                            <input type="time" name="final_salida_{{ fila.empleado.pk }}" class="rp-input-transparente" value="{{ fila.hora_salida_24h }}" style="cursor: pointer;">
+                        </div>
+                    </td>
+                    
+                    <!-- Campos de las herramientas opcionales (se editan en cada herramienta) -->
+                    <td class="rp-prev-lista">{% for t in fila.comida %}<span>{{ t }}</span>{% empty %}<span class="rp-prev-vacio">—</span>{% endfor %}</td>
+                    <td class="rp-prev-lista" data-celda="multiples">
+                        <input type="hidden" name="final_borrar_multiples_{{ fila.empleado.pk }}" value="">
+                        {% for t in fila.multiples %}<span>{{ t }}</span>{% empty %}<span class="rp-prev-vacio">—</span>{% endfor %}
+                    </td>
+
+                    <!-- Campo Actividad usando tu clase rp-preview-select -->
+                    <td style="max-width: 250px;">
+                        <select name="final_actividad_{{ fila.empleado.pk }}" class="rp-preview-select actividad-select">
+                            <option value="">No asignada</option>
+                            
+                            {% if fila.actividad and fila.actividad not in actividades_disponibles and fila.actividad != 'Otra actividad manual' %}
+                                <option value="{{ fila.actividad }}" selected>{{ fila.actividad }}</option>
+                            {% endif %}
+                            
+                            {% for act in actividades_disponibles %}
+                                <option value="{{ act }}" {% if fila.actividad == act %}selected{% endif %}>{{ act }}</option>
+                            {% endfor %}
+                            
+                            <option value="Otra actividad manual" {% if fila.actividad == 'Otra actividad manual' %}selected{% endif %}>Otra actividad manual...</option>
+                        </select>
+                    </td>
+
+                    <td class="rp-prev-lista">{% for t in fila.pendientes %}<span>{{ t }}</span>{% empty %}<span class="rp-prev-vacio">—</span>{% endfor %}</td>
+                    <td class="rp-prev-lista">{% for t in fila.deducir %}<span>{{ t }}</span>{% empty %}<span class="rp-prev-vacio">—</span>{% endfor %}</td>
+
+                    <!-- Comentario y enlace de soporte: editables aquí mismo -->
+                    <td>
+                        <div class="rp-editable-field">
+                            <textarea name="final_comentario_{{ fila.empleado.pk }}" class="rp-input-transparente rp-prev-texto" rows="2" placeholder="Sin comentario" aria-label="Comentario de {{ fila.empleado.nombre_completo }}">{{ fila.comentario }}</textarea>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="rp-editable-field">
+                            <input type="url" name="final_link_{{ fila.empleado.pk }}" class="rp-input-transparente" maxlength="500" placeholder="https://…" value="{{ fila.link }}" aria-label="Enlace de soporte de {{ fila.empleado.nombre_completo }}">
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="11" style="padding: 30px; color: #999;">No hay datos para consolidar. Vuelve al Paso 1.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+
+{% block footer_buttons %}
+    <!-- Tu botón de guardar intacto -->
+    <button type="submit" class="btn-siguiente rp-btn-guardar" style="display: flex; align-items: center; justify-content: center; gap: 5px;">
+        Guardar <span class="material-symbols-outlined" style="font-size: 24px;">save</span>
+    </button>
+    <a href="{{ url_atras }}" class="btn-cancelar" style="text-decoration: none;">Atrás</a>
+{% endblock %}
+
+{% block custom_scripts %}
+    <script src="{% static 'registro_asistencia/js/vista_previa.js' %}"></script>
+{% endblock %}

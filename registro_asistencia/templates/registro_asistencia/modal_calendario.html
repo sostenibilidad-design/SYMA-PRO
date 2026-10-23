@@ -1,0 +1,30 @@
+<!-- 1. Estilos del calendario -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<!-- 2. La estructura de tu ventana emergente -->
+<div id="modal-calendario" class="modal-overlay">
+    <div class="modal" style="width: auto; padding: 10px; margin-bottom: 25px;">
+        
+        <h2 class="titulo" style="font-size: 24px; margin-bottom: 20px;">Selecciona la fecha de inicio</h2>
+        
+        <!-- Aquí es donde Flatpickr dibujará el calendario visual -->
+        <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+            <input type="text" id="fecha-registro" style="display: none;">
+        </div>
+
+        <div class="botones" style="margin-top: 20px;">
+            <button type="button" class="btn-cancelar" onclick="document.getElementById('modal-calendario').classList.remove('active')">Cancelar</button>
+            
+            <!-- Avanza al paso 1 con la fecha elegida -->
+            <button type="button" id="btn-iniciar-registro-cal" class="btn-guardar" 
+                    data-url-redirect="{% url 'paso_1_novedades' proyecto_actual.id_proyectos %}">
+                Siguiente
+            </button>
+        </div>
+        
+    </div>
+</div>
+
+<!-- 3. Los scripts del calendario -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>

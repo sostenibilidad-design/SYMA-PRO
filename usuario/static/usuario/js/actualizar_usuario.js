@@ -90,9 +90,8 @@ window.inicializarModalActualizar = function(container) {
             const subareas = container.querySelector(`.subareas[data-area="${areaName}"]`);
             if (subareas) {
                 subareas.style.display = areaCb.checked ? "block" : "none";
-                if (!areaCb.checked) {
-                    subareas.querySelectorAll("input[type='checkbox']").forEach(cb => cb.checked = false);
-                }
+                // Marcar el área selecciona todas sus subáreas y acciones; desmarcarla las limpia
+                subareas.querySelectorAll("input[type='checkbox']").forEach(cb => cb.checked = areaCb.checked);
             }
         });
     });

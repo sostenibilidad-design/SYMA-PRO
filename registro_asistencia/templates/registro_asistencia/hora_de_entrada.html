@@ -1,0 +1,23 @@
+{% extends "registro_asistencia/registro_maestro.html" %}
+{% load static %}
+
+{% block custom_styles %}
+    <link rel="stylesheet" href="{% static 'registro_asistencia/css/reloj.css' %}">
+    <link rel="stylesheet" href="{% static 'registro_asistencia/css/pasos.css' %}">
+{% endblock %}
+
+{% block contenido_derecho %}
+    <p class="rp-subtitle">Todos los trabajadores deberán tener una hora de entrada asignada</p>
+    
+    <div class="rp-reloj-wrapper">
+        {% include "registro_asistencia/componentes/reloj_masivo.html" %}
+
+        <div class="rp-reloj-quick-btns">
+            <button type="button" class="rp-quick-btn">06:30 A.M</button>
+            <button type="button" class="rp-quick-btn">07:00 A.M</button>
+            <button type="button" class="rp-quick-btn">08:00 A.M</button>
+        </div>
+
+        <button type="button" class="rp-btn-asignar-reloj">Asignar</button>
+    </div>    
+{% endblock %}

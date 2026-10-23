@@ -15,7 +15,6 @@ urlpatterns = [
     path('registrar-fin/<int:id>/', views.registrar_fin_medicion, name='registrar_fin_medicion'),
     path('obtener-cumplimiento/', views.obtener_cumplimiento, name='obtener_cumplimiento'),
     path("api/demanda-empleados/", views.api_demanda_empleados, name="api_demanda_empleados"),
-    path('medicion_individual/', views.medicion_individual, name='medicion_individual'),
     path('guardar-alertas/', views.guardar_configuracion_alertas, name='guardar_alertas'),
     path('eliminar-alerta/<int:alerta_id>/', views.eliminar_alerta, name='eliminar_alerta'),
     path('exportar-excel-cuadrilla/', views.exportar_mediciones_excel, name='exportar_mediciones_excel'),

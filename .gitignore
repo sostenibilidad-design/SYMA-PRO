@@ -334,3 +334,4 @@ staticFiles/
 # --- Archivos de Celery Beat (NO SUBIR) ---
 celerybeat-schedule*
 celerybeat.pid
+Documentacion_registro_asistencio.docx

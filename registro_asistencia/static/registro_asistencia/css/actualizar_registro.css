@@ -1,0 +1,218 @@
+.ar-modal {
+    width: 680px;
+    max-width: 94vw;
+    max-height: 92vh;
+    padding: 28px 34px;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.ar-titulo {
+    margin-bottom: 14px;
+    text-align: center;
+}
+
+/* Datos personales: solo lectura */
+.ar-persona {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px 18px;
+    padding: 12px 16px;
+    background: #f5f5f5;
+    border-radius: 10px;
+}
+
+.ar-persona span {
+    display: block;
+    font-size: 12px;
+    color: #888;
+}
+
+.ar-persona strong {
+    font-size: 15px;
+    color: #333;
+}
+
+.ar-nota {
+    margin: 10px 2px 14px;
+    font-size: 13px;
+    color: #6d7f1f;
+}
+
+/* Formulario con scroll propio */
+.ar-form {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-right: 6px;
+}
+
+.ar-seccion {
+    border: 1px solid #e3e3e3;
+    border-radius: 10px;
+    padding: 12px 16px 14px;
+}
+
+.ar-seccion h3 {
+    margin: 0 0 8px;
+    font-size: 16px;
+    color: #333;
+}
+
+.ar-seccion h4 {
+    margin: 12px 0 6px;
+    font-size: 14px;
+    color: #555;
+}
+
+.ar-ayuda {
+    margin: 0 0 8px;
+    font-size: 12.5px;
+    color: #888;
+}
+
+.ar-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #666;
+}
+
+.ar-dos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.ar-modal select,
+.ar-modal input[type="time"],
+.ar-modal input[type="number"],
+.ar-modal input[type="url"],
+.ar-modal textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 12px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #fff;
+    font-family: inherit;
+}
+
+.ar-modal select:focus,
+.ar-modal input:focus,
+.ar-modal textarea:focus {
+    border-color: #f5a623;
+    outline: none;
+}
+
+/* Filas dinámicas */
+.ar-fila {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.ar-fila label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    font-size: 13px;
+    color: #666;
+}
+
+.ar-etiqueta {
+    min-width: 80px;
+    font-size: 14px;
+    color: #444;
+}
+
+.ar-quitar {
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 50%;
+    background: #eee;
+    color: #777;
+    cursor: pointer;
+}
+
+.ar-quitar:hover {
+    background: #f6d6d3;
+    color: #a40a02;
+}
+
+.ar-anadir {
+    border: 1px dashed #A3BD31;
+    border-radius: 8px;
+    background: #f8faee;
+    color: #6d7f1f;
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.ar-anadir:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* Novedades sin horario: se oculta lo que solo aplica a una asistencia */
+.ar-modal--sin-asistencia .ar-solo-asistencia {
+    display: none;
+}
+
+/* Errores y confirmación */
+.ar-errores {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: #fdecea;
+    color: #a40a02;
+    font-size: 14px;
+}
+
+.ar-errores ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.ar-confirmacion {
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: #f1f5df;
+    text-align: center;
+    color: #333;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.ar-confirmacion p {
+    margin: 0 0 6px;
+}
+
+/* Mientras se confirma, el formulario queda quieto */
+.ar-modal--confirmando .ar-form {
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+@media (max-width: 520px) {
+    .ar-modal {
+        padding: 20px 16px;
+    }
+
+    .ar-dos {
+        grid-template-columns: 1fr;
+    }
+}

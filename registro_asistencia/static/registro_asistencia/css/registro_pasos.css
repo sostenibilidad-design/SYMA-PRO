@@ -1,0 +1,718 @@
+.header-titulo-registro {
+    display: flex;
+    align-items: center;
+    justify-content: center; 
+    flex: 1; 
+    transform: translateX(-100px); 
+}
+
+.header-titulo-registro .texto {
+    font-family: 'Inria Serif', serif;
+    font-size: 30px;
+    font-weight: 600;
+    color: #a2a2a2;
+    text-transform: uppercase;
+}
+
+
+.rp-container {
+    width: 95%;
+    margin: 0 auto; 
+    display: flex;
+    flex-direction: column;
+    position: relative; 
+    overflow: visible; 
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.rp-stepper {
+    display: flex;
+    flex-direction: column; 
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #fff;
+}
+
+/* --- FILA SUPERIOR (Blanca y continua) --- */
+.rp-stepper-top-row {
+    display: flex;
+    height: 35px;
+    position: relative; 
+    z-index: 10;
+}
+
+.rp-step-top {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.rp-line {
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    right: 0;
+    height: 8px; /* Grosor de la línea */
+    background: #d4d4d4;
+    z-index: 1;
+}
+
+.rp-line.green {
+    background: #A3BD31;
+}
+
+/* Evita que la línea choque con los bordes de la caja */
+.rp-step-top:first-child .rp-line { border-radius: 10px 0 0 10px; }
+.rp-step-top:last-child .rp-line { border-radius: 0 10px 10px 0; }
+
+.rp-icon-wrapper {
+    position: relative;
+    z-index: 2;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateY(50%);
+}
+
+.rp-dot {
+    width: 22px;
+    height: 22px;
+    background-color: #A3BD31;
+    border-radius: 50%;
+}
+
+.rp-lock-circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #d4d4d4;
+}
+
+.rp-lock-circle i {
+    font-size: 17px;
+    color: #555;
+}
+
+/* --- FILA INFERIOR (Cajas y Textos) --- */
+.rp-stepper-bottom-row {
+    display: flex;
+    border-top: 1.5px solid #ccc; /* La línea horizontal que separa la franja blanca de los textos */
+}
+
+.rp-step-bottom {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content:center;
+    padding: 25px 5px 15px 5px;
+    background-color: #eaeaea; /* Fondo gris para los bloqueados */
+    border-right: 1.5px solid #ccc; /* Divisiones verticales */
+}
+
+.rp-step-bottom:last-child {
+    border-right: none;
+}
+
+.rp-step-bottom.active {
+    background-color: #ffffff; /* Fondo blanco para el activo */
+}
+
+/* Estilos de Texto */
+.rp-step-text-title {
+    font-family: 'Inria Serif', serif;
+    font-size: 14.5px;
+    font-weight: bold;
+    color: #444;
+    text-align: center;
+
+}
+
+.rp-step-bottom.active .rp-step-text-title {
+    color: #111;
+}
+
+.rp-step-text-status {
+    font-family: 'Inria Serif', serif;
+    font-size: 13px;
+    color: #666;
+}
+
+.rp-body {
+    padding: 10px 0 30px 0;
+    flex-grow: 1;
+}
+
+.rp-step-title {
+    font-family: 'Inria Serif', serif;
+    color: #A3BD31;
+    font-size: 32px;
+    margin-top: 5px;
+    margin-bottom: 20px;
+}
+
+.rp-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px;
+}
+
+.rp-footer-status {
+    font-family: 'Inria Serif', serif;
+    font-weight: bold;
+    font-size: 20px;
+    color: #333;
+}
+
+.rp-footer-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.btn-siguiente {
+    background-color: #A3BD31;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 35px;
+    font-family: 'Inria Serif', serif;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25); 
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-siguiente.locked {
+    background-color: #7a8e25;
+    cursor: not-allowed;
+}
+
+.btn-siguiente:hover {
+    background-color: var(--color-principal-hover, #91a424);
+    color: #fff;
+} 
+
+.btn-cancelar {
+    background-color: #e2e2e2;
+    color: #111;
+    border: 1px solid #b5b5b5;
+    border-radius: 8px;
+    padding: 10px 30px;
+    font-family: 'Inria Serif', serif;
+    font-size: 22px; /* Letra más grande */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25); /* Sombra para el efecto relieve/3D */
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-cancelar:hover {
+    background-color: var(--color-principal-hover, #ccc);
+    color: #222;
+}  
+
+.rp-sidebar-herramientas {
+    position: absolute;
+    top: -19px;
+    bottom: -35px;
+    right: -51.7px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateX(calc(100% - 40.5px));
+    transition: transform 0.3s cubic-bezier(0.25, 0.9, 0.3, 1);
+    z-index: 100;
+}
+
+.rp-sidebar-herramientas.open {
+    transform: translateX(0);
+}
+
+.rp-tab-herramientas {
+    width: 40px;
+    height: 45%;
+    background-color: #e2e2e2;
+    border: 1.5px solid #ccc;
+    border-left: none;
+    border-radius: 0px 25px 25px 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-family: 'Inria Serif', serif;
+    font-size: 18px;
+    font-weight: bold;
+    color: #444;
+    cursor: pointer;
+    box-shadow: -4px 0 10px rgba(0,0,0,0.08);
+    z-index: 2;
+}
+
+.rp-tab-herramientas i {
+    transform: rotate(90deg);
+    margin-bottom: 15px;
+}
+
+.rp-content-herramientas {
+    width: 310px;
+    height: 100%;
+    background-color: #fff;
+    border: 1.5px solid #ccc;
+    border-right: none;
+    border-radius: 34px;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.05);
+    z-index: 1;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(20px); 
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    
+}
+
+.rp-sidebar-herramientas.open .rp-content-herramientas {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0); /* Se desliza a su posición original */
+}
+
+/* Menu hamburguesa de herramientas */
+
+/* Contenedor principal del contenido de herramientas */
+.rpi-content-wrapper {
+    height: 100%;
+    padding: 30px; 
+    display: flex;
+    flex-direction: column;
+    gap: 20px; 
+    box-sizing: border-box; 
+    font-family: 'Inria Serif', serif;
+}
+
+/* Estilo para el encabezado del menú de herramientas */
+.rpi-menu-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-shrink: 0; /*Mantiene el título fijo arriba sin importar cuántas tarjetas haya*/
+}
+
+/* Estilo para el título del menú de herramientas */
+.rpi-menu-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+    text-align: center;
+    margin-bottom: 10px;
+    font-family: 'Inria Serif', serif;
+}
+
+/* Estilo para la línea horizontal debajo del título */
+.rpi-header-line {
+    width: 100%;
+    height: 1px;
+    background-color: #d4d4d4; 
+}
+
+/* Contenedor de las tarjetas de herramientas */
+.rpi-tool-cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: none; 
+    -ms-overflow-style: none;
+    padding-right: 20px;
+}
+
+/* Oculta la barra de desplazamiento en navegadores basados en WebKit (Chrome, Safari) */
+.rpi-tool-cards-container::-webkit-scrollbar {
+    display: none; 
+}
+
+/* Estilo base para cada tarjeta de herramienta */
+.rpi-tool-card {
+    background-color: #fff;
+    border-radius: 10px; 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+    display: flex;
+    align-items: center;
+    padding: 15px 20px; 
+    gap: 15px;
+    transition: all 0.2s ease;
+    border: 1px solid transparent; 
+    box-sizing: border-box; 
+}
+
+/* Estilo para las tarjetas bloqueadas */
+.rpi-tool-card.blocked {
+    border-color: #d4d4d4; 
+    cursor: not-allowed; 
+}
+
+/* Estilo para el icono de la tarjeta de herramienta */
+.rpi-card-icon {
+    width: 40px;
+    height: 40px;
+    background-color: #f4f4f4; 
+    border-radius: 8px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Estilo para el icono dentro de la tarjeta de herramienta */
+.rpi-card-icon i {
+    font-size: 22px;
+    color: #555; 
+}
+
+/* Contenedor de detalles de la tarjeta (nombre, estado, condiciones) */
+.rpi-card-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px; 
+}
+
+/* Estilo para el nombre de la herramienta */
+.rpi-tool-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #111; 
+    margin: 0;
+    line-height: 1.2;
+}
+
+/* Estilo para el estado de la herramienta */
+.rpi-tool-status {
+    font-size: 14px;
+    margin: 0;
+    line-height: 1.2;
+    color: #777; 
+}
+
+/* Estilo para la etiqueta de estado de la herramienta */
+.rpi-status-label {
+    font-weight: 600; 
+    margin-right: 5px;
+}
+
+/* Estilo para el valor del estado de la herramienta */
+.rpi-status-value {
+    color: #777;
+}
+
+/* Estilo para el texto de condiciones de uso */
+.rpi-tool-condition {
+    font-size: 12.5px;
+    color: #999; 
+    margin: 0;
+    font-weight: 300;
+    line-height: 1.3;
+}
+
+/* Herramienta habilitada: estado en verde y botón "Ir al modulo" */
+.rpi-tool-card--activo {
+    border-color: #d4d4d4;
+}
+
+.rpi-tool-card--activo .rpi-status-value {
+    color: #A3BD31;
+}
+
+.rpi-btn-modulo {
+    display: block;
+    margin-top: 8px;
+    padding: 6px 10px;
+    border: 1px solid #7a8c32;
+    border-radius: 6px;
+    background-color: #A3BD31;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+    color: #111;
+    font-family: 'Inria Serif', serif;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+}
+
+.rpi-btn-modulo:hover {
+    background-color: #8a9e38;
+}
+
+/* Estilo para el hover de las tarjetas bloqueadas */
+.rpi-tool-card.blocked:hover {
+    background-color: #fcfcfc; 
+    box-shadow: 0 5px 8px rgba(0, 0, 0, 0.15);
+}
+
+/*Maqueta de diseño de las cajas internas (3)*/
+
+.rp-grid-layout {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px; 
+    height: 470px; 
+}
+
+/* --- CUADRO 1: Columna Izquierda --- */
+.rp-box-left {
+    width: 290px;
+    flex-shrink: 0; 
+    background-color: #fff;
+    border: 1.5px solid #ccc;
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+/* --- CUADRO 2: Columna Derecha (Expansible) --- */
+.rp-box-right {
+    flex: 1; 
+    background-color: #fff;
+    border: 1.5px solid #ccc;
+    border-radius: 12px;
+    padding: 15px 20px;
+    padding-top: 10px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+/* --- CUADRO 3: Fila Inferior (Confirmados) --- */
+.rp-box-bottom {
+    width: 100%;
+    background-color: #fff;
+    border: 1.5px solid #ccc;
+    border-radius: 12px;
+    padding: 8px 20px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+/* --- Títulos internos --- */
+.rp-box-left h3, .rp-box-right h3 {
+    font-family: 'Inria Serif', serif;
+    font-size: 23px;
+    font-weight: bold;
+    color: #222;
+    margin-top: 0;
+    margin-bottom: 12px;
+}
+
+.rp-confirmed-title {
+    font-family: 'Inria Serif', serif;
+    font-size: 18px;
+    font-weight: bold;
+    color: #222;
+    margin: 0;
+    margin-right: 20px;
+}
+
+
+.rp-confirmed-list {
+    flex: 1;
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    white-space: nowrap; 
+    padding-bottom: 5px; 
+    align-items: center;
+}
+
+.rp-confirmed-list::-webkit-scrollbar {
+    height: 6px;
+}
+.rp-confirmed-list::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+    border-radius: 10px;
+}
+.rp-confirmed-list::-webkit-scrollbar-thumb {
+    background: #A3BD31; /* Verde SYMA */
+    border-radius: 10px;
+}
+
+.rp-btn-hide {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #555;
+    cursor: pointer;
+    padding-left: 15px;
+    border-left: 1.5px solid #ccc;
+}
+
+/*lista de empleados*/
+
+/* Buscador */
+.rp-search-box {
+    display: flex;
+    align-items: center;
+    border: 1px solid #b5b5b5;
+    border-radius: 6px;
+    padding: 6px 12px;
+    margin-bottom: 12px;
+}
+
+.rp-search-box i {
+    color: #888;
+    font-size: 14px;
+    margin-right: 8px;
+}
+
+.rp-search-box input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-family: 'Inria Serif', serif;
+    font-size: 15px;
+    color: #333;
+}
+
+/* Contenedor de la lista (con scroll) */
+.rp-employee-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+    padding-right: 5px; 
+}
+
+/* Barra de scroll estilizada para la lista */
+.rp-employee-list::-webkit-scrollbar {
+    width: 6px;
+}
+.rp-employee-list::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+    border-radius: 10px;
+}
+.rp-employee-list::-webkit-scrollbar-thumb {
+    background: #ccc; 
+    border-radius: 10px;
+}
+
+/* Cada fila de empleado */
+.rp-emp-item {
+    display: flex;
+    align-items: center;
+    padding: 5px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.rp-emp-item:hover {
+    background-color: #f5f5f5;
+}
+
+/* Cabecera (Nombre) */
+.rp-emp-header {
+    font-weight: bold;
+    border-bottom: 1px solid #eee;
+    border-radius: 0;
+    margin-bottom: 5px;
+}
+.rp-emp-header:hover { background-color: transparent; }
+
+/* Ocultar el checkbox nativo para usar el nuestro */
+.rp-emp-item input[type="checkbox"] {
+    display: none;
+}
+
+/* Checkbox personalizado */
+.rp-custom-checkbox {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid #a2a2a2;
+    border-radius: 3px;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    transition: all 0.2s ease;
+}
+
+/* Checkbox activado (Verde con palomita) */
+.rp-emp-item input[type="checkbox"]:checked + .rp-custom-checkbox {
+    background-color: #A3BD31;
+    border-color: #A3BD31;
+}
+
+.rp-emp-item input[type="checkbox"]:checked + .rp-custom-checkbox::after {
+    content: '\f00c'; /* Código del check de FontAwesome */
+    font-family: 'Font Awesome 6 Free'; /* Asegúrate de que coincida con tu versión de FA */
+    font-weight: 900;
+    color: white;
+    font-size: 11px;
+}
+
+/* Nombre del empleado */
+.rp-emp-name {
+    font-family: 'Inria Serif', serif;
+    font-size: 15px;
+    color: #444;
+}
+
+.rp-emp-item.selected .rp-emp-name {
+    font-weight: bold;
+    color: #222;
+}
+
+/* Footer de selección */
+.rp-emp-footer {
+    font-family: 'Inria Serif', serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    padding-top: 10px;
+    border-top: 1px solid #ccc;
+    text-align: left;
+}
+
+/* --- ANIMACIONES DEL STEPPER --- */
+@keyframes llenarLinea {
+    0% { width: 0%; background-color: #ccc; } /* Empieza gris y vacía */
+    100% { width: 100%; background-color: #A3BD31; } /* Termina verde y llena */
+}
+
+@keyframes aparecerPunto {
+    0% { transform: scale(0); opacity: 0; }
+    70% { transform: scale(1.3); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Clases que inyectaremos dinámicamente con Django */
+.rp-line.animar-linea {
+    animation: llenarLinea 0.8s ease-out forwards;
+}
+
+.rp-dot.animar-punto {
+    animation: aparecerPunto 0.4s ease-out forwards;
+    animation-delay: 0.8s; /* Espera a que la línea se llene para aparecer */
+    opacity: 0; /* Oculto hasta que le toque */
+}

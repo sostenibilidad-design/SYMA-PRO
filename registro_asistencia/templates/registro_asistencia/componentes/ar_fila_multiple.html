@@ -1,0 +1,6 @@
+{% comment %}Fila de una salida múltiple. Recibe: salida e ingreso (time o vacío).{% endcomment %}
+<div class="ar-fila">
+    <label>Salida <input type="time" name="mult_salida" value="{{ salida|time:'H:i' }}"></label>
+    <label>Ingreso <input type="time" name="mult_ingreso" value="{{ ingreso|time:'H:i' }}"></label>
+    <button type="button" class="ar-quitar" title="Quitar" aria-label="Quitar fila"><i class="fa-solid fa-xmark"></i></button>
+</div>

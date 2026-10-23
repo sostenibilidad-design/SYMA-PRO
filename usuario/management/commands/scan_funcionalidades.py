@@ -22,12 +22,20 @@ FUNCIONES_IGNORAR = {
 PATRONES_IGNORAR = [
     'filtro', 'filtrar', 'form', 'base', 'correo_bienvenida', 
     'modal', 'guardar_configuracion', 'api_', 
-    'sincronizar_', 'exportar_', 'imprimir', 'pdf', 'upload_',
+    'sincronizar_', 'consultar_', 'exportar_', 'imprimir', 'pdf', 'upload_',
     'autosave', 'delete_', 'guardar_firmas', 'selector', 'obtener_',
     'detalle', 'agregar', 'cambiar_password',
     # 🔥 Agregados para eliminar la basura de las imágenes:
     'registrar_', 'reporte_', 'eliminar_', 'actualizar_'
 ]
+
+# 📌 Apps con permisos fijos: no se escanean vistas ni plantillas, solo se registra esto.
+# Un solo submódulo con sus acciones simplifica la asignación por rol.
+FUNCIONALIDADES_FIJAS = {
+    'registro_asistencia': {
+        'registro_asistencia': {'ver', 'registrar', 'actualizar', 'descargar', 'informe', 'resumen', 'eliminar'},
+    },
+}
 
 # 🔄 Consolidamos palabras similares en acciones principales y limpias
 MAPEO_ACCIONES = {
@@ -49,7 +57,8 @@ MAPEO_ACCIONES = {
     
     "reporte": "reporte",
     "rendimiento": "rendimiento",
-    "drive": "drive"
+    "drive": "drive",
+    "salario": "salarios"
 }
 
 class Command(BaseCommand):
@@ -74,27 +83,32 @@ class Command(BaseCommand):
         funcionalidades_validas = set()
 
         for app in apps.get_app_configs():
-            if app.name in IGNORAR_APPS:
+            if app.name in IGNORAR_APPS or app.label in IGNORAR_APPS:
                 continue
 
             print(f"📁 Analizando área: {app.label}")
 
-            app_path = app.path
-            vistas = self.scan_views(app_path)
-            plantillas = self.scan_templates(app_path)
+            if app.label in FUNCIONALIDADES_FIJAS:
+                funcionalidades_finales = {
+                    sub: set(acciones) for sub, acciones in FUNCIONALIDADES_FIJAS[app.label].items()
+                }
+            else:
+                app_path = app.path
+                vistas = self.scan_views(app_path)
+                plantillas = self.scan_templates(app_path)
 
-            funcionalidades_finales = {}
+                funcionalidades_finales = {}
 
-            # Agregamos primero las vistas
-            for v in vistas:
-                funcionalidades_finales[v] = {"ver"}
+                # Agregamos primero las vistas
+                for v in vistas:
+                    funcionalidades_finales[v] = {"ver"}
 
-            # Combinamos con las plantillas descubiertas
-            for p, acciones in plantillas.items():
-                if p not in funcionalidades_finales:
-                    funcionalidades_finales[p] = set()
-                funcionalidades_finales[p].update(acciones)
-                funcionalidades_finales[p].add("ver") # Toda vista debe tener "ver"
+                # Combinamos con las plantillas descubiertas
+                for p, acciones in plantillas.items():
+                    if p not in funcionalidades_finales:
+                        funcionalidades_finales[p] = set()
+                    funcionalidades_finales[p].update(acciones)
+                    funcionalidades_finales[p].add("ver") # Toda vista debe tener "ver"
 
             # Guardamos en la base de datos
             for submodulo, acciones in funcionalidades_finales.items():

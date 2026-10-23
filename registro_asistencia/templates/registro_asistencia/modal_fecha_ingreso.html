@@ -1,0 +1,35 @@
+{% comment %}
+    Modal corto para editar la fecha de ingreso de un empleado NUEVO (se carga por AJAX en #modal-container del informe).
+    Solo pide la nueva fecha; antes de continuar muestra qué días se van a agregar o a eliminar.
+    Lo maneja fecha_ingreso.js. Los días llegan como JSON seguro (json_script), nunca como HTML.
+{% endcomment %}
+
+<div id="modal-fecha-ingreso" class="modal-overlay" data-fi="corto">
+    <div class="modal fi-modal fi-modal--corto" role="dialog" aria-modal="true" aria-labelledby="fi-titulo-corto">
+        <h2 class="titulo fi-titulo" id="fi-titulo-corto">Editar fecha de ingreso</h2>
+
+        <p class="fi-quien">
+            <strong>{{ empleado.nombre_completo }}</strong><br>
+            Ingreso actual: <strong>{{ actual_texto }}</strong>
+        </p>
+
+        <form class="fi-form-corto" id="fi-form-corto" autocomplete="off"
+            data-url-revisar="{{ url_revisar }}" data-actual="{{ actual|date:'Y-m-d' }}">
+            <label class="ar-campo">Nueva fecha de ingreso
+                <input type="date" name="nueva" id="fi-nueva" required
+                    min="{{ inicio|date:'Y-m-d' }}" max="{{ ultimo|date:'Y-m-d' }}" value="{{ actual|date:'Y-m-d' }}">
+            </label>
+        </form>
+
+        <div class="fi-previa" id="fi-previa" aria-live="polite"></div>
+
+        <div class="ar-errores" id="fi-errores" role="alert" hidden></div>
+
+        {{ dias|json_script:"fi-dias-datos" }}
+
+        <div class="botones">
+            <button type="button" class="btn-cancelar" id="fi-cancelar">Cancelar</button>
+            <button type="button" class="btn-guardar" id="fi-continuar" disabled>Continuar</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,11 @@
+{% comment %}Fila de una hora histórica. Recibe: prefijo ('pend' o 'ded'), tipo y cantidad (vacíos si es nueva).{% endcomment %}
+<div class="ar-fila">
+    <select name="{{ prefijo }}_tipo">
+        <option value="">Tipo de hora...</option>
+        {% for valor, nombre in tipos_horas %}
+            <option value="{{ valor }}" {% if valor == tipo %}selected{% endif %}>{{ nombre }}</option>
+        {% endfor %}
+    </select>
+    <input type="number" name="{{ prefijo }}_cantidad" value="{{ cantidad|default_if_none:''|stringformat:'s' }}" step="0.25" min="0.25" max="24" placeholder="Horas">
+    <button type="button" class="ar-quitar" title="Quitar" aria-label="Quitar fila"><i class="fa-solid fa-xmark"></i></button>
+</div>

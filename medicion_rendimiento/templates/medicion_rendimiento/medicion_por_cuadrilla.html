@@ -3,6 +3,7 @@
 {% load humanize %}
 {% load dict_filters %}
 {% load moneda %}
+{% load saltos %}
 
 
 {% block title %}
@@ -106,10 +107,10 @@
                                     <td><label for="personal{{ item.id }}">{{ item.proyecto }}</label></td>
                                     <td><label for="personal{{ item.id }}">{{ item.fecha }}</label></td>
                                     <td><label for="personal{{ item.id }}">Cuadrilla #{{ item.cuadrilla }}</label></td>
-                                    <td><label for="personal{{ item.id }}">{{ item.numero_oficiales_ayudantes|safe }}</label></td>
-                                    <td><label for="personal{{ item.id }}">{{ item.empleado_cedula|safe }}</label></td>
-                                    <td><label for="personal{{ item.id }}">{{ item.nombre_empleado|safe }}</label></td>
-                                    <td><label for="personal{{ item.id }}">{{ item.precio_hora_trabajadores|safe }}</label></td>
+                                    <td><label for="personal{{ item.id }}">{{ item.numero_oficiales_ayudantes|con_saltos }}</label></td>
+                                    <td><label for="personal{{ item.id }}">{{ item.empleado_cedula|con_saltos }}</label></td>
+                                    <td><label for="personal{{ item.id }}">{{ item.nombre_empleado|con_saltos }}</label></td>
+                                    <td><label for="personal{{ item.id }}">{{ item.precio_hora_trabajadores|con_saltos }}</label></td>
                                     <td><label for="personal{{ item.id }}">{{ item.actividad }}</label></td>
                                     <td class="celda-imagen"><label for="personal{{ item.id }}">{% if item.foto_inicio %}
                                                                                 <img src="{{ item.foto_inicio.url }}" alt="Foto de inicio" style="width: 80px; height: 80px; ">
@@ -118,7 +119,7 @@
                                                                             {% endif %}
                                         </label>
                                     </td>
-                                    <td><label for="personal{{ item.id }}">{{ item.hora_inicio_empleados|safe }}</label></td>
+                                    <td><label for="personal{{ item.id }}">{{ item.hora_inicio_empleados|con_saltos }}</label></td>
                                     
                                     <td>
                                         {% if not item.hora_fin %}
@@ -126,7 +127,7 @@
                                                 <a href="javascript:void(0);" data-id="{{ item.id }}"  class="btn-fin">Finalizar</a>
                                             {% endif %}
                                         {% else %}
-                                            <label for="personal{{ item.id }}">{{ item.hora_fin_empleados|safe }}</label>
+                                            <label for="personal{{ item.id }}">{{ item.hora_fin_empleados|con_saltos }}</label>
                                         {% endif %}
                                     </td>
 
@@ -139,7 +140,7 @@
                                             </label>
                                         </td>
                                         <td><label for="personal{{ item.id }}">{{ item.ubicacion }}</label></td>
-                                        <td><label for="personal{{ item.id }}">{{item.horas_efectivas_trabajador|safe}}</label></td>
+                                        <td><label for="personal{{ item.id }}">{{ item.horas_efectivas_trabajador|con_saltos }}</label></td>
                                         <td><label for="personal{{ item.id }}">{{ item.horas_trabajadas_totales|default:"-" }} h</label></td>
                                         <td><label for="personal{{ item.id }}">$ {{ item.costo_total_oficiales|cop|default:"-" }}</label></td>
                                         <td><label for="personal{{ item.id }}">$ {{ item.costo_total_ayudantes|cop|default:"-" }}</label></td>
@@ -235,7 +236,6 @@
         <span class="cerrar-imagen">&times;</span>
         <img class="modal-contenido-imagen" id="imagen-grande">
     </div>
-
 {% endblock %}
 
 {% block scripts %}

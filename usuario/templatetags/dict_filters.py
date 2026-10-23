@@ -11,6 +11,11 @@ def get_item(dictionary, key):
     return dictionary.get(key, []) 
 
 @register.filter
+def espaciar(value):
+    """Muestra un nombre interno sin guiones bajos: 'registro_asistencia' -> 'registro asistencia'."""
+    return str(value).replace('_', ' ')
+
+@register.filter
 def split(value, delimiter=','):
     """Divide un string por el delimitador dado y devuelve una lista."""
     if value:
@@ -21,6 +26,9 @@ def split(value, delimiter=','):
 def has_perm(user, value):
     if not user or not getattr(user, "id", None):
         return False
+
+    if getattr(user, "is_superuser", False):
+        return True
 
     try:
         partes = [v.strip().lower() for v in value.split(",")]

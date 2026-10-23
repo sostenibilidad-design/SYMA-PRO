@@ -1,12 +1,16 @@
+import logging
+
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required #permission_required
+from usuario.decoradores import permiso_requerido
 from .google_drive_utils import fetch_and_store_empleados
 
 from .models import Empleado
 from .forms import Personalform
 
-@login_required
+logger = logging.getLogger(__name__)
+
+@permiso_requerido('personal', 'personal', 'ver')
 def personal(request):
     empleados = Empleado.objects.all().order_by('nombre_completo')
     # cantidad de filas vacías para mantener formato en tabla
@@ -22,8 +26,7 @@ def personal(request):
     return render(request, 'personal/personal.html', contexto)
 
 # --- NUEVA FUNCIÓN ---
-@login_required
-#@permission_required('personal.add_empleado', raise_exception=True) # Opcional: seguridad
+@permiso_requerido('personal', 'personal', 'drive')
 def sincronizar_personal(request):
     if request.method == 'POST':
         try:
@@ -35,6 +38,7 @@ def sincronizar_personal(request):
             
             messages.success(request, f"Sincronización exitosa: {resultado}")
         except Exception as e:
-            messages.error(request, f"Error al extraer datos de Drive: {str(e)}")
+            logger.exception("Falló la sincronización de personal con Drive")
+            messages.error(request, "Error al extraer datos de Drive. Revisa los registros del servidor.")
             
     return redirect('personal') 

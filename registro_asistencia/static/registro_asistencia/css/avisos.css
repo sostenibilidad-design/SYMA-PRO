@@ -1,0 +1,87 @@
+/* Ventanas de aviso del registro: advertencia de modificación e información incompleta (las crea avisos.js) */
+.av-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.av-caja {
+    width: 480px;
+    max-width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 28px 30px 24px;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    color: #222;
+}
+
+.av-icono {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 6px;
+}
+
+.av-titulo {
+    margin: 0 0 12px;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.av-texto {
+    margin: 0 0 10px;
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.av-lista {
+    margin: 4px 0 14px;
+    padding: 0;
+    list-style: none;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.av-botones {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 18px;
+}
+
+.av-btn {
+    padding: 9px 26px;
+    border: 1px solid #b5b5b5;
+    border-radius: 8px;
+    background: #e2e2e2;
+    color: #333;
+    font-family: inherit;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.12);
+}
+
+.av-btn--peligro {
+    border-color: #8f160d;
+    background: #a40a02;
+    color: #fff;
+}
+
+.av-btn:focus-visible {
+    outline: 3px solid #f5a623;
+    outline-offset: 2px;
+}
+
+/* Campo que falta por llenar (lo marca la vista previa al bloquear el guardado) */
+.av-falta {
+    outline: 2px solid #a40a02;
+    outline-offset: 1px;
+    border-radius: 6px;
+}

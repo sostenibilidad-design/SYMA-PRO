@@ -19,7 +19,7 @@
                             <label class="area-label">
                                 <input type="checkbox" name="area_asignada" class="area-checkbox" value="{{ area }}"
                                 {% if area in usuario_areas %}checked{% endif %}>
-                                <strong>{{ area|capfirst }}</strong>
+                                <strong>{{ area|espaciar|capfirst }}</strong>
                             </label>
                         </div>
                         {% endfor %}
@@ -43,7 +43,7 @@
                                                 checked
                                             {% endif %}
                                         {% endif %} >
-                                        {{ sub|capfirst }}
+                                        {{ sub|espaciar|capfirst }}
                                     </label>
 
                                     <ul class="acciones" style="margin-left: 5px;">

@@ -1,0 +1,32 @@
+{% comment %}
+    Tarjeta de una herramienta opcional.
+    Recibe: clave, icono, nombre, abierta (bool, ya se desbloqueó) y condicion (texto mientras está bloqueada).
+{% endcomment %}
+{% if herramienta == clave %}
+<div class="rpi-tool-card rpi-tool-card--activo">
+    <div class="rpi-card-icon"><i class="{{ icono }}"></i></div>
+    <div class="rpi-card-details">
+        <p class="rpi-tool-name">{{ nombre }}</p>
+        <p class="rpi-tool-status"><span class="rpi-status-label">Estado:</span> <span class="rpi-status-value">Activo</span></p>
+        <p class="rpi-tool-condition">Estás en este módulo</p>
+    </div>
+</div>
+{% elif abierta and fecha_seleccionada %}
+<div class="rpi-tool-card rpi-tool-card--activo">
+    <div class="rpi-card-icon"><i class="{{ icono }}"></i></div>
+    <div class="rpi-card-details">
+        <p class="rpi-tool-name">{{ nombre }}</p>
+        <p class="rpi-tool-status"><span class="rpi-status-label">Estado:</span> <span class="rpi-status-value">Activo</span></p>
+        <a class="rpi-btn-modulo" href="{% url 'herramienta_opcional' proyecto_actual.id_proyectos clave %}?fecha={{ fecha_seleccionada }}&paso={{ paso_actual }}&volver={% if es_herramienta %}{{ url_volver|urlencode }}{% else %}{{ request.get_full_path|urlencode }}{% endif %}">Ir al modulo</a>
+    </div>
+</div>
+{% else %}
+<div class="rpi-tool-card blocked">
+    <div class="rpi-card-icon"><i class="{{ icono }}"></i></div>
+    <div class="rpi-card-details">
+        <p class="rpi-tool-name">{{ nombre }}</p>
+        <p class="rpi-tool-status"><span class="rpi-status-label">Estado:</span> <span class="rpi-status-value">Bloqueado</span></p>
+        <p class="rpi-tool-condition">{{ condicion }}</p>
+    </div>
+</div>
+{% endif %}

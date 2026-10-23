@@ -10,7 +10,7 @@ const cedulaInput = document.querySelector('[name="cedula"]');
 const cargoInput = document.querySelector('[name="cargo"]');
 
 // Campo del modo selección
-const empleadoSelect = document.querySelector('[name="empleado"]');
+const empleadoSelect = document.getElementById('empleado-valor');
 
 modoManual.addEventListener('change', () => {
     // Mostrar campos manuales
@@ -82,10 +82,61 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (subareas) {
                 subareas.style.display = areaCb.checked ? "block" : "none";
-                if (!areaCb.checked) {
-                    subareas.querySelectorAll("input[type='checkbox']").forEach(cb => cb.checked = false);
-                }
+                // Marcar el área selecciona todas sus subáreas y acciones; desmarcarla las limpia
+                subareas.querySelectorAll("input[type='checkbox']").forEach(cb => cb.checked = areaCb.checked);
             }
         });
+    });
+});
+
+
+// 🔹 Selector de empleado con buscador (una sola opción)
+document.addEventListener("DOMContentLoaded", () => {
+    const toggle = document.getElementById("empleado-toggle");
+    const dropdown = document.getElementById("empleado-dropdown");
+    const texto = document.getElementById("empleado-texto");
+    const valor = document.getElementById("empleado-valor");
+    const buscador = document.getElementById("empleado-busqueda");
+    const opciones = document.querySelectorAll(".empleado-opcion");
+    const form = document.querySelector("form.form");
+
+    if (!toggle || !dropdown) return;
+
+    toggle.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const abierto = dropdown.style.display === "block";
+        dropdown.style.display = abierto ? "none" : "block";
+        if (!abierto) buscador.focus();
+    });
+
+    buscador.addEventListener("click", (e) => e.stopPropagation());
+
+    buscador.addEventListener("input", () => {
+        const termino = buscador.value.toLowerCase().trim();
+        opciones.forEach(op => {
+            op.style.display = op.textContent.toLowerCase().includes(termino) ? "block" : "none";
+        });
+    });
+
+    opciones.forEach(op => {
+        op.addEventListener("click", () => {
+            opciones.forEach(o => o.classList.remove("seleccionado"));
+            op.classList.add("seleccionado");
+            valor.value = op.dataset.valor;
+            texto.textContent = op.textContent.trim();
+            dropdown.style.display = "none";
+        });
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!e.target.closest("#box-empleado")) dropdown.style.display = "none";
+    });
+
+    // El campo oculto no se valida solo: exigimos empleado en el modo "seleccionar de la lista"
+    form.addEventListener("submit", (e) => {
+        if (modoSeleccion.checked && !valor.value) {
+            e.preventDefault();
+            alert("Selecciona un empleado de la lista.");
+        }
     });
 });

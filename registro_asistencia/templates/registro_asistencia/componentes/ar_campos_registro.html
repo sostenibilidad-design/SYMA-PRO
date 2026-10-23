@@ -1,0 +1,104 @@
+{% comment %}
+    Campos del registro de UN empleado en UN día: novedad y horario, comidas, salidas múltiples, horas históricas y comentario.
+    Los comparten «Actualizar registro» (modal_actualizar_registro.html) y el paso a paso de «Editar fecha de ingreso»
+    (modal_pasos_ingreso.html); su comportamiento lo da campos_registro.js. Va dentro de un <form>.
+
+    Recibe: novedad_actual (la novedad que aparece elegida), novedades, actividades, tipos_horas, max_historicas y
+    comidas [(clave, nombre, (inicio, fin) o None)]. Para editar un registro que ya existe, además: registro,
+    multiples, pendientes y deducir. Sin `registro` los campos salen vacíos.
+    Sin ids: en el paso a paso hay un formulario por cada día en la misma página. Cada botón «Añadir» lleva justo
+    después el <template> con el molde de su fila (campos_registro.js lo clona).
+{% endcomment %}
+
+<section class="ar-seccion">
+    <h3>Novedad y horario</h3>
+    <label class="ar-campo">Novedad
+        <select name="novedad">
+            {% for valor, nombre in novedades %}
+                <option value="{{ valor }}" {% if valor == novedad_actual %}selected{% endif %}>{{ nombre }}</option>
+            {% endfor %}
+        </select>
+    </label>
+
+    <div class="ar-solo-asistencia">
+        <div class="ar-dos">
+            <label class="ar-campo">Hora de ingreso
+                <input type="time" name="hora_inicio" value="{{ registro.hora_inicio|time:'H:i' }}">
+            </label>
+            <label class="ar-campo">Hora de salida
+                <input type="time" name="hora_fin" value="{{ registro.hora_fin|time:'H:i' }}">
+            </label>
+        </div>
+        <label class="ar-campo">Actividad
+            <select name="actividad">
+                <option value="">Sin actividad asignada</option>
+                {% for act in actividades %}
+                    <option value="{{ act }}" {% if act == registro.actividad %}selected{% endif %}>{{ act }}</option>
+                {% endfor %}
+            </select>
+        </label>
+    </div>
+</section>
+
+<section class="ar-seccion ar-solo-asistencia">
+    <h3>Comidas</h3>
+    <p class="ar-ayuda">
+        Estas son las comidas que se descuentan del turno. Cambia el horario si fue distinto,
+        o <strong>borra las dos horas</strong> de una comida si no la tomó (no se descuenta).
+        Al cambiar la hora de ingreso o de salida se rellena el horario habitual, salvo en las comidas que ya editaste.
+    </p>
+    {% for clave, nombre, comida in comidas %}
+        <div class="ar-fila ar-fila-comida" data-tipo="{{ clave }}">
+            <span class="ar-etiqueta">{{ nombre }}</span>
+            <input type="time" name="comida_{{ clave }}_inicio" value="{{ comida.0|time:'H:i' }}" aria-label="{{ nombre }}: inicio">
+            <span>a</span>
+            <input type="time" name="comida_{{ clave }}_fin" value="{{ comida.1|time:'H:i' }}" aria-label="{{ nombre }}: fin">
+            <button type="button" class="ar-quitar" title="No la tomó: borrar horas" aria-label="Borrar horas de {{ nombre }}"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+    {% endfor %}
+</section>
+
+<section class="ar-seccion ar-solo-asistencia ar-multiples">
+    <h3>Entradas y salidas múltiples</h3>
+    <p class="ar-ayuda">Salidas temporales dentro del turno (después del ingreso y antes de la salida).</p>
+    <div class="ar-filas">
+        {% for m in multiples %}
+            {% include "registro_asistencia/componentes/ar_fila_multiple.html" with salida=m.hora_de_salida_multiple ingreso=m.hora_de_ingreso_multiple %}
+        {% endfor %}
+    </div>
+    <button type="button" class="ar-anadir"><i class="fa-solid fa-plus"></i> Añadir salida</button>
+    <template>{% include "registro_asistencia/componentes/ar_fila_multiple.html" %}</template>
+</section>
+
+<section class="ar-seccion">
+    <h3>Horas históricas</h3>
+    <p class="ar-ayuda">Hasta {{ max_historicas }} por pestaña, sin repetir el tipo.</p>
+
+    <h4>A favor del empleado (pendientes)</h4>
+    <div class="ar-filas" data-prefijo="pend">
+        {% for h in pendientes %}
+            {% include "registro_asistencia/componentes/ar_fila_historica.html" with prefijo="pend" tipo=h.tipo_de_horas cantidad=h.cantidad_de_horas %}
+        {% endfor %}
+    </div>
+    <button type="button" class="ar-anadir" data-max="{{ max_historicas }}"><i class="fa-solid fa-plus"></i> Añadir hora a favor</button>
+    <template>{% include "registro_asistencia/componentes/ar_fila_historica.html" with prefijo="pend" %}</template>
+
+    <h4>A deducir (en contra)</h4>
+    <div class="ar-filas" data-prefijo="ded">
+        {% for h in deducir %}
+            {% include "registro_asistencia/componentes/ar_fila_historica.html" with prefijo="ded" tipo=h.tipo_de_horas cantidad=h.cantidad_de_horas %}
+        {% endfor %}
+    </div>
+    <button type="button" class="ar-anadir" data-max="{{ max_historicas }}"><i class="fa-solid fa-plus"></i> Añadir hora a deducir</button>
+    <template>{% include "registro_asistencia/componentes/ar_fila_historica.html" with prefijo="ded" %}</template>
+</section>
+
+<section class="ar-seccion">
+    <h3>Comentario</h3>
+    <label class="ar-campo">Comentario
+        <textarea name="comentario" rows="2">{{ registro.comentario|default:"" }}</textarea>
+    </label>
+    <label class="ar-campo">Enlace de soporte
+        <input type="url" name="link_del_comentario" value="{{ registro.link_del_comentario|default:'' }}" placeholder="https://...">
+    </label>
+</section>

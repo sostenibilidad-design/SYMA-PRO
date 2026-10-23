@@ -63,7 +63,7 @@
                                     <td><label for="usuario{{ item.id }}">{{ item.correo }}</label></td>
                                     <td><label for="usuario{{ item.id }}">
                                         {% for area in item.area_asignada|cut:" "|split:"," %}
-                                            {{ area }}<br>
+                                            {{ area|espaciar }}<br>
                                         {% endfor %}
                                     </label></td>
                                     <td><label for="usuario{{ item.id }}">{% for area, subareas in item.permisos.items %}
