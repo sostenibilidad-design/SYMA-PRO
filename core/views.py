@@ -218,8 +218,12 @@ class PasswordResetNoRedirectView(PasswordResetView):
 
             msg = EmailMultiAlternatives(subject, text_message, settings.DEFAULT_FROM_EMAIL, [correo])
             msg.attach_alternative(html_message, "text/html")
-            msg.send()
-            
+            try:
+                msg.send()
+            except Exception:
+                # Si el proveedor de correo falla se responde igual que siempre: un error distinto delataría qué correos existen.
+                logger.exception("No se pudo enviar el correo de recuperación de contraseña.")
+
         # Evita llamar a super().form_valid(form) para que no se envíe el correo duplicado
         return HttpResponseRedirect(self.get_success_url())
 
