@@ -161,6 +161,7 @@ if 'upstash' in CELERY_RESULT_BACKEND:
             "LOCATION": CELERY_RESULT_BACKEND,
             "OPTIONS": {
                 "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "IGNORE_EXCEPTIONS": True,   # si Redis no responde, el sitio sigue (solo se pierden los límites de intentos)
                 "CONNECTION_POOL_KWARGS": {
                     "ssl": True,
                     "ssl_cert_reqs": "none",

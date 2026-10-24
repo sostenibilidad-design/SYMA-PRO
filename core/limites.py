@@ -5,7 +5,7 @@ from django.core.cache import cache
 
 
 def intentos(clave):
-    return cache.get(clave, 0)
+    return cache.get(clave, 0) or 0   # con IGNORE_EXCEPTIONS una caída de Redis devuelve None
 
 
 def anotar(clave, ventana):
