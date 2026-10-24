@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% load static %}
+{% load dict_filters %}
+
+{% block title %}
+    Informe quincenal - SYMA PRO
+{% endblock %}
+
+{% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'css/tablas.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inria+Serif:wght@300;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'registro_asistencia/css/registro_niveles.css' %}">
+    <link rel="stylesheet" href="{% static 'registro_asistencia/css/informe_quincenal.css' %}">
+    <link rel="stylesheet" href="{% static 'css/modales_campos.css' %}">
+    <link rel="stylesheet" href="{% static 'registro_asistencia/css/actualizar_registro.css' %}">
+    <link rel="stylesheet" href="{% static 'registro_asistencia/css/avisos.css' %}">
+    <link rel="stylesheet" href="{% static 'registro_asistencia/css/fecha_ingreso.css' %}">
+{% endblock %}
+
+{% block iconos %}
+    {% if user|has_perm:"registro_asistencia,registro_asistencia,actualizar" %}
+    <button type="button" id="btn-fecha-ingreso" disabled title="Editar fecha de ingreso (solo empleados nuevos)"
+        aria-label="Editar fecha de ingreso" data-url-base="{{ url_fecha_ingreso }}"><span class="material-symbols-outlined">login</span></button>
+    {% endif %}
+    <a href="{{ url_descarga }}" id="btn-descarga" title="Descargar Excel del informe" aria-label="Descargar Excel del informe">
+        <span class="material-symbols-outlined">download</span>
+    </a>
+    <span class="rn-separador" aria-hidden="true"></span>
+    <a href="{{ url_volver }}" class="rn-volver" title="Devolverse" aria-label="Devolverse">
+        <span class="material-symbols-outlined">arrow_back</span>
+    </a>
+{% endblock %}
+
+{% block content %}
+    <h2 class="titulo-seccion rn-titulo">Informe quincenal</h2>
+
+    <nav aria-label="Ubicación">
+        <ol class="rn-migas">
+            {% for miga in migas %}
+                {% if not forloop.first %}
+                    <li class="rn-migas__sep" aria-hidden="true"><span class="material-symbols-outlined">chevron_right</span></li>
+                {% endif %}
+                {% if forloop.last %}
+                    <li><span class="rn-migas__actual" aria-current="page">{{ miga.nombre }}</span></li>
+                {% else %}
+                    <li><a href="{{ miga.url }}" class="rn-migas__link">{{ miga.nombre }}</a></li>
+                {% endif %}
+            {% endfor %}
+        </ol>
+    </nav>
+
+    <p class="inf-subtitulo">{{ proyecto_actual.nombre }} · {{ quincena_codigo }} · {{ rango }}</p>
+
+    <div class="tabla-contenedor-relativo">
+        <section class="tabla">
+            <div class="tabla-scroll-wrapper">
+                <table class="inf-tabla">
+                    <thead>
+                        <tr>
+                            <th rowspan="2">Nombre del empleado</th>
+                            <th rowspan="2">Horas base de la quincena <small>horas</small></th>
+                            <th rowspan="2">Horas laborales totales <small>horas</small></th>
+                            <th rowspan="2">Extra ordinaria diurna <small>horas</small></th>
+                            <th rowspan="2">Extra nocturna ordinaria <small>horas</small></th>
+                            <th rowspan="2">Extra dominical / festiva diurna <small>horas</small></th>
+                            <th rowspan="2">Extra dominical / festiva nocturna <small>horas</small></th>
+                            <th rowspan="2">Ausentismo <small>días y fechas</small></th>
+                            <th rowspan="2">Licencias <small>días</small></th>
+                            <th rowspan="2">Asistencias <small>días</small></th>
+                            <th rowspan="2">Suspendido <small>días</small></th>
+                            <th rowspan="2">Descanso <small>días</small></th>
+                            <th rowspan="2">Vacaciones <small>días</small></th>
+                            <th colspan="2" class="inf-grupo">Permisos <small>días</small></th>
+                            <th colspan="2" class="inf-grupo">Incapacidades <small>días y rango</small></th>
+                            <th rowspan="2">Retiro <small>días sin laborar</small></th>
+                            <th rowspan="2">Horas a deducir</th>
+                            <th rowspan="2">Novedades a deducir</th>
+                        </tr>
+                        <tr>
+                            <th>Remunerado</th>
+                            <th>No remunerado</th>
+                            <th>Accidente de trabajo</th>
+                            <th>Enfermedad general</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for f in filas %}
+                        <tr data-cedula="{{ f.empleado.pk }}"{% if f.ingreso_editable %} data-nuevo="1"{% endif %}>
+                            {# Verde: empleado nuevo. Rojo: empleado retirado (si fuera las dos cosas, manda el retiro). El color no va solo: el title lo explica #}
+                            <td class="inf-nombre{% if f.fecha_retiro %} inf-nombre--retirado{% elif f.fecha_ingreso %} inf-nombre--nuevo{% endif %}"
+                                {% if f.fecha_retiro %}title="Empleado retirado el {{ f.fecha_retiro|date:'d/m/Y' }}"{% elif f.fecha_ingreso %}title="Empleado nuevo: su ingreso fue el {{ f.fecha_ingreso|date:'d/m/Y' }}"{% endif %}>
+                                {{ f.empleado.nombre_completo }}
+                                {% if not f.cuadra %}
+                                    <span class="material-symbols-outlined inf-alerta" title="Las horas no cuadran con el umbral quincenal: revisa los registros de este empleado.">warning</span>
+                                {% endif %}
+                            </td>
+                            <td class="inf-num{% if not f.horas_base %} inf-cero{% endif %}">{{ f.horas_base|floatformat:2 }}</td>
+                            <td class="inf-num{% if not f.horas_totales %} inf-cero{% endif %}">{{ f.horas_totales|floatformat:2 }}</td>
+                            <td class="inf-num{% if not f.heo %} inf-cero{% endif %}">{{ f.heo|floatformat:2 }}</td>
+                            <td class="inf-num{% if not f.nocturna %} inf-cero{% endif %}">{{ f.nocturna|floatformat:2 }}</td>
+                            <td class="inf-num{% if not f.dom_diurna %} inf-cero{% endif %}">{{ f.dom_diurna|floatformat:2 }}</td>
+                            <td class="inf-num{% if not f.dom_nocturna %} inf-cero{% endif %}">{{ f.dom_nocturna|floatformat:2 }}</td>
+                            <td class="inf-texto inf-centro{% if not f.ausentismos %} inf-cero{% endif %}">
+                                <strong>{{ f.ausentismos }}</strong>
+                                {% if f.fechas_ausentismo %}<span>{{ f.fechas_ausentismo|join:", " }}</span>{% endif %}
+                            </td>
+                            <td class="inf-num{% if not f.licencias %} inf-cero{% endif %}">{{ f.licencias }}</td>
+                            <td class="inf-texto inf-centro{% if not f.asistencias %} inf-cero{% endif %}">
+                                <strong>{{ f.asistencias }}</strong>
+                                {% if f.fecha_ingreso %}
+                                    <span class="inf-nuevo" title="Su umbral cuenta solo los {{ f.dias_desde_ingreso }} días hábiles desde su primer registro hasta el final de la quincena ({{ f.umbral|floatformat:2 }} h).">Nuevo · ingreso {{ f.fecha_ingreso|date:'d/m/Y' }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="inf-num{% if not f.sanciones %} inf-cero{% endif %}">{{ f.sanciones }}</td>
+                            <td class="inf-num{% if not f.descansos %} inf-cero{% endif %}">{{ f.descansos }}</td>
+                            <td class="inf-num{% if not f.vacaciones %} inf-cero{% endif %}">{{ f.vacaciones }}</td>
+                            <td class="inf-num{% if not f.permisos_remunerados %} inf-cero{% endif %}">{{ f.permisos_remunerados }}</td>
+                            <td class="inf-num{% if not f.permisos_no_remunerados %} inf-cero{% endif %}">{{ f.permisos_no_remunerados }}</td>
+                            <td class="inf-texto inf-centro{% if not f.inc_laboral %} inf-cero{% endif %}">
+                                <strong>{{ f.inc_laboral }}</strong>
+                                {% for r in f.rangos_inc_laboral %}<span>{{ r }}</span>{% endfor %}
+                            </td>
+                            <td class="inf-texto inf-centro{% if not f.inc_general %} inf-cero{% endif %}">
+                                <strong>{{ f.inc_general }}</strong>
+                                {% for r in f.rangos_inc_general %}<span>{{ r }}</span>{% endfor %}
+                            </td>
+                            <td class="inf-texto inf-centro{% if not f.dias_retiro %} inf-cero{% endif %}">
+                                <strong>{{ f.dias_retiro }}</strong>
+                                {% if f.fecha_retiro %}<span>Retiro: {{ f.fecha_retiro|date:'d/m/Y' }}</span>{% endif %}
+                            </td>
+                            <td class="inf-num{% if not f.horas_deducir %} inf-cero{% else %} inf-deducir{% endif %}">{{ f.horas_deducir|floatformat:2 }}</td>
+                            <td class="inf-texto">
+                                {% for n in f.novedades_deducir %}<span>{{ n }}</span>{% empty %}<span class="inf-cero">--</span>{% endfor %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="20" class="rn-vacio">Esta quincena no tiene registros guardados.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    {% if filas %}
+                    <tfoot>
+                        <tr>
+                            {# Un total por cada columna con números, en el mismo orden de la tabla; «Novedades a deducir» es texto y no suma #}
+                            <td class="inf-nombre">Total</td>
+                            <td class="inf-num">{{ totales.horas_base|floatformat:2 }}</td>
+                            <td class="inf-num">{{ totales.horas_totales|floatformat:2 }}</td>
+                            <td class="inf-num">{{ totales.heo|floatformat:2 }}</td>
+                            <td class="inf-num">{{ totales.nocturna|floatformat:2 }}</td>
+                            <td class="inf-num">{{ totales.dom_diurna|floatformat:2 }}</td>
+                            <td class="inf-num">{{ totales.dom_nocturna|floatformat:2 }}</td>
+                            <td class="inf-num">{{ totales.ausentismos }}</td>
+                            <td class="inf-num">{{ totales.licencias }}</td>
+                            <td class="inf-num">{{ totales.asistencias }}</td>
+                            <td class="inf-num">{{ totales.sanciones }}</td>
+                            <td class="inf-num">{{ totales.descansos }}</td>
+                            <td class="inf-num">{{ totales.vacaciones }}</td>
+                            <td class="inf-num">{{ totales.permisos_remunerados }}</td>
+                            <td class="inf-num">{{ totales.permisos_no_remunerados }}</td>
+                            <td class="inf-num">{{ totales.inc_laboral }}</td>
+                            <td class="inf-num">{{ totales.inc_general }}</td>
+                            <td class="inf-num">{{ totales.dias_retiro }}</td>
+                            <td class="inf-num">{{ totales.horas_deducir|floatformat:2 }}</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                    {% endif %}
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Los modales de «Editar fecha de ingreso» se cargan aquí; el formulario solo guarda el token CSRF para los POST -->
+    <div id="modal-container"></div>
+    <form id="fi-csrf" hidden>{% csrf_token %}</form>
+
+    <script>
+        (function () {
+            const tabla = document.querySelector('.inf-tabla');
+            if (!tabla) return;
+
+            // La segunda fila del encabezado se pega debajo de la primera, sea cual sea su alto
+            function ajustarEncabezado() {
+                const fila = tabla.querySelector('thead tr');
+                if (fila) tabla.style.setProperty('--inf-alto-encabezado', fila.getBoundingClientRect().height + 'px');
+            }
+            ajustarEncabezado();
+            window.addEventListener('resize', ajustarEncabezado);
+
+            // Clic en una fila para marcarla o desmarcarla (se pueden marcar varias)
+            tabla.querySelectorAll('tbody tr').forEach(fila => {
+                fila.addEventListener('click', () => fila.classList.toggle('inf-fila-sel'));
+            });
+        })();
+    </script>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'js/init_global.js' %}"></script>
+    <script src="{% static 'js/modales_campos.js' %}"></script>
+    <script src="{% static 'registro_asistencia/js/avisos.js' %}"></script>
+    <script src="{% static 'registro_asistencia/js/campos_registro.js' %}"></script>
+    <script src="{% static 'registro_asistencia/js/fecha_ingreso.js' %}"></script>
+    <script src="{% static 'registro_asistencia/js/fecha_ingreso_animaciones.js' %}"></script>
+{% endblock %}

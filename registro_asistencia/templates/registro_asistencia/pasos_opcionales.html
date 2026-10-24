@@ -1,0 +1,384 @@
+{% extends "registro_asistencia/registro_maestro.html" %}
+{% load static %}
+
+{% comment %}
+    Una sola plantilla para las 4 herramientas opcionales.
+    La vista manda "herramienta" = "comidas" | "multiples" | "comentarios" | "historicas"
+    y aquí se muestra solo esa parte.
+{% endcomment %}
+
+{% block custom_styles %}
+    <link rel="stylesheet" href="{% static 'registro_asistencia/css/pasos_opcionales.css' %}">
+{% endblock %}
+
+{% block footer_buttons %}
+    <input type="hidden" name="volver" value="{{ url_volver }}">
+    <button type="submit" class="btn-siguiente" style="display: flex; align-items: center; justify-content: center; gap: 5px;">
+        Guardar y volver <span class="material-symbols-outlined" style="font-size: 24px; font-weight: 300;">arrow_back</span>
+    </button>
+    <a href="{{ url_volver }}" class="btn-cancelar" style="text-decoration: none;">Cancelar</a>
+{% endblock %}
+
+{% block contenido_derecho %}
+    {% if errores %}
+        <p class="rc-error">{% for e in errores %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</p>
+    {% endif %}
+
+    {% if herramienta == "comidas" %}
+    {# ================= COMIDAS ================= #}
+        <p class="rp-subtitle">Cada empleado ya cuenta con su hora de comida habitual del proyecto. Habilita una comida solo para asignar una excepción.</p>
+
+        <div class="rc-columnas" id="rc-gestion-comidas">
+
+            <!-- DESAYUNO -->
+            <section class="rc-comida rc-comida--off" data-comida="desayuno">
+                <h4 class="rc-comida__titulo">
+                    <span class="material-symbols-outlined">wb_twilight</span>
+                    Desayuno
+                </h4>
+
+                <label class="rc-switch">
+                    <input type="checkbox" class="rc-switch__input" id="rc-on-desayuno">
+                    <span class="rc-switch__pista"></span>
+                    Habilitar Desayuno
+                </label>
+
+                <span class="rc-comida__label">Hora de inicio:</span>
+                <div class="rc-reloj" data-campo="inicio">
+                    <div class="rc-reloj__par">
+                        <span class="rc-digito" data-pos="0" tabindex="0">0</span>
+                        <span class="rc-digito" data-pos="1" tabindex="0">6</span>
+                    </div>
+                    <span class="rc-reloj__separador">:</span>
+                    <div class="rc-reloj__par">
+                        <span class="rc-digito" data-pos="2" tabindex="0">3</span>
+                        <span class="rc-digito" data-pos="3" tabindex="0">0</span>
+                    </div>
+                    <div class="rc-ampm">
+                        <button type="button" class="rc-ampm__btn active" data-value="AM">A.M</button>
+                        <button type="button" class="rc-ampm__btn" data-value="PM">P.M</button>
+                    </div>
+                </div>
+
+                <span class="rc-comida__label">Hora de finalización:</span>
+                <div class="rc-reloj" data-campo="fin">
+                    <div class="rc-reloj__par">
+                        <span class="rc-digito" data-pos="0" tabindex="0">0</span>
+                        <span class="rc-digito" data-pos="1" tabindex="0">6</span>
+                    </div>
+                    <span class="rc-reloj__separador">:</span>
+                    <div class="rc-reloj__par">
+                        <span class="rc-digito" data-pos="2" tabindex="0">5</span>
+                        <span class="rc-digito" data-pos="3" tabindex="0">0</span>
+                    </div>
+                    <div class="rc-ampm">
+                        <button type="button" class="rc-ampm__btn active" data-value="AM">A.M</button>
+                        <button type="button" class="rc-ampm__btn" data-value="PM">P.M</button>
+                    </div>
+                </div>
+
+                <button type="button" class="rc-btn-asignar" disabled>Asignar</button>
+            </section>
+
+            <!-- ALMUERZO -->
+            <section class="rc-comida rc-comida--off" data-comida="almuerzo">
+                <h4 class="rc-comida__titulo">
+                    <span class="material-symbols-outlined">restaurant</span>
+                    Almuerzo
+                </h4>
+
+                <label class="rc-switch">
+                    <input type="checkbox" class="rc-switch__input" id="rc-on-almuerzo">
+                    <span class="rc-switch__pista"></span>
+                    Habilitar Almuerzo
+                </label>
+
+                <span class="rc-comida__label">Hora de inicio:</span>
+                <div class="rc-reloj" data-campo="inicio">
+                    <div class="rc-reloj__par">
+                        <span class="rc-digito" data-pos="0" tabindex="0">1</span>
+                        <span class="rc-digito" data-pos="1" tabindex="0">2</span>
+                    </div>
+                    <span class="rc-reloj__separador">:</span>
+                    <div class="rc-reloj__par">
+                        <span class="rc-digito" data-pos="2" tabindex="0">0</span>
+                        <span class="rc-digito" data-pos="3" tabindex="0">0</span>
+                    </div>
+                    <div class="rc-ampm">
+                        <button type="button" class="rc-ampm__btn" data-value="AM">A.M</button>
+                        <button type="button" class="rc-ampm__btn active" data-value="PM">P.M</button>
+                    </div>
+                </div>
+
+                <span class="rc-comida__label">Hora de finalización:</span>
+                <div class="rc-reloj" data-campo="fin">
+                    <div class="rc-reloj__par">
+                        <span class="rc-digito" data-pos="0" tabindex="0">1</span>
+                        <span class="rc-digito" data-pos="1" tabindex="0">2</span>
+                    </div>
+                    <span class="rc-reloj__separador">:</span>
+                    <div class="rc-reloj__par">
+                        <span class="rc-digito" data-pos="2" tabindex="0">4</span>
+                        <span class="rc-digito" data-pos="3" tabindex="0">5</span>
+                    </div>
+                    <div class="rc-ampm">
+                        <button type="button" class="rc-ampm__btn" data-value="AM">A.M</button>
+                        <button type="button" class="rc-ampm__btn active" data-value="PM">P.M</button>
+                    </div>
+                </div>
+
+                <button type="button" class="rc-btn-asignar" disabled>Asignar</button>
+            </section>
+
+            <!-- CENA -->
+            <section class="rc-comida rc-comida--off" data-comida="cena">
+                <h4 class="rc-comida__titulo">
+                    <span class="material-symbols-outlined">dark_mode</span>
+                    Cena
+                </h4>
+
+                <label class="rc-switch">
+                    <input type="checkbox" class="rc-switch__input" id="rc-on-cena">
+                    <span class="rc-switch__pista"></span>
+                    Habilitar Cena
+                </label>
+
+                <span class="rc-comida__label">Hora de inicio:</span>
+                <div class="rc-reloj" data-campo="inicio">
+                    <div class="rc-reloj__par">
+                        <span class="rc-digito" data-pos="0" tabindex="0">0</span>
+                        <span class="rc-digito" data-pos="1" tabindex="0">6</span>
+                    </div>
+                    <span class="rc-reloj__separador">:</span>
+                    <div class="rc-reloj__par">
+                        <span class="rc-digito" data-pos="2" tabindex="0">3</span>
+                        <span class="rc-digito" data-pos="3" tabindex="0">0</span>
+                    </div>
+                    <div class="rc-ampm">
+                        <button type="button" class="rc-ampm__btn" data-value="AM">A.M</button>
+                        <button type="button" class="rc-ampm__btn active" data-value="PM">P.M</button>
+                    </div>
+                </div>
+
+                <span class="rc-comida__label">Hora de finalización:</span>
+                <div class="rc-reloj" data-campo="fin">
+                    <div class="rc-reloj__par">
+                        <span class="rc-digito" data-pos="0" tabindex="0">0</span>
+                        <span class="rc-digito" data-pos="1" tabindex="0">7</span>
+                    </div>
+                    <span class="rc-reloj__separador">:</span>
+                    <div class="rc-reloj__par">
+                        <span class="rc-digito" data-pos="2" tabindex="0">0</span>
+                        <span class="rc-digito" data-pos="3" tabindex="0">0</span>
+                    </div>
+                    <div class="rc-ampm">
+                        <button type="button" class="rc-ampm__btn" data-value="AM">A.M</button>
+                        <button type="button" class="rc-ampm__btn active" data-value="PM">P.M</button>
+                    </div>
+                </div>
+
+                <button type="button" class="rc-btn-asignar" disabled>Asignar</button>
+            </section>
+        </div>
+
+        <p class="rc-error" id="rc-error" hidden></p>
+
+    {% elif herramienta == "multiples" %}
+    {# ================= ENTRADAS Y SALIDAS MÚLTIPLES ================= #}
+        <div class="rm-multiples" id="rm-multiples">
+
+            <!-- Encabezados: una columna para la salida y otra para el ingreso -->
+            <div class="rm-encabezado">
+                <h4 class="rm-titulo">
+                    <span class="material-symbols-outlined">logout</span>
+                    Hora de salida
+                </h4>
+                <h4 class="rm-titulo rm-titulo--ingreso">
+                    <span class="material-symbols-outlined">login</span>
+                    Hora de ingreso
+                </h4>
+            </div>
+
+            <!-- Cada fila es un par: salida (izquierda) e ingreso (derecha).
+                "Añadir más" clona la plantilla de abajo con JavaScript. -->
+            <div class="rm-pares" id="rm-pares">
+                <div class="rm-par" data-par="1">
+                    <div class="rm-celda">
+                        <span class="rm-num">1</span>
+                        <div class="rc-reloj" data-campo="salida">
+                            <div class="rc-reloj__par">
+                                <span class="rc-digito" data-pos="0" tabindex="0">1</span>
+                                <span class="rc-digito" data-pos="1" tabindex="0">0</span>
+                            </div>
+                            <span class="rc-reloj__separador">:</span>
+                            <div class="rc-reloj__par">
+                                <span class="rc-digito" data-pos="2" tabindex="0">0</span>
+                                <span class="rc-digito" data-pos="3" tabindex="0">0</span>
+                            </div>
+                            <div class="rc-ampm">
+                                <button type="button" class="rc-ampm__btn active" data-value="AM">A.M</button>
+                                <button type="button" class="rc-ampm__btn" data-value="PM">P.M</button>
+                            </div>
+                        </div>
+                        <input type="hidden" name="hora_de_salida_multiple" value="10:00">
+                    </div>
+
+                    <div class="rm-celda rm-celda--ingreso">
+                        <span class="rm-num">1</span>
+                        <div class="rc-reloj" data-campo="ingreso">
+                            <div class="rc-reloj__par">
+                                <span class="rc-digito" data-pos="0" tabindex="0">1</span>
+                                <span class="rc-digito" data-pos="1" tabindex="0">0</span>
+                            </div>
+                            <span class="rc-reloj__separador">:</span>
+                            <div class="rc-reloj__par">
+                                <span class="rc-digito" data-pos="2" tabindex="0">3</span>
+                                <span class="rc-digito" data-pos="3" tabindex="0">0</span>
+                            </div>
+                            <div class="rc-ampm">
+                                <button type="button" class="rc-ampm__btn active" data-value="AM">A.M</button>
+                                <button type="button" class="rc-ampm__btn" data-value="PM">P.M</button>
+                            </div>
+                        </div>
+                        <input type="hidden" name="hora_de_ingreso_multiple" value="10:30">
+                        <!-- El primer par no se puede borrar: la caneca solo aparece desde el par 2 -->
+                        <button type="button" class="rm-quitar" aria-label="Quitar par" hidden>
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Un solo par de botones, centrado debajo de las dos columnas -->
+            <div class="rm-acciones">
+                <button type="button" class="rm-btn-gris" id="rm-anadir">Añadir más</button>
+                <button type="button" class="rc-btn-asignar" id="rm-asignar">Asignar</button>
+            </div>
+
+            <p class="rc-error" id="rm-error" hidden></p>
+        </div>
+
+    {% elif herramienta == "comentarios" %}
+    {# ================= COMENTARIOS ================= #}
+        <h4 class="rco-titulo">
+            <span class="material-symbols-outlined">chat</span>
+            Añadir comentarios individuales
+        </h4>
+        <p class="rp-subtitle">Selecciona a los empleados en la lista: aparece una caja de comentario por cada uno. Se guarda mientras escribes.</p>
+
+        <div class="rco-lista" id="rco-lista">
+            <p class="rco-vacio" id="rco-vacio">Selecciona uno o más empleados para escribir su comentario.</p>
+        </div>
+        <p class="rc-error" id="rco-error" hidden></p>
+
+        <!-- Plantilla de una caja de comentario: JavaScript la copia una vez por cada empleado seleccionado -->
+        <template id="rco-plantilla">
+            <div class="rco-item">
+                <h5 class="rco-nombre"></h5>
+                <div class="rco-caja">
+                    <textarea class="rco-texto" rows="2" placeholder="Escribe un comentario individual..."></textarea>
+
+                    <!-- <details> abre y cierra el campo del link sin JavaScript -->
+                    <details class="rco-link">
+                        <summary class="rco-link__btn">
+                            <span class="material-symbols-outlined">link</span>
+                            Link
+                        </summary>
+                        <input type="url" class="rco-link__input" maxlength="500" placeholder="https://… (enlace de soporte, opcional)">
+                    </details>
+                </div>
+            </div>
+        </template>
+
+        <!-- Aquí JavaScript crea los campos ocultos (comentario_ID y link_del_comentario_ID) que viajan al guardar -->
+        <div id="rco-ocultos"></div>
+
+    {% elif herramienta == "historicas" %}
+    {# ================= HORAS HISTÓRICAS ================= #}
+        <div class="rh-historicas" id="rh-historicas">
+
+            <!-- Pestañas sin JavaScript: dos radios ocultos + labels.
+                    El CSS muestra el panel cuyo radio esté marcado. -->
+            <input type="radio" name="rh_pestana" value="pendientes" id="rh-tab-pend" class="rh-tab-input" checked>
+            <input type="radio" name="rh_pestana" value="deducir" id="rh-tab-ded" class="rh-tab-input">
+
+            <div class="rh-tabs">
+                <label for="rh-tab-pend" class="rh-tab rh-tab--pend">Horas pendientes</label>
+                <label for="rh-tab-ded" class="rh-tab rh-tab--ded">Horas a deducir</label>
+            </div>
+
+            <!-- Cada panel recibe una tarjeta por cada empleado marcado en la lista -->
+            <div class="rh-panel rh-panel--pend" data-tab="pendientes">
+                <div class="rh-lista"></div>
+                <p class="rh-vacio">Selecciona uno o más empleados para asignarles horas pendientes.</p>
+            </div>
+
+            <div class="rh-panel rh-panel--ded" data-tab="deducir">
+                <div class="rh-lista"></div>
+                <p class="rh-vacio">Selecciona uno o más empleados para asignarles horas a deducir.</p>
+            </div>
+
+            <!-- Plantilla de una tarjeta: JavaScript la copia por empleado y por pestaña.
+                    Los campos no llevan name: JavaScript genera los campos ocultos que viajan al guardar. -->
+            <template id="rh-plantilla">
+                <div class="rh-card">
+                    <header class="rh-card__cabeza">
+                        <h5 class="rh-nombre"></h5>
+                        <div class="rh-cupo">
+                            <span>1 de 4 permitidos</span>
+                            <div class="rh-cupo__barra"><i class="rh-lleno"></i><i></i><i></i><i></i></div>
+                        </div>
+                    </header>
+
+                    <fieldset class="rh-bloques">
+                        <legend>Tipo de hora</legend>
+                        <div class="rh-bloque">
+                            <select class="rh-select" aria-label="Tipo de hora">
+                                {% for valor, texto in tipos_horas %}
+                                <option value="{{ valor }}">{{ texto }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="rh-cantidad">
+                                <input type="number" min="0" max="24" step="0.25" value="0.00" aria-label="Cantidad de horas">
+                                <div class="rh-flechas">
+                                    <button type="button" data-paso="0.25" aria-label="Subir"><span class="material-symbols-outlined">arrow_drop_up</span></button>
+                                    <button type="button" data-paso="-0.25" aria-label="Bajar"><span class="material-symbols-outlined">arrow_drop_down</span></button>
+                                </div>
+                            </div>
+                            <button type="button" class="rh-quitar" aria-label="Quitar hora"><span class="material-symbols-outlined">delete</span></button>
+                        </div>
+                    </fieldset>
+
+                    <p class="rc-error rh-error" hidden></p>
+
+                    <div class="rh-anadir">
+                        <button type="button" class="rh-anadir__btn">
+                            Añadir hora <span class="material-symbols-outlined">add</span>
+                        </button>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Aquí JavaScript crea los campos ocultos (pend_/ded_ tipo y cantidad por empleado) que viajan al guardar -->
+            <div id="rh-ocultos"></div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block custom_scripts %}
+    <script src="{% static 'registro_asistencia/js/reloj_pequeno.js' %}"></script>
+    {% if herramienta == "comidas" %}
+        {{ comidas_guardadas|json_script:"rc-guardadas" }}
+        <script src="{% static 'registro_asistencia/js/gestion_comidas.js' %}"></script>
+    {% elif herramienta == "multiples" %}
+        {{ multiples_guardadas|json_script:"rm-guardadas" }}
+        {{ principales|json_script:"rm-principales" }}
+        <script src="{% static 'registro_asistencia/js/entradas_multiples.js' %}"></script>
+    {% elif herramienta == "comentarios" %}
+        {{ comentarios_guardadas|json_script:"rco-guardadas" }}
+        <script src="{% static 'registro_asistencia/js/comentarios_opcionales.js' %}"></script>
+    {% elif herramienta == "historicas" %}
+        {{ historicas_guardadas|json_script:"rh-guardadas" }}
+        <script src="{% static 'registro_asistencia/js/horas_historicas.js' %}"></script>
+    {% endif %}
+{% endblock %}

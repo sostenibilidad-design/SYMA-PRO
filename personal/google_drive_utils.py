@@ -167,7 +167,7 @@ def extraer_valores_hora(df: pd.DataFrame) -> Dict[str, Decimal]:
 
 
 # FUNCIÓN PRINCIPAL
-def fetch_and_store_empleados(root_folder_id: str):
+def fetch_and_store_empleados(root_folder_id: str, modulo: str = "medicion") -> str:
 
     service = get_drive_service()
     today = datetime.today()
@@ -249,7 +249,7 @@ def fetch_and_store_empleados(root_folder_id: str):
                     cuadrilla=valor_cuadrilla
                 )
                 nuevos_count += 1
-                print(f"✨ [NUEVO] Empleado creado: {valor_nombre} (CC: {cedula_limpia})")
+                print(f" [NUEVO] Empleado nuevo creado")
             else:
                 # 🟨 CASO 2: Ya existe, verificamos si cambió ALGUN dato en el Excel
                 hubo_cambio = (
@@ -262,7 +262,7 @@ def fetch_and_store_empleados(root_folder_id: str):
                 
                 if hubo_cambio:
                     # Registramos qué cambió exactamente para los logs internos
-                    print(f"🔄 [ACTUALIZACIÓN] Detectados cambios para CC: {cedula_limpia}")
+                    print(f" [ACTUALIZACIÓN] Detectados cambios en un empleado")
                     
                     empleado_db.nombre_completo = valor_nombre
                     empleado_db.cargo = valor_cargo

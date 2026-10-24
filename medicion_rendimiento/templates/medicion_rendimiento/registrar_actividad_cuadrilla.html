@@ -13,10 +13,10 @@
                     <strong id="texto-actividad-seleccionada">Seleccione una actividad</strong>
                 </div>
 
-                <div class="contenido-funcionalidades dropdown" id="dropdown-actividad" style="display: none;">
+                <div class="contenido-funcionalidades dropdown" id="dropdown-actividad" style="display: none; overflow: hidden; max-height: none;">
                     <input type="text" id="busqueda-actividad" class="input-busqueda-empleado" placeholder="Buscar actividad...">
 
-                    <div class="lista-actividades" style="max-height: 200px; overflow-y: auto;"> 
+                    <div class="lista-actividades" style="max-height: 220px; overflow-y: auto;"> 
                         {% for c in Cumplimientos %}
                         <div class="area-item actividad-item">
                             <label class="area-label">

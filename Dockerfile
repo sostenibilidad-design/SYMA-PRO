@@ -31,7 +31,7 @@ COPY . /app/
 # 7. CRÍTICO: Recolectar estáticos. 
 # Esto toma todos los CSS de admin y tus apps y los pone en /app/staticFiles
 # Si no haces esto, Nginx no encuentra nada.
-RUN python manage.py collectstatic --noinput
+RUN SECRET_KEY=solo-para-el-build python manage.py collectstatic --noinput
 
 # 8. Dar permisos de ejecución al script de arranque
 RUN chmod +x /app/start.sh

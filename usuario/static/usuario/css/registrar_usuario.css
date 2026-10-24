@@ -110,6 +110,29 @@
     background-color: #94a82d;
 }
 
+.input-busqueda-empleado {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 8px;
+}
+
+.empleado-opcion {
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-family: 'Inria Serif', serif;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.empleado-opcion:hover {
+    background-color: rgba(163, 189, 49, 0.15);
+}
+
+.empleado-opcion.seleccionado {
+    background-color: #A3BD31;
+    color: #fff;
+}
+
 .dropdown {
     border-top: 1px solid #ccc;
     margin-top: 8px;

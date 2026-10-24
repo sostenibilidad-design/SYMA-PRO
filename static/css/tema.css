@@ -1,0 +1,347 @@
+/* === 1. TOKENS === */
+:root {
+    --syma-verde: #A3BD31;
+    --syma-verde-oscuro: #8AA62F;
+    --syma-naranja: #f5a623;
+
+    --syma-fondo: #fff;
+    --syma-superficie: #fff;
+    --syma-superficie-2: #f5f6f0;
+    --syma-texto: #222;
+    --syma-texto-suave: #666;
+    --syma-icono: #333;
+    --syma-borde: #988888;
+    --syma-borde-suave: #eef0f2;
+    --syma-linea: #d9dccf;
+    --syma-hover: #ddd;
+    --syma-sombra: rgba(0, 0, 0, 0.35);
+    --syma-sombra-suave: rgba(0, 0, 0, 0.08);
+    --syma-menu: #A3BD31;
+    color-scheme: light;
+}
+
+html[data-tema-activo="oscuro"] {
+    --syma-fondo: #14160f;
+    --syma-superficie: #1d2017;
+    --syma-superficie-2: #262a1f;
+    --syma-texto: #e9ebe0;
+    --syma-texto-suave: #a6aa98;
+    --syma-icono: #d9dccf;
+    --syma-borde: #4a5040;
+    --syma-borde-suave: #2f3427;
+    --syma-linea: #3a3f31;
+    --syma-hover: #2c3123;
+    --syma-sombra: rgba(0, 0, 0, 0.7);
+    --syma-sombra-suave: rgba(0, 0, 0, 0.45);
+    --syma-menu: #6f8222;
+    color-scheme: dark; /* barras de scroll, checkbox y campos nativos en oscuro */
+}
+
+/* === 2. BASE.CSS EN OSCURO === */
+html[data-tema-activo="oscuro"],
+html[data-tema-activo="oscuro"] body {
+    background: var(--syma-fondo);
+    color: var(--syma-texto);
+}
+
+html[data-tema-activo="oscuro"] .barra_navegacion {
+    background: var(--syma-superficie);
+    box-shadow: 0 0 20px #000;
+}
+
+html[data-tema-activo="oscuro"] .icono-hamburguesa,
+html[data-tema-activo="oscuro"] .iconos a,
+html[data-tema-activo="oscuro"] .iconos button,
+html[data-tema-activo="oscuro"] .iconos span,
+html[data-tema-activo="oscuro"] .iconos h2 {
+    color: var(--syma-icono);
+}
+
+/* El logo tiene letras grises: se aclara para que se lea sobre fondo oscuro.
+   Lo ideal es una versión del logo para fondo oscuro. */
+html[data-tema-activo="oscuro"] .logo-img {
+    filter: brightness(1.5);
+}
+
+/* Buscador: solo background-color para no borrar la lupa (background-image) */
+html[data-tema-activo="oscuro"] .syma-search__input {
+    background-color: var(--syma-superficie);
+    border-color: var(--syma-texto-suave);
+    color: var(--syma-texto);
+}
+
+html[data-tema-activo="oscuro"] .syma-search__list {
+    background: var(--syma-superficie);
+}
+
+html[data-tema-activo="oscuro"] .syma-search__list li {
+    color: var(--syma-texto);
+}
+
+html[data-tema-activo="oscuro"] .syma-search__list li small {
+    color: var(--syma-texto-suave);
+}
+
+html[data-tema-activo="oscuro"] .menu-hamburguesa {
+    background: var(--syma-menu);
+}
+
+html[data-tema-activo="oscuro"] .contenedor_principal {
+    background: var(--syma-superficie);
+    border-color: var(--syma-borde);
+    box-shadow: 0 0 18px var(--syma-sombra);
+}
+
+html[data-tema-activo="oscuro"] .tabla-botones .gris {
+    background-color: var(--syma-superficie);
+    color: var(--syma-texto);
+    border-color: var(--syma-texto-suave);
+}
+
+html[data-tema-activo="oscuro"] .tabla-botones a:hover {
+    background-color: var(--syma-superficie-2);
+    color: var(--syma-texto);
+}
+
+html[data-tema-activo="oscuro"] .descarga-menu .submenu-descarga {
+    background: var(--syma-superficie);
+    border-color: var(--syma-linea);
+}
+
+html[data-tema-activo="oscuro"] .descarga-menu .submenu-descarga button {
+    color: var(--syma-texto);
+}
+
+html[data-tema-activo="oscuro"] .modal-tabla-content,
+html[data-tema-activo="oscuro"] .modal-body-scroll {
+    background: var(--syma-superficie);
+}
+
+/* === 3. TABLAS.CSS EN OSCURO === */
+html[data-tema-activo="oscuro"] .tabla-scroll-wrapper,
+html[data-tema-activo="oscuro"] table {
+    background: var(--syma-superficie);
+    color: var(--syma-texto);
+}
+
+html[data-tema-activo="oscuro"] .tabla-scroll-wrapper {
+    border-color: var(--syma-borde);
+    box-shadow: 0 0 30px var(--syma-sombra);
+}
+
+html[data-tema-activo="oscuro"] td:not(:last-child) {
+    border-right-color: var(--syma-borde);
+}
+
+html[data-tema-activo="oscuro"] th,
+html[data-tema-activo="oscuro"] td:first-child {
+    border-left-color: var(--syma-linea);
+}
+
+html[data-tema-activo="oscuro"] tr:not(:last-child) th,
+html[data-tema-activo="oscuro"] tr:not(:last-child) td {
+    border-bottom-color: var(--syma-borde);
+}
+
+html[data-tema-activo="oscuro"] tbody tr:hover,
+html[data-tema-activo="oscuro"] tr:has(input[type="checkbox"]:checked) td {
+    background-color: var(--syma-hover);
+}
+
+/* === 4. HOME.CSS (VISTA PRINCIPAL) EN OSCURO === */
+html[data-tema-activo="oscuro"] .card {
+    background: var(--syma-superficie);
+    box-shadow: 0 8px 18px var(--syma-sombra-suave), 0 0 0 1px var(--syma-borde-suave);
+}
+
+html[data-tema-activo="oscuro"] .card h3,
+html[data-tema-activo="oscuro"] .value,
+html[data-tema-activo="oscuro"] .two-values .label,
+html[data-tema-activo="oscuro"] .two-values .big,
+html[data-tema-activo="oscuro"] .legend li,
+html[data-tema-activo="oscuro"] .alerts li {
+    color: var(--syma-texto);
+}
+
+html[data-tema-activo="oscuro"] .two-values .cuadrilla {
+    color: var(--syma-texto-suave);
+}
+
+html[data-tema-activo="oscuro"] .two-values::before {
+    background-color: var(--syma-texto-suave);
+}
+
+html[data-tema-activo="oscuro"] .materials .mat-row {
+    background: var(--syma-superficie-2);
+    color: var(--syma-texto);
+    box-shadow: 0 4px 12px var(--syma-sombra-suave), 0 0 0 1px var(--syma-borde-suave);
+}
+
+/* Las gráficas de ejemplo son PNG con fondo blanco: se redondean para que
+   no se vean como un hueco. Al cambiarlas por gráficas reales esto sobra. */
+html[data-tema-activo="oscuro"] .placeholder img {
+    border-radius: 12px;
+}
+
+/* === 5. VENTANA DE TEMA === */
+.tema-fondo {
+    position: fixed;
+    inset: 0;
+    z-index: 2000; /* por encima del header (z-index: 1000) */
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.45);
+}
+
+.tema-fondo[hidden] {
+    display: none;
+}
+
+.tema-modal {
+    position: relative;
+    width: min(440px, 100%);
+    padding: 22px 22px 18px;
+    border-radius: 20px;
+    background: var(--syma-superficie);
+    color: var(--syma-texto);
+    box-shadow: 0 18px 50px var(--syma-sombra);
+    font-family: sans-serif;
+}
+
+.tema-modal__titulo {
+    margin: 0 0 2px;
+    font-family: 'Inria Serif', serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--syma-naranja);
+}
+
+.tema-modal__sub {
+    margin: 0 0 16px;
+    font-size: 14px;
+    color: var(--syma-texto-suave);
+}
+
+.tema-modal__cerrar {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--syma-icono);
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.tema-modal__cerrar:hover {
+    background: var(--syma-superficie-2);
+}
+
+.tema-modal__grupo {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+/* Oculto a la vista pero leído por lectores de pantalla */
+.tema-oculto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+.tema-opciones {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.tema-opcion {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* El radio queda invisible pero sigue funcionando con teclado */
+.tema-opcion input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Miniatura: <i> es la barra superior y <b> una tarjeta */
+.tema-opcion__vista {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    display: grid;
+    grid-template-rows: 22% 1fr;
+    overflow: hidden;
+    border: 2px solid var(--syma-linea);
+    border-radius: 10px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tema-opcion__vista i,
+.tema-opcion__vista b {
+    display: block;
+}
+
+.tema-opcion__vista b {
+    margin: 10% 12%;
+    border-radius: 4px;
+    border-top: 3px solid var(--syma-verde);
+}
+
+.tema-opcion--claro .tema-opcion__vista { background: #f4f5ef; }
+.tema-opcion--claro .tema-opcion__vista i { background: #fff; border-bottom: 1px solid #ddd; }
+.tema-opcion--claro .tema-opcion__vista b { background: #fff; box-shadow: 0 0 0 1px #ddd; }
+
+.tema-opcion--oscuro .tema-opcion__vista { background: #14160f; }
+.tema-opcion--oscuro .tema-opcion__vista i { background: #1d2017; border-bottom: 1px solid #000; }
+.tema-opcion--oscuro .tema-opcion__vista b { background: #1d2017; box-shadow: 0 0 0 1px #33382b; }
+
+/* Sistema: mitad clara y mitad oscura en diagonal */
+.tema-opcion--sistema .tema-opcion__vista { background: linear-gradient(135deg, #f4f5ef 50%, #14160f 50%); }
+.tema-opcion--sistema .tema-opcion__vista i,
+.tema-opcion--sistema .tema-opcion__vista b { background: linear-gradient(135deg, #fff 50%, #1d2017 50%); }
+
+.tema-opcion input:checked + .tema-opcion__vista {
+    border-color: var(--syma-verde);
+    box-shadow: 0 0 0 3px rgba(163, 189, 49, 0.3);
+}
+
+.tema-opcion input:focus-visible + .tema-opcion__vista {
+    outline: 3px solid var(--syma-naranja);
+    outline-offset: 2px;
+}
+
+.tema-modal__nota {
+    margin: 14px 0 0;
+    font-size: 13px;
+    color: var(--syma-texto-suave);
+}
+
+/* Botón de tema activo mientras la ventana está abierta */
+.iconos #btn-tema[aria-expanded="true"] {
+    border-radius: 8px;
+    background: rgba(163, 189, 49, 0.18);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tema-opcion__vista {
+        transition: none;
+    }
+}

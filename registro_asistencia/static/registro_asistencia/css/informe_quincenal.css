@@ -1,0 +1,227 @@
+/* Informe quincenal: tabla de horas extra por tipo */
+.inf-subtitulo {
+    margin: -10px 0 18px;
+    text-align: center;
+    font-size: 17px;
+    color: #666;
+}
+
+.inf-tabla {
+    min-width: 2900px;
+}
+
+.inf-tabla th {
+    padding: 14px 18px;
+    font-size: 15px;
+    line-height: 1.3;
+}
+
+.inf-tabla th small {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    font-weight: normal;
+    opacity: 0.85;
+}
+
+.inf-tabla .inf-grupo {
+    text-align: center;
+}
+
+.inf-tabla td {
+    padding: 14px 18px;
+    font-size: 15px;
+    vertical-align: middle;
+}
+
+.inf-tabla .inf-nombre {
+    min-width: 240px;
+    text-align: left;
+    font-weight: bold;
+}
+
+.inf-tabla .inf-num {
+    min-width: 130px;
+    text-align: center;
+    font-size: 17px;
+    font-variant-numeric: tabular-nums;
+}
+
+.inf-tabla .inf-texto {
+    min-width: 240px;
+    text-align: left;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.inf-tabla .inf-texto span {
+    display: block;
+}
+
+.inf-tabla td.inf-centro {
+    min-width: 150px;
+    text-align: center;
+}
+
+.inf-tabla td.inf-centro strong {
+    display: block;
+    font-size: 17px;
+}
+
+.inf-tabla .inf-cero {
+    color: #aaa;
+}
+
+.inf-tabla .inf-deducir {
+    font-weight: bold;
+    color: #b3361f;
+}
+
+.inf-tabla .inf-alerta {
+    margin-left: 6px;
+    font-size: 20px;
+    vertical-align: middle;
+    color: #d68a00;
+    cursor: help;
+}
+
+/* Nombre del empleado: verde si es nuevo en la quincena y rojo si se retiró (el Excel usa los mismos colores) */
+table.inf-tabla tbody td.inf-nombre--nuevo {
+    color: #3d7a12;
+}
+
+table.inf-tabla tbody td.inf-nombre--retirado {
+    color: #a40a02;
+}
+
+/* Empleado nuevo en la quincena (umbral dinámico) */
+.inf-tabla .inf-nuevo {
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: #f1f5df;
+    color: #6d7f1f;
+    font-size: 12px;
+    font-weight: 700;
+    vertical-align: middle;
+    cursor: help;
+}
+
+.inf-tabla tfoot td {
+    border-top: 2px solid #A3BD31;
+    font-weight: bold;
+    background-color: #f6f8ea;
+}
+
+/* Resumen de actividades */
+.inf-tabla .inf-total-fila {
+    font-weight: 700;
+}
+
+.inf-nota {
+    margin-top: -6px;
+    font-size: 13px;
+    color: #777;
+}
+
+/* Encabezado de dos filas fijo: la segunda fila queda justo debajo de la primera */
+.inf-tabla thead tr:nth-child(2) th {
+    top: var(--inf-alto-encabezado, 78px);
+}
+
+/* Columna de nombres fija al desplazarse hacia los lados */
+.inf-tabla .inf-nombre,
+.inf-tabla thead th:first-child {
+    position: sticky;
+    left: 0;
+}
+
+.inf-tabla tbody .inf-nombre {
+    z-index: 5;
+    background: #fff;
+}
+
+.inf-tabla thead th:first-child {
+    z-index: 30;
+}
+
+.inf-tabla tfoot .inf-nombre {
+    z-index: 5;
+    background: #f6f8ea;
+}
+
+/* Filas que se pueden marcar para guiarse al leer */
+.inf-tabla tbody tr {
+    cursor: pointer;
+}
+
+.inf-tabla tbody tr:hover td {
+    background: #eef2da;
+}
+
+.inf-tabla tbody tr.inf-fila-sel td {
+    background: #d9e5a3;
+    font-weight: 600;
+}
+
+/* Líneas de división: con celdas fijas hay que dibujarlas en cada celda (border-collapse las pierde al desplazarse) */
+table.inf-tabla {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+table.inf-tabla thead th,
+table.inf-tabla tbody td,
+table.inf-tabla tfoot td {
+    border: none;
+    border-right: 1px solid #000;
+    border-bottom: 1px solid #000;
+}
+
+table.inf-tabla thead th {
+    padding: 10px 12px;
+    min-width: 110px;
+    font-size: 14px;
+    line-height: 1.25;
+    vertical-align: middle;
+    white-space: normal;
+    text-shadow: none;
+    border-right: 1px solid #000;
+    border-bottom: 1px solid #000;
+}
+
+table.inf-tabla thead th small {
+    margin-top: 3px;
+    font-size: 11px;
+    font-weight: normal;
+    opacity: 0.9;
+}
+
+/* Grupos (Permisos, Incapacidades): una línea más gruesa los separa de las demás columnas */
+table.inf-tabla thead th.inf-grupo {
+    font-size: 15px;
+    border-bottom: 2px solid #000;
+}
+
+/* Columna de nombres: línea gruesa a la derecha para que se note que queda fija */
+table.inf-tabla .inf-nombre {
+    border-right: 2px solid #000;
+}
+
+table.inf-tabla thead th:first-child {
+    min-width: 240px;
+}
+
+/* Resumen de actividades: tiene pocas columnas (no necesita el ancho del informe) y el nombre de la actividad baja de línea */
+table.inf-tabla.inf-tabla--resumen {
+    min-width: 0;
+}
+
+table.inf-tabla.inf-tabla--resumen .inf-nombre,
+table.inf-tabla.inf-tabla--resumen thead th:first-child {
+    width: 380px;
+    max-width: 380px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.35;
+}

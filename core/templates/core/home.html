@@ -20,6 +20,9 @@
         <h2 class="nombre">{{ request.user.primer_nombre }}</h2>
     {% endif %}
     <a href="#"><span class="material-symbols-outlined">account_circle</span></a>
+    <button type="button" id="btn-tema" data-abrir-tema title="Tema" aria-label="Tema" aria-haspopup="dialog" aria-expanded="false">
+        <span class="material-symbols-outlined" aria-hidden="true">contrast</span>
+    </button>
     <a href="#"><span class="material-symbols-outlined">notifications</span></a>
 {% endblock %}
 

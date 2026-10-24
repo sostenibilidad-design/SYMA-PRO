@@ -9,6 +9,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/tema.css' %}">
+    <script src="{% static 'js/tema.js' %}"></script>
     <link rel="icon" href="{% static 'img/icono.ico' %}" type="image/x-icon">
     {% block extra_styles %}{% endblock %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -53,19 +55,10 @@
                     <li><a href="{% url 'personal' %}"><i class="fa fa-users"></i> Personal</a></li>
                 {% endif %}
 
-                {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,ver" or user|has_perm:"medicion_rendimiento,medicion_individual,ver" %}
-                    <li class="submenu">
-                        <a href="#"><i class="fa fa-chart-line"></i> Medición de rendimiento <i class="fa fa-caret-down"></i></a>
-                        <ul class="submenu-items">
-                            {% if user|has_perm:"medicion_rendimiento,medicion_individual,ver" %}
-                                <li><a href="{% url 'medicion_individual' %}"><i class="fa fa-user"></i> Medición individual</a></li>
-                            {% endif %}
+                <li><a href="{% url 'selector_asistencia' %}"><i class="fa-solid fa-user-clock"></i>Registro de asistencia</a></li>
 
-                            {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,ver" %}
-                                <li><a href="{% url 'selector_rendimiento' %}"><i class="fa fa-people-group"></i> Medición por cuadrilla</a></li>
-                            {% endif %}
-                        </ul>
-                    </li>
+                {% if user|has_perm:"medicion_rendimiento,medicion_por_cuadrilla,ver" %}
+                    <li><a href="{% url 'selector_rendimiento' %}"><i class="fa fa-chart-line"></i> Medición de rendimiento</a></li>
                 {% endif %}
                 
                 {% if user|has_perm:"bitacora,cuaderno_bitacora,ver" %}
@@ -103,6 +96,8 @@
             <div class="modal-body-scroll" id="contenedorTablaClonada"></div>
         </div>
     </div>
+
+    {% include 'tema_modal.html' %}
 
     <script src="{% static 'js/seleccion_tabla.js' %}"></script>
 

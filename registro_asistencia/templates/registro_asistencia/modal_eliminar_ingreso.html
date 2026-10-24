@@ -1,0 +1,61 @@
+{% comment %}
+    Confirmación de «Editar fecha de ingreso» cuando la nueva fecha es POSTERIOR a la actual: se borran los registros
+    del empleado desde su ingreso actual hasta el día antes de la nueva fecha. No se puede deshacer.
+    El botón rojo solo se activa al marcar «Entiendo». Lo maneja fecha_ingreso.js.
+{% endcomment %}
+
+<div id="modal-eliminar-ingreso" class="modal-overlay" data-fi="eliminar"
+     data-url-eliminar="{{ url_eliminar }}"
+     data-nueva="{{ nueva|date:'Y-m-d' }}" data-actual="{{ actual|date:'Y-m-d' }}">
+    <div class="modal fi-modal fi-modal--eliminar" role="dialog" aria-modal="true" aria-labelledby="fi-titulo-eliminar">
+        <h2 class="titulo fi-titulo" id="fi-titulo-eliminar">Eliminar registros anteriores al nuevo ingreso</h2>
+
+        <p class="fi-aviso fi-aviso--peligro">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>
+                Se borrarán los registros de <strong>{{ empleado.nombre_completo }}</strong> desde el
+                <strong>{{ actual|date:"d/m/Y" }}</strong> hasta el día antes del <strong>{{ nueva_texto }}</strong>.
+                Esta acción <strong>no se puede deshacer</strong>.
+            </span>
+        </p>
+
+        {% if queda_distinta and queda_en %}
+            <p class="fi-aviso fi-aviso--info">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>El {{ nueva_texto }} no tiene registro de esta persona, así que su ingreso quedará en el siguiente día registrado: <strong>{{ queda_en }}</strong>.</span>
+            </p>
+        {% endif %}
+
+        <div class="fi-tabla-scroll">
+            <table class="fi-tabla">
+                <thead>
+                    <tr><th>Día</th><th>Novedad</th><th>Horario</th><th>Horas</th></tr>
+                </thead>
+                <tbody>
+                    {% for fila in filas %}
+                        <tr class="fi-tachado">
+                            <td>{{ fila.texto }}</td>
+                            <td>{{ fila.novedad }}</td>
+                            <td class="fi-num">{{ fila.horario }}</td>
+                            <td class="fi-num">{{ fila.horas|floatformat:2 }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <p class="ar-ayuda">Las carpetas de esos días siguen existiendo para los demás trabajadores: solo se borran los registros de esta persona.</p>
+
+        <label class="fi-entiendo">
+            <input type="checkbox" id="fi-entiendo">
+            <span>Entiendo que se borrarán {{ filas|length }} registro{{ filas|length|pluralize }} y que no se puede deshacer.</span>
+        </label>
+
+        <div class="ar-errores" id="fi-errores" role="alert" hidden></div>
+
+        <div class="botones">
+            <button type="button" class="btn-cancelar" id="fi-cancelar">Cancelar</button>
+            <button type="button" class="btn-guardar fi-btn-peligro" id="fi-eliminar" disabled>Eliminar registros</button>
+        </div>
+    </div>
+</div>

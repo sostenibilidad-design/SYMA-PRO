@@ -1,0 +1,71 @@
+{% extends "registro_asistencia/registro_maestro.html" %}
+{% load static %}
+
+{% block custom_styles %}
+    <link rel="stylesheet" href="{% static 'registro_asistencia/css/pasos.css' %}">
+{% endblock %}
+
+{% block contenido_derecho %}
+    <p class="rp-subtitle">Todos los trabajadores deberán tener una novedad asignada</p>
+    
+    <!-- Cuadrícula de Novedades (Usa la clase rp-novedades-grid definida en el CSS) -->
+    <div class="rp-novedades-grid">
+        
+        <div class="rp-novedad-card">
+            <div class="rp-novedad-header"><i class="fas fa-check"></i><span>Asistencia<br>normal</span></div>
+            <button type="button" class="rp-btn-asignar" data-novedad="asistencia_normal">Asignar</button>
+        </div>
+
+        <div class="rp-novedad-card">
+            <div class="rp-novedad-header"><i class="fas fa-user-times"></i><span>Ausentismo</span></div>
+            <button type="button" class="rp-btn-asignar" data-novedad="ausentismo">Asignar</button>
+        </div>
+
+        <div class="rp-novedad-card">
+            <div class="rp-novedad-header"><i class="fas fa-exclamation-circle"></i><span>Sanción</span></div>
+            <button type="button" class="rp-btn-asignar" data-novedad="sancion">Asignar</button>
+        </div>
+
+        <div class="rp-novedad-card">
+            <div class="rp-novedad-header"><i class="fas fa-user-injured"></i><span>Incapacidad<br>general</span></div>
+            <button type="button" class="rp-btn-asignar" data-novedad="incapacidad_general">Asignar</button>
+        </div>
+
+        <div class="rp-novedad-card">
+            <div class="rp-novedad-header"><i class="fas fa-user-md"></i><span>Incapacidad<br>de trabajo</span></div>
+            <button type="button" class="rp-btn-asignar" data-novedad="incapacidad_trabajo">Asignar</button>
+        </div>
+
+        <div class="rp-novedad-card">
+            <div class="rp-novedad-header"><i class="fas fa-ban"></i><span>Permiso no<br>remunerado</span></div>
+            <button type="button" class="rp-btn-asignar" data-novedad="permiso_no_remunerado">Asignar</button>
+        </div>
+
+        <div class="rp-novedad-card">
+            <div class="rp-novedad-header"><i class="fas fa-file-invoice-dollar"></i><span>Permiso<br>remunerado</span></div>
+            <button type="button" class="rp-btn-asignar" data-novedad="permiso_remunerado">Asignar</button>
+        </div>
+
+        <div class="rp-novedad-card">
+            <div class="rp-novedad-header"><i class="fas fa-id-badge"></i><span>Licencia</span></div>
+            <button type="button" class="rp-btn-asignar" data-novedad="licencia">Asignar</button>
+        </div>
+
+        <div class="rp-novedad-card">
+            <div class="rp-novedad-header"><i class="fas fa-umbrella-beach"></i><span>Vacaciones</span></div>
+            <button type="button" class="rp-btn-asignar" data-novedad="vacaciones">Asignar</button>
+        </div>
+
+        <div class="rp-novedad-card">
+            <div class="rp-novedad-header"><i class="fas fa-user-times"></i><span>Retirado</span></div>
+            <button type="button" class="rp-btn-asignar" data-novedad="retirado">Asignar</button>
+        </div>
+
+        <div class="rp-novedad-card">
+            <div class="rp-novedad-header"><i class="fas fa-bed"></i><span>Descanso</span></div>
+            <button type="button" class="rp-btn-asignar" data-novedad="descanso">Asignar</button>
+        </div>
+
+    </div>
+{% endblock %}
+

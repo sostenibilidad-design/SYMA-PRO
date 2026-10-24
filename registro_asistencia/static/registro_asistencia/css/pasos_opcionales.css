@@ -1,0 +1,1026 @@
+/* Alimentación */
+
+.rp-box-right > h3 {
+    display: none;
+}
+
+/* Las 3 columnas son idénticas: así títulos, relojes y botones quedan a la misma altura */
+.rc-columnas {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+}
+
+.rc-comida {
+    display: grid;
+    grid-template-rows: auto auto auto auto auto auto 1fr; /* la última fila empuja el botón al fondo */
+    row-gap: 10px;
+    justify-items: start;
+    min-width: 0;
+    padding: 4px 18px 8px;
+}
+
+.rc-comida + .rc-comida {
+    border-left: 1.5px solid #ccc;
+}
+
+/* Título con ícono */
+.rc-comida__titulo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-family: 'Inria Serif', serif;
+    font-size: 26px;
+    font-weight: bold;
+    color: #222;
+}
+
+.rc-comida__titulo .material-symbols-outlined {
+    font-size: 40px;
+    color: #A3BD31;
+    font-variation-settings: 'FILL' 1;
+}
+
+.rc-comida__label {
+    font-family: 'Inria Serif', serif;
+    font-size: 18px;
+    color: #333;
+}
+
+/* === Interruptor "Habilitar ..." === */
+.rc-switch {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Inria Serif', serif;
+    font-size: 16px;
+    color: #222;
+    cursor: pointer;
+}
+
+/* El checkbox real queda invisible pero sigue funcionando con teclado */
+.rc-switch__input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.rc-switch__pista {
+    position: relative;
+    width: 46px;
+    height: 24px;
+    border-radius: 12px;
+    background-color: #cfcfcf;
+    transition: background-color 0.2s ease;
+}
+
+.rc-switch__pista::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease;
+}
+
+.rc-switch__input:checked + .rc-switch__pista {
+    background-color: #A3BD31;
+}
+
+.rc-switch__input:checked + .rc-switch__pista::after {
+    transform: translateX(22px);
+}
+
+.rc-switch__input:focus-visible + .rc-switch__pista {
+    outline: 3px solid #f5a623;
+    outline-offset: 2px;
+}
+
+/* === Reloj pequeño (misma idea que reloj.css, en tamaño de columna) === */
+.rc-reloj {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.rc-reloj__par {
+    display: flex;
+    gap: 5px;
+}
+
+.rc-digito {
+    position: relative;
+    width: 34px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+    font-family: 'Inria Serif', serif;
+    font-size: 36px;
+    font-weight: bold;
+    line-height: 1;
+    color: #000;
+    cursor: text;
+    outline: none;
+}
+
+/* Línea del "flip clock" */
+.rc-digito::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1.5px;
+    background-color: rgba(0, 0, 0, 0.2);
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.rc-digito:focus {
+    border-color: #A3BD31;
+    box-shadow: 0 0 0 2px rgba(163, 189, 49, 0.45);
+}
+
+.rc-reloj__separador {
+    font-family: 'Inria Serif', serif;
+    font-size: 30px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* A.M / P.M apilados, pegados como una sola pieza */
+.rc-ampm {
+    display: flex;
+    flex-direction: column;
+    margin-left: 8px;
+}
+
+.rc-ampm__btn {
+    width: 36px;
+    padding: 1px 0;
+    background-color: #b3b3b3;
+    border: 1px solid #999;
+    font-family: 'Inria Serif', serif;
+    font-size: 12px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.rc-ampm__btn:first-child {
+    border-radius: 5px 5px 0 0;
+    border-bottom: none;
+}
+
+.rc-ampm__btn:last-child {
+    border-radius: 0 0 5px 5px;
+}
+
+.rc-ampm__btn.active {
+    background-color: #fff;
+    color: #000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Reloj con error (fin menor o igual que inicio) */
+.rc-reloj--error .rc-digito {
+    border-color: #c0392b;
+    box-shadow: 0 0 0 1px #c0392b;
+}
+
+/* === Botón Asignar: mismo ancho en las 3 columnas === */
+.rc-btn-asignar {
+    justify-self: center;
+    align-self: end;
+    width: 140px;
+    height: 38px;
+    margin-top: 8px;
+    border: 1px solid #7a8c32;
+    border-radius: 6px;
+    background-color: #A3BD31;
+    color: #fff;
+    font-family: 'Inria Serif', serif;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.2s ease;
+}
+
+.rc-btn-asignar:hover {
+    background-color: #8a9e38;
+}
+
+.rc-btn-asignar--ok,
+.rc-btn-asignar--ok:hover {
+    background-color: #5d7414;
+    border-color: #4a5c10;
+}
+
+.rc-btn-asignar:disabled {
+    background-color: #d5e1a3;
+    border-color: #c8d496;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+/* === Comida deshabilitada: relojes bloqueados === */
+.rc-comida--off .rc-digito,
+.rc-comida--off .rc-ampm__btn {
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+/* === Mensaje de error bajo las columnas === */
+.rc-error {
+    margin: 12px 0 0;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background-color: #fbe9e6;
+    color: #8a2416;
+    font-family: 'Inria Serif', serif;
+    font-size: 15px;
+}
+
+/* === Pantallas pequeñas: una columna debajo de otra === */
+@media (max-width: 900px) {
+    .rc-columnas {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .rc-comida + .rc-comida {
+        border-left: none;
+        border-top: 1.5px solid #ccc;
+        padding-top: 14px;
+        margin-top: 8px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rc-switch__pista,
+    .rc-switch__pista::after,
+    .rc-btn-asignar {
+        transition: none;
+    }
+}
+
+/* El ojito de revision no aplica en esta herramienta: los chips ya se pueden quitar uno a uno */
+.rp-btn-hide {
+    display: none;
+}
+
+
+/* =========================================================
+    ENTRADAS Y SALIDAS MÚLTIPLES (rm-)
+    Reusa el reloj de comidas (.rc-reloj) en tamaño grande.
+   ========================================================= */
+
+/* Sirve de "contenedor" para que el reloj se achique según el ancho real de la caja */
+.rm-multiples {
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
+}
+
+/* Encabezado y pares usan la misma rejilla de 2 columnas: así todo queda alineado */
+.rm-encabezado,
+.rm-par {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.rm-titulo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 20px;
+    padding: 0 18px;
+    font-family: 'Inria Serif', serif;
+    font-size: 32px;
+    font-weight: bold;
+    color: #222;
+}
+
+.rm-titulo .material-symbols-outlined {
+    font-size: 48px;
+    color: #222;
+}
+
+/* La línea vertical que separa las dos columnas */
+.rm-titulo--ingreso,
+.rm-celda--ingreso {
+    border-left: 1.5px solid #ccc;
+}
+
+.rm-pares {
+    display: flex;
+    flex-direction: column;
+}
+
+.rm-celda {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px 10px;
+    min-width: 0;
+}
+
+.rm-num {
+    width: 26px;
+    font-family: 'Inria Serif', serif;
+    font-size: 22px;
+    font-weight: bold;
+    color: #666;
+}
+
+/* Reloj grande solo dentro de múltiples */
+.rm-multiples .rc-reloj,
+.rm-multiples .rc-reloj__par {
+    gap: 4px;
+}
+
+.rm-multiples .rc-digito {
+    width: 56px;
+    height: 84px;
+    font-size: 64px;
+}
+
+.rm-multiples .rc-reloj__separador {
+    font-size: 56px;
+}
+
+.rm-multiples .rc-ampm {
+    margin-left: 10px;
+}
+
+.rm-multiples .rc-ampm__btn {
+    width: 54px;
+    padding: 8px 0;
+    font-size: 15px;
+}
+
+.rm-quitar {
+    border: none;
+    background: transparent;
+    color: #888;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 4px;
+}
+
+.rm-quitar .material-symbols-outlined {
+    font-size: 32px;
+}
+
+.rm-quitar:hover {
+    color: #c0392b;
+}
+
+/* Un solo par de botones, centrado */
+.rm-acciones {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    margin-top: 30px;
+}
+
+.rm-acciones .rc-btn-asignar {
+    margin-top: 0;
+}
+
+.rm-btn-gris {
+    width: 140px;
+    height: 38px;
+    border: 1px solid #6f6f6f;
+    border-radius: 6px;
+    background-color: #8d8d8d;
+    color: #fff;
+    font-family: 'Inria Serif', serif;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.2s ease;
+}
+
+.rm-btn-gris:hover {
+    background-color: #777;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rm-btn-gris {
+        transition: none;
+    }
+}
+
+/* Caja intermedia: relojes grandes pero un poco más compactos */
+@container (max-width: 860px) {
+    .rm-multiples .rc-digito {
+        width: 52px;
+        height: 74px;
+        font-size: 58px;
+    }
+
+    .rm-multiples .rc-reloj__separador {
+        font-size: 42px;
+    }
+
+    .rm-multiples .rc-ampm__btn {
+        width: 42px;
+        padding: 5px 0;
+        font-size: 12px;
+    }
+
+    .rm-titulo {
+        font-size: 26px;
+    }
+}
+
+/* Caja angosta: relojes medianos */
+@container (max-width: 580px) {
+    .rm-multiples .rc-digito {
+        width: 28px;
+        height: 42px;
+        font-size: 31px;
+    }
+
+    .rm-multiples .rc-reloj__separador {
+        font-size: 27px;
+    }
+
+    .rm-multiples .rc-ampm__btn {
+        width: 30px;
+        font-size: 10px;
+    }
+
+    .rm-celda {
+        gap: 5px;
+        padding: 8px 6px;
+    }
+}
+
+/* Caja muy angosta: relojes pequeños */
+@container (max-width: 480px) {
+    .rm-multiples .rc-digito {
+        width: 25px;
+        height: 36px;
+        font-size: 27px;
+    }
+
+    .rm-multiples .rc-reloj__separador {
+        font-size: 24px;
+    }
+
+    .rm-multiples .rc-ampm__btn {
+        width: 28px;
+        padding: 2px 0;
+        font-size: 9px;
+    }
+}
+
+
+/* =========================================================
+    COMENTARIOS 
+   ========================================================= */
+
+.rco-titulo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 12px;
+    font-family: 'Inria Serif', serif;
+    font-size: 24px;
+    font-weight: bold;
+    color: #222;
+}
+
+.rco-titulo .material-symbols-outlined {
+    font-size: 36px;
+    color: #222;
+    font-variation-settings: 'FILL' 1;
+}
+
+/* Lista con scroll propio, separado 16px del contenido; toma el alto que queda en la caja y se desplaza sola */
+.rco-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 16px;
+}
+
+.rco-nombre {
+    margin: 0 0 6px;
+    font-family: 'Inria Serif', serif;
+    font-size: 16px;
+    font-weight: bold;
+    color: #222;
+}
+
+.rco-novedad {
+    font-weight: normal;
+    font-size: 14px;
+    color: #777;
+}
+
+.rco-caja {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid #aaa;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.rco-texto {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 56px;
+    border: none;
+    outline: none;
+    resize: vertical;
+    font-family: 'Inria Serif', serif;
+    font-size: 15px;
+}
+
+/* Botón "Link" a la derecha; el campo aparece debajo al abrirlo */
+.rco-link {
+    display: block;
+}
+
+.rco-link__btn {
+    list-style: none; /* quita el triángulo de <summary> */
+    width: fit-content;
+    margin-left: auto; /* lo empuja a la derecha */
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 14px;
+    border: 1px solid #999;
+    border-radius: 5px;
+    background-color: #f2f2f2;
+    font-family: 'Inria Serif', serif;
+    font-size: 15px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.rco-link__btn::-webkit-details-marker {
+    display: none;
+}
+
+.rco-link__btn .material-symbols-outlined {
+    font-size: 18px;
+}
+
+.rco-link[open] .rco-link__btn {
+    background-color: #e3e8cf;
+    border-color: #8AA62F;
+}
+
+.rco-link__input {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    margin-top: 8px;
+    padding: 7px 10px;
+    border: 1px solid #aaa;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.rco-link__input:invalid {
+    border-color: #c0392b;
+}
+
+.rco-vacio,
+.rh-vacio {
+    margin: 0;
+    color: #999;
+    font-style: italic;
+    font-family: 'Inria Serif', serif;
+}
+
+
+/* =========================================================
+    HORAS HISTÓRICAS (rh-)
+   ========================================================= */
+
+/* Pestañas con radios: el radio se oculta, el label hace de botón */
+.rh-tab-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.rh-tabs {
+    display: flex;
+    margin-bottom: 14px;
+    border-bottom: 2px solid #ddd;
+}
+
+.rh-tab {
+    flex: 1;
+    padding: 8px 6px;
+    margin-bottom: -2px;
+    border-bottom: 3px solid transparent;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 15px;
+    font-weight: 600;
+    color: #555;
+    cursor: pointer;
+}
+
+#rh-tab-pend:checked ~ .rh-tabs .rh-tab--pend,
+#rh-tab-ded:checked ~ .rh-tabs .rh-tab--ded {
+    color: #8AA62F;
+    border-bottom-color: #A3BD31;
+}
+
+#rh-tab-pend:focus-visible ~ .rh-tabs .rh-tab--pend,
+#rh-tab-ded:focus-visible ~ .rh-tabs .rh-tab--ded {
+    outline: 3px solid #f5a623;
+    outline-offset: 2px;
+}
+
+/* Solo se ve el panel de la pestaña marcada */
+.rh-panel {
+    display: none;
+}
+
+#rh-tab-pend:checked ~ .rh-panel--pend,
+/* El panel visible y su lista ocupan el alto que queda; la lista se desplaza sola */
+#rh-tab-pend:checked ~ .rh-panel--pend,
+#rh-tab-ded:checked ~ .rh-panel--ded {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+.rh-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-height: 380px;
+    overflow-y: auto;
+    padding-right: 16px;
+}
+
+.rh-card {
+    padding: 12px 14px;
+    border: 1px solid #bbb;
+    border-radius: 10px;
+    background-color: #fff;
+}
+
+.rh-card__cabeza {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.rh-nombre {
+    margin: 0;
+    font-family: 'Inria Serif', serif;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* "N de 4 permitidos" con barrita de 4 segmentos */
+.rh-cupo {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    font-size: 12px;
+    color: #666;
+}
+
+.rh-cupo__barra {
+    display: flex;
+    gap: 3px;
+}
+
+.rh-cupo__barra i {
+    width: 20px;
+    height: 6px;
+    border-radius: 2px;
+    background-color: #ddd;
+}
+
+.rh-cupo__barra i.rh-lleno {
+    background-color: #A3BD31;
+}
+
+/* fieldset + legend dibujan el recuadro con "Tipo de hora" sobre el borde */
+.rh-bloques {
+    margin: 0;
+    padding: 8px 10px 4px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.rh-bloques legend {
+    padding: 0 4px;
+    font-family: 'Inria Serif', serif;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.rh-bloque {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.rh-select {
+    flex: 1;
+    box-sizing: border-box;
+    min-width: 180px;
+    padding: 7px 8px;
+    border: 1px solid #999;
+    border-radius: 5px;
+    font-family: 'Inria Serif', serif;
+    font-size: 15px;
+}
+
+.rh-cantidad {
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
+    border: 1px solid #999;
+    border-radius: 5px;
+}
+
+.rh-cantidad input {
+    width: 70px;
+    padding: 4px 8px;
+    border: none;
+    text-align: right;
+    font-size: 15px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+/* Quita las flechas nativas en Chrome/Edge: usamos las nuestras */
+.rh-cantidad input::-webkit-outer-spin-button,
+.rh-cantidad input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.rh-flechas {
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid #ccc;
+}
+
+.rh-flechas button {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 2px;
+    border: none;
+    cursor: pointer;
+}
+
+.rh-flechas button + button {
+    border-top: 1px solid #ccc;
+}
+
+.rh-flechas .material-symbols-outlined {
+    font-size: 18px;
+    line-height: 1;
+}
+
+/* Cantidad fuera de rango (menor que 0 o mayor que 24): borde rojo */
+.rh-cantidad:has(input:invalid),
+.rh-cantidad--error {
+    border-color: #c0392b;
+}
+
+.rh-quitar {
+    border: none;
+    background: transparent;
+    color: #888;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 4px;
+}
+
+.rh-quitar:hover {
+    color: #c0392b;
+}
+
+.rh-anadir {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+.rh-anadir__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border: 1px solid #A3BD31;
+    border-radius: 6px;
+    background-color: #fff;
+    color: #8AA62F;
+    font-family: 'Inria Serif', serif;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.rh-anadir__btn .material-symbols-outlined {
+    font-size: 18px;
+}
+
+.rh-anadir__btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.rco-texto,
+.rco-link__input,
+.rh-select,
+.rh-cantidad,
+.rh-cantidad input,
+.rh-flechas button {
+    background-color: #fff;
+    color: #222;
+    color-scheme: light;
+}
+
+.rco-lista,
+.rh-lista {
+    color-scheme: light;
+    scrollbar-width: thin;
+    scrollbar-color: #b9b9b9 #f1f1f1;
+}
+
+.rco-lista::-webkit-scrollbar,
+.rh-lista::-webkit-scrollbar {
+    width: 8px;
+}
+
+.rco-lista::-webkit-scrollbar-track,
+.rh-lista::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+    border-radius: 8px;
+}
+
+.rco-lista::-webkit-scrollbar-thumb,
+.rh-lista::-webkit-scrollbar-thumb {
+    background-color: #b9b9b9;
+    border-radius: 8px;
+}
+
+/* =========================================================
+    COMENTARIOS Y HORAS HISTÓRICAS: un empleado a la vez, contenido grande
+   ========================================================= */
+
+/* Empleado de la lista que ya tiene datos */
+.empleado-fila.rp-emp-con-datos .nombre-empleado-texto::after {
+    content: "\2713";
+    margin-left: 8px;
+    font-weight: bold;
+    color: #5d7414;
+}
+
+.rco-lista .rco-nombre {
+    font-size: 18px;
+}
+
+.rco-lista .rco-texto {
+    min-height: 70px;
+    font-size: 17px;
+}
+
+.rco-lista .rco-link__btn {
+    padding: 4px 16px;
+    font-size: 16px;
+}
+
+.rco-lista .rco-vacio {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 20px;
+}
+
+.rh-historicas {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+.rh-historicas .rh-lista {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+}
+
+.rh-historicas .rh-vacio {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 20px;
+}
+
+.rh-historicas .rh-tab {
+    padding: 12px 8px;
+    font-size: 18px;
+}
+
+.rh-historicas .rh-card {
+    padding: 22px 26px;
+}
+
+.rh-historicas .rh-nombre {
+    font-size: 24px;
+}
+
+.rh-historicas .rh-cupo {
+    font-size: 14px;
+}
+
+.rh-historicas .rh-cupo__barra i {
+    width: 28px;
+    height: 8px;
+}
+
+.rh-historicas .rh-bloques {
+    padding: 14px 16px 8px;
+}
+
+.rh-historicas .rh-bloques legend {
+    font-size: 15px;
+}
+
+.rh-historicas .rh-bloque {
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+/* Flecha del desplegable propia, separada del borde derecho */
+.rh-historicas .rh-select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding: 12px 52px 12px 16px;
+    font-size: 18px;
+    background: #fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>") no-repeat right 18px center;
+}
+
+.rh-historicas .rh-cantidad input {
+    width: 130px;
+    padding: 8px 14px;
+    font-size: 30px;
+}
+
+.rh-historicas .rh-flechas .material-symbols-outlined {
+    font-size: 26px;
+}
+
+.rh-historicas .rh-quitar .material-symbols-outlined {
+    font-size: 30px;
+}
+
+.rh-historicas .rh-anadir__btn {
+    padding: 8px 20px;
+    font-size: 17px;
+}
+
+
+/* Caja de relleno mientras no hay nadie seleccionado: el formulario se ve apagado */
+.rh-card--inactiva,
+.rco-item--inactivo {
+    opacity: 0.55;
+    pointer-events: none;
+}

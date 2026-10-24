@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+{% load static %}
+{% load asistencia_filters %}
+
+{% block title %}Registro entrada y salida{% endblock %}
+
+{% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'registro_asistencia/css/registro_pasos.css' %}">
+    <link rel="stylesheet" href="{% static 'registro_asistencia/css/avisos.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <!-- Permite a los pasos hijos agregar su propio CSS (como la cuadrícula) -->
+    {% block custom_styles %}{% endblock %}
+{% endblock %}
+
+{% block search_bar %}
+    <div class="header-titulo-registro">
+        <span class="texto">Registrar entrada y salida</span>
+    </div>
+{% endblock %}
+
+{% block iconos %}
+    <a href="{% if request.session.origen_registro %}{{ request.session.origen_registro }}{% else %}{% url 'registro_anios' proyecto_actual.id_proyectos %}{% endif %}" title="Salir del registro" aria-label="Salir del registro">
+        <span class="material-symbols-outlined">close</span>
+    </a>
+{% endblock %}
+
+{% block content %}
+    <div class="rp-container">
+
+        <!-- STEPPER -->
+        <div class="rp-stepper">
+            <div class="rp-stepper-top-row">
+                <!-- Paso 1 -->
+                <div class="rp-step-top active">
+                    <div class="rp-line green"></div>
+                    <div class="rp-icon-wrapper"><div class="rp-dot"></div></div>
+                </div>
+                
+                <!-- Paso 2 -->
+                <div class="rp-step-top {% if paso_actual >= 2 %}active{% else %}locked{% endif %}">
+                    <!-- Si estamos exactamente en el paso 2, anima la línea -->
+                    <div class="rp-line {% if paso_actual >= 2 %}green{% endif %} {% if paso_actual == 2 %}animar-linea{% endif %}"></div>
+                    <div class="rp-icon-wrapper">
+                        {% if paso_actual >= 2 %}
+                            <div class="rp-dot {% if paso_actual == 2 %}animar-punto{% endif %}"></div>
+                        {% else %}
+                            <div class="rp-lock-circle"><i class="fa-solid fa-lock"></i></div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Paso 3 -->
+                <div class="rp-step-top {% if paso_actual >= 3 %}active{% else %}locked{% endif %}">
+                    <div class="rp-line {% if paso_actual >= 3 %}green{% endif %} {% if paso_actual == 3 %}animar-linea{% endif %}"></div>
+                    <div class="rp-icon-wrapper">
+                        {% if paso_actual >= 3 %}
+                            <div class="rp-dot {% if paso_actual == 3 %}animar-punto{% endif %}"></div>
+                        {% else %}
+                            <div class="rp-lock-circle"><i class="fa-solid fa-lock"></i></div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Paso 4 -->
+                <div class="rp-step-top {% if paso_actual >= 4 %}active{% else %}locked{% endif %}">
+                    <div class="rp-line {% if paso_actual >= 4 %}green{% endif %} {% if paso_actual == 4 %}animar-linea{% endif %}"></div>
+                    <div class="rp-icon-wrapper">
+                        {% if paso_actual >= 4 %}
+                            <div class="rp-dot {% if paso_actual == 4 %}animar-punto{% endif %}"></div>
+                        {% else %}
+                            <div class="rp-lock-circle"><i class="fa-solid fa-lock"></i></div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Paso 5 -->
+                <div class="rp-step-top {% if paso_actual >= 5 %}active{% else %}locked{% endif %}">
+                    <div class="rp-line {% if paso_actual >= 5 %}green{% endif %} {% if paso_actual == 5 %}animar-linea{% endif %}"></div>
+                    <div class="rp-icon-wrapper">
+                        {% if paso_actual >= 5 %}
+                            <div class="rp-dot {% if paso_actual == 5 %}animar-punto{% endif %}"></div>
+                        {% else %}
+                            <div class="rp-lock-circle"><i class="fa-solid fa-lock"></i></div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="rp-stepper-bottom-row">
+                <!-- Texto Paso 1 -->
+                <div class="rp-step-bottom active">
+                    <div class="rp-step-text-title">[1] Novedades</div>
+                    <div class="rp-step-text-status">{% if paso_actual == 1 %}(Activo){% else %}(Completado){% endif %}</div>
+                </div>
+                
+                <!-- Texto Paso 2 -->
+                <div class="rp-step-bottom {% if paso_actual >= 2 %}active{% else %}locked{% endif %}">
+                    <div class="rp-step-text-title">[2] Hora de entrada</div>
+                    <div class="rp-step-text-status">{% if paso_actual == 2 %}(Activo){% elif paso_actual > 2 %}(Completado){% else %}(Bloqueado){% endif %}</div>
+                </div>
+
+                <!-- Texto Paso 3 -->
+                <div class="rp-step-bottom {% if paso_actual >= 3 %}active{% else %}locked{% endif %}">
+                    <div class="rp-step-text-title">[3] Hora de salida</div>
+                    <div class="rp-step-text-status">{% if paso_actual == 3 %}(Activo){% elif paso_actual > 3 %}(Completado){% else %}(Bloqueado){% endif %}</div>
+                </div>
+
+                <!-- Texto Paso 4 -->
+                <div class="rp-step-bottom {% if paso_actual >= 4 %}active{% else %}locked{% endif %}">
+                    <div class="rp-step-text-title">[4] Actividades</div>
+                    <div class="rp-step-text-status">{% if paso_actual == 4 %}(Activo){% elif paso_actual > 4 %}(Completado){% else %}(Bloqueado){% endif %}</div>
+                </div>
+
+                <!-- Texto Paso 5 -->
+                <div class="rp-step-bottom {% if paso_actual >= 5 %}active{% else %}locked{% endif %}">
+                    <div class="rp-step-text-title">[5] Vista previa y guardado</div>
+                    <div class="rp-step-text-status">{% if paso_actual == 5 %}(Activo){% else %}(Bloqueado){% endif %}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CUERPO DEL PASO -->
+        <form method="POST" action=""> <!-- El action vacío hace que envíe los datos a esta misma URL (paso_1_novedades) -->
+            {% csrf_token %}
+            <div class="rp-body">
+                <!-- Título dinámico desde la vista de Django -->
+                <h2 class="rp-step-title">{% if es_herramienta %}{{ titulo_paso }}{% else %}Paso {{ paso_actual|default:"1" }} / {{ total_pasos|default:"5" }}: {{ titulo_paso }}{% endif %}</h2>
+
+                <!-- Bloque maestro por si pasos futuros (como el 5 y 6) necesitan borrar toda la estructura de columnas -->
+                {% block area_trabajo %}
+                <div class="rp-grid-layout">
+                    
+                    <!-- CUADRO 1: Lista de empleados (FIJO EN LA MASTER) -->
+                    <div class="rp-box-left">
+                        <h3>Empleados por asignar</h3>
+                        
+                        <div class="rp-search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="buscador-empleados" placeholder="Buscar empleado...">
+                        </div>
+
+                        <div class="rp-employee-list" id="contenedor-lista-empleados">
+                            <label class="rp-emp-item rp-emp-header">
+                                <input type="checkbox" id="check-seleccionar-todos">
+                                <span class="rp-custom-checkbox"></span>
+                                <span class="rp-emp-name" style="font-weight: bold;">Seleccionar todos</span>
+                            </label>
+
+                            <!-- Bucle para empleados -->
+                            {% for empleado in empleados %}
+                            <label class="rp-emp-item empleado-fila">
+                                <input type="checkbox" name="empleados_seleccionados" class="check-empleado" value="{{ empleado.pk }}">
+                                <span class="rp-custom-checkbox"></span>
+                                <span class="rp-emp-name nombre-empleado-texto">{{ empleado.nombre_completo }}</span>
+                            </label>
+                            {% empty %}
+                            <label class="rp-emp-item" style="justify-content: center; pointer-events: none;">
+                                <span class="rp-emp-name" style="color: #999; font-style: italic;">No hay empleados con esos cargos.</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+
+                        <div class="rp-emp-footer">
+                            <span id="contador-seleccionados-box">0</span> de {{ empleados|length }} seleccionados
+                        </div>
+                    </div>
+
+                    <!-- CUADRO 2: Área de trabajo Central (DINÁMICO) -->
+                    <div class="rp-box-right">
+                        <h3>{{ titulo_caja_derecha|default:"Asignar novedad" }}</h3>
+                        
+                        {% block contenido_derecho %}
+                        <div style="flex:1; border: 2px dashed #ccc; border-radius: 8px; display:flex; align-items:center; justify-content:center; color:#999; font-family: 'Inria Serif', serif;">
+                            Cuadrícula de novedades en construcción...
+                        </div>
+                        {% endblock %}
+
+                    </div>
+                </div>
+
+                <!-- CUADRO 3: Fila Inferior de Confirmados (FIJO EN LA MASTER) -->
+                {% if not sin_confirmados %}
+                <div class="rp-box-bottom">
+                    <h3 class="rp-confirmed-title">Confirmados</h3>
+                    <div class="rp-confirmed-list">
+                        <!-- Los chips se generarán con JS -->
+                    </div>
+                    <!-- 🚨 CORRECCIÓN 1: type="button" agregado aquí -->
+                    <button type="button" class="rp-btn-hide"><i class="fas fa-eye-slash"></i></button>
+                </div>
+                {% endif %}
+                {% endblock area_trabajo %}
+            </div>
+            <!-- 🚨 NOTA: Ya no cerramos el form aquí. Lo dejamos abierto para que abrace al footer -->
+
+            <!-- FOOTER -->
+            <div class="rp-footer">
+                <div class="rp-footer-status">
+                    {{ mensaje_footer|default:"" }} (<span id="contador-asignados">0</span>/<span id="total-empleados-footer">{{ empleados|length }}</span> asignados)
+                </div>
+                <div class="rp-footer-buttons">
+                    {% block footer_buttons %}
+                        
+                        {% if url_siguiente %}
+                            <!-- Botón Activo (Avanza al paso que diga la vista) -->
+                            <button type="submit" id="btn-siguiente-paso1" class="btn-siguiente locked" style="display: flex; align-items: center; justify-content: center; gap: 5px;" disabled>
+                                Siguiente <span class="material-symbols-outlined" style="font-size: 24px; font-weight: 300;">arrow_forward</span>
+                            </button>
+                        {% else %}
+                            <!-- Botón Bloqueado (Si no hay url_siguiente definida) -->
+                            <button type="submit" id="btn-siguiente-paso1" class="btn-siguiente locked" style="pointer-events: none;" disabled>
+                                Siguiente <span class="material-symbols-outlined" style="font-size: 24px; font-weight: 300;">arrow_forward</span>
+                            </button>
+                        {% endif %}
+
+                        {% if url_atras %}
+                            <a href="{{ url_atras }}" class="btn-cancelar" style="text-decoration: none;">Atrás</a>
+                        {% else %}
+                            <a href="javascript:history.back()" class="btn-cancelar" style="text-decoration: none;">Cancelar</a>
+                        {% endif %}
+                        
+                    {% endblock %}
+                </div>
+            </div>
+
+        </form> <!-- 🚨 CORRECCIÓN 2: ¡Aquí es donde realmente se cierra el formulario! -->
+
+        <!-- BARRA LATERAL -->
+        <div class="rp-sidebar-herramientas" id="rp-herramientas">
+            <!-- Tu código de herramientas intacto... -->
+            <div class="rp-tab-herramientas" onclick="document.getElementById('rp-herramientas').classList.toggle('open')">
+                <i class="fa-solid fa-gear"></i> Herramientas opcionales
+            </div>
+            <div class="rp-content-herramientas">
+                <div class="rpi-content-wrapper">
+                    <div class="rpi-menu-header">
+                        <h3 class="rpi-menu-title">Herramientas opcionales</h3>
+                        <div class="rpi-header-line"></div>
+                    </div>
+                    <div class="rpi-tool-cards-container">
+                        {% include "registro_asistencia/componentes/tarjeta_herramienta.html" with clave="comidas" icono="fas fa-utensils" nombre="Comidas" abierta=paso_actual|alcanzo:2 condicion="Se desbloqueara después del paso 1" %}
+                        {% include "registro_asistencia/componentes/tarjeta_herramienta.html" with clave="multiples" icono="fas fa-sign-out-alt" nombre="Entrada y salida múltiple" abierta=paso_actual|alcanzo:4 condicion="Se desbloqueara después del paso 3" %}
+                        {% include "registro_asistencia/componentes/tarjeta_herramienta.html" with clave="comentarios" icono="fas fa-comment-dots" nombre="Comentarios" abierta=paso_actual|alcanzo:3 condicion="Se desbloqueara después del paso 2" %}
+                        {% include "registro_asistencia/componentes/tarjeta_herramienta.html" with clave="historicas" icono="fas fa-history" nombre="Horas históricas" abierta=paso_actual|alcanzo:3 condicion="Se desbloqueara después del paso 2" %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if con_multiples %}{{ con_multiples|json_script:"con-multiples" }}{% endif %}
+    {% if asignaciones_previas %}{{ asignaciones_previas|json_script:"asignaciones-previas" }}{% endif %}
+    {% include 'registro_asistencia/modal_revision_edicion.html' %}
+{% endblock %}
+
+
+{% block scripts %}
+    <script src="{% static 'registro_asistencia/js/avisos.js' %}"></script>
+    <script src="{% static 'registro_asistencia/js/registro_pasos.js' %}"></script>
+    {% block custom_scripts %}{% endblock %}
+{% endblock %}

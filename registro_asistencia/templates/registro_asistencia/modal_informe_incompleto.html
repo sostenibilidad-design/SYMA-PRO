@@ -1,0 +1,21 @@
+<!-- Animación mientras se valida y se genera el informe -->
+<div id="informe-cargando" class="rn-cargando" hidden role="status" aria-live="polite">
+    <div class="rn-cargando__caja">
+        <span class="rn-cargando__rueda" aria-hidden="true"></span>
+        <p><span id="texto-cargando">Generando el informe quincenal…</span><br><small>Espera un momento, no cierres esta ventana.</small></p>
+    </div>
+</div>
+
+<!-- Aviso cuando faltan días por registrar: el informe no se abre -->
+<div id="modal-informe-incompleto" class="modal-overlay">
+    <div class="modal modal-informe-incompleto">
+        <h2 class="titulo" style="font-size: 24px;" id="titulo-informe-incompleto">No se puede generar el informe</h2>
+        <p class="texto-confirmacion">Todavía faltan días de esta quincena por registrar. Regístralos y vuelve a intentarlo:</p>
+
+        <ul class="lista-fechas-faltantes" id="lista-fechas-faltantes"></ul>
+
+        <div class="botones">
+            <button type="button" class="btn-guardar" id="btn-cerrar-informe-incompleto">Entendido</button>
+        </div>
+    </div>
+</div>

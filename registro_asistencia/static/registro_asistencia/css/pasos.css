@@ -1,0 +1,482 @@
+/* =========================================
+    GENERAL
+========================================= */
+
+/* Elemento bloqueado (tarjetas de herramientas aún no disponibles) */
+.blocked {
+    opacity: 0.6;
+    cursor: not-allowed !important;
+    background-color: #f5f5f5 !important;
+}
+
+.blocked i {
+    color: #999 !important;
+}
+
+/* Subtítulo a todo lo ancho (pasos 4 y 5) */
+.rp-subtitle-full {
+    font-family: 'Inria Serif', serif;
+    color: #555;
+    font-size: 18px;
+    margin-top: -10px;
+    margin-bottom: 15px;
+}
+
+/* =========================================
+    PASO 1: NOVEDADES
+========================================= */
+
+/* Subtítulo de la caja derecha */
+.rp-subtitle {
+    font-family: 'Inria Serif', serif;
+    color: #666;
+    font-size: 18px;
+    margin-top: -10px;
+    margin-bottom: 15px;
+}
+
+/* Cuadrícula de 3 columnas */
+.rp-novedades-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    justify-content: center;
+    max-height: 420px;
+    overflow-y: auto;
+    padding: 5px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.rp-novedades-grid::-webkit-scrollbar {
+    display: none;
+}
+
+.rp-novedad-card:last-child:nth-child(3n + 1) {
+    grid-column: 2;
+}
+
+/* Tarjeta individual de novedad */
+.rp-novedad-card {
+    background-color: #ffffff;
+    border: 1px solid #d1d1d1;
+    border-radius: 8px;
+    padding: 12px 10px 10px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.rp-novedad-card:hover {
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+}
+
+/* Encabezado de la tarjeta (Icono + Texto) */
+.rp-novedad-header {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 16px;
+    width: 100%;
+    justify-content: flex-start;
+    padding-left: 5px;
+}
+
+.rp-novedad-header i {
+    font-size: 25px;
+    color: #666;
+    width: 25px;
+    text-align: center;
+}
+
+.rp-novedad-header span {
+    font-size: 18px;
+    font-family: 'Inria Serif', serif;
+    color: #333;
+    font-weight: 500;
+    line-height: 1.2;
+    text-align: left;
+}
+
+/* Botón "Asignar" verde estilo SYMA */
+.rp-btn-asignar {
+    background-color: #92a344;
+    font-family: 'Inria Serif', serif;
+    color: white;
+    border: none;
+    width: 85%;
+    padding: 10px 0;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    transition: background-color 0.2s;
+}
+
+.rp-btn-asignar:hover {
+    background-color: #82913f;
+}
+
+/* =========================================
+    PASO 4: ACTIVIDADES
+========================================= */
+
+/* Contenedor principal tipo tarjeta */
+.rp-actividades-container {
+    width: 100%;
+    background-color: #ffffff;
+    border: 1px solid #d1d1d1;
+    border-radius: 12px;
+    overflow: hidden; /* Mantiene las esquinas redondeadas */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Cabecera verde SYMA */
+.rp-actividades-header {
+    background-color: #92a344;
+    padding: 15px 25px;
+    border-bottom: 1px solid #7a8c32;
+}
+
+.rp-actividades-header h3 {
+    color: white;
+    font-family: 'Inria Serif', serif;
+    font-size: 20px;
+    margin: 0;
+    font-weight: 500;
+}
+
+/* Área de la lista con scroll */
+.rp-actividades-list {
+    max-height: 400px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Estilos de la barra de scroll para que se vea limpia */
+.rp-actividades-list::-webkit-scrollbar {
+    width: 8px;
+}
+.rp-actividades-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+.rp-actividades-list::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+.rp-actividades-list::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Filas individuales */
+.rp-actividad-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 25px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* Efecto Cebra: Filas pares gris claro, impares blancas */
+.rp-actividad-row:nth-child(even) {
+    background-color: #f2f2f2;
+}
+.rp-actividad-row:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+/* Información del empleado */
+.rp-act-empleado {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.rp-act-empleado i {
+    font-size: 24px;
+    color: #333;
+}
+
+.rp-act-empleado span {
+    font-family: 'Inria Serif', serif;
+    font-size: 18px;
+    color: #222;
+    font-weight: bold;
+}
+
+/* Selector desplegable */
+.rp-act-selector {
+    width: 50%;
+}
+
+.rp-select-actividad {
+    width: 100%;
+    padding: 8px 15px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background-color: #e6e6e6;
+    font-family: 'Inria Serif', serif;
+    font-size: 16px;
+    color: #555;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.1);
+    cursor: pointer;
+    appearance: none; /* Oculta la flecha nativa */
+    /* Flecha personalizada */
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 20px;
+}
+
+/* Estado cuando ya tiene una actividad asignada (texto más oscuro) */
+.rp-select-actividad.pre-asignada {
+    color: #222;
+    font-weight: bold;
+}
+
+.rp-select-actividad:focus {
+    outline: none;
+    border-color: #92a344;
+}
+
+/* Base gris decorativa de la caja (como en el prototipo) */
+.rp-actividades-footer-box {
+    height: 25px;
+    background-color: #e6e6e6;
+    border-top: 1px solid #d1d1d1;
+}
+
+/* --- Select2 del paso 4 --- */
+
+/* Fuerza a la caja principal a crecer hacia abajo */
+.select2-container .select2-selection--single {
+    height: auto !important;
+    min-height: 25px !important;
+    padding: 6px 0 !important;
+    background-color: #f1f3f5 !important;
+    border: 1px solid #ccc !important;
+    display: flex;
+    align-items: center;
+}
+
+/* Activa el salto de línea en la caja seleccionada (Word-wrap) */
+.select2-container .select2-selection--single .select2-selection__rendered {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    line-height: 1.4 !important;
+    color: #333 !important;
+    font-size: 14px;
+    padding-right: 30px !important; /* Espacio para que el texto no pise la flecha */
+}
+
+/* Centra verticalmente la flecha derecha */
+.select2-container .select2-selection--single .select2-selection__arrow {
+    height: 100% !important;
+    top: 0 !important;
+}
+
+/* Activa el salto de línea DENTRO de la lista desplegable del buscador */
+.select2-results__option {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    line-height: 1.4 !important;
+    font-size: 14px;
+}
+
+/* Color verde para las actividades que el sistema pre-asigna automáticamente */
+.select2-pre-asignada + .select2-container .select2-selection--single {
+    font-weight: bold !important;
+    background-color: #e8f5e9 !important;
+    border-color: #7a8c32 !important;
+}
+
+/* =========================================
+    PASO 5: VISTA PREVIA
+========================================= */
+
+/* Control de Scroll Vertical y Horizontal */
+.rp-table-wrapper {
+    width: 100%;
+    max-height: 500px;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+/* Tabla ancha: 11 columnas, cada una necesita su espacio (fuerza la barra de scroll horizontal) */
+.rp-preview-table {
+    width: 100%;
+    min-width: 2300px;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+/* Encabezados verdes */
+.rp-preview-table th {
+    background-color: #92a344;
+    color: white;
+    font-family: 'Inria Serif', serif;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;         /* encabezados en una sola línea */
+    padding: 12px 18px;
+    border-right: 1px solid #a4b552;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Celdas del cuerpo (texto oscuro: con el tema oscuro heredaban letra clara sobre fondo blanco) */
+.rp-preview-table td {
+    padding: 12px 14px;
+    border-right: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 13px;
+    vertical-align: middle;
+    color: #333;
+}
+
+/* Columna de empleados pegada a la izquierda */
+.rp-preview-table th.sticky-col,
+.rp-preview-table td.sticky-col {
+    min-width: 240px;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.rp-preview-table th.sticky-col {
+    position: sticky;
+    left: 0;
+    z-index: 11; /* Por encima de las demás columnas */
+    border-right: 2px solid #7a8c32;
+}
+
+.rp-preview-table td.sticky-col {
+    position: sticky;
+    left: 0;
+    background-color: inherit;
+    z-index: 5;
+    font-family: 'Inria Serif', serif;
+    font-weight: bold;
+    color: #333;
+    text-align: left;
+    border-right: 2px solid #ccc;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.05); /* Sombrecita para indicar separación */
+}
+
+/* Efecto cebra para las filas */
+.rp-preview-table tbody tr:nth-child(even) td { background-color: #f2f2f2; }
+.rp-preview-table tbody tr:nth-child(odd) td { background-color: #ffffff; }
+
+/* Columnas de las herramientas opcionales (listas de comidas, horas, comentarios...) */
+.rp-preview-table td.rp-prev-lista {
+    min-width: 200px;
+    max-width: 260px;
+    font-size: 13px;
+    line-height: 1.45;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.rp-prev-lista span {
+    display: block;
+    padding: 2px 0;
+    color: #333;
+}
+
+.rp-prev-lista .rp-prev-vacio {
+    color: #aaa;
+    text-align: center;
+}
+
+/* Estilo de los selects (Gris y redondeados) */
+.rp-preview-select {
+    width: 90%;
+    min-width: 130px;
+    padding: 7px 28px 7px 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background-color: #e6e6e6;
+    font-family: 'Inria Serif', serif;
+    font-size: 13px;
+    color: #333;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 15px;
+}
+
+/* El select de actividades respeta el ancho de la tabla */
+.rp-preview-select.actividad-select {
+    width: 100%;
+    min-width: 260px;
+    white-space: normal;
+    text-overflow: ellipsis;
+}
+
+/* Campos editables de texto (con el lapicito) */
+.rp-editable-field {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    background-color: #e6e6e6;
+    padding: 7px 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-family: 'Inria Serif', serif;
+    font-size: 13px;
+    color: #333;
+    min-width: 130px;
+}
+
+.rp-editable-field i { color: #666; cursor: pointer; }
+
+/* Input invisible que va dentro de rp-editable-field */
+.rp-input-transparente {
+    border: none;
+    background: transparent;
+    width: 100%;
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+    outline: none;
+    text-align: center;
+}
+
+.rp-preview-table .rp-input-transparente {
+    color: #333;
+}
+
+.rp-prev-texto {
+    width: 100%;
+    min-width: 240px;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.rp-preview-table input[type="url"] {
+    min-width: 240px;
+    font-size: 13px;
+}
+
+/* El botón "Siguiente" se convierte en un Guardar verde brillante */
+.rp-btn-guardar {
+    background-color: #92a344 !important;
+    opacity: 1 !important;
+    cursor: pointer !important;
+    font-weight: bold;
+}
+.rp-btn-guardar:hover {
+    background-color: #7a8c32 !important;
+}

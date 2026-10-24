@@ -1,0 +1,207 @@
+/* Contenedor principal del reloj */
+.rp-reloj-wrapper {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 30px 40px; /* 👈 Un poco más de espacio interno a los lados */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.20); 
+    width: 95%; 
+    max-width: 700px; /* Subimos el tope máximo para que crezca libremente */
+    margin: 0 auto;
+    box-sizing: border-box;
+    container-type: inline-size; /* el reloj se escala con el ancho que realmente tiene */
+}
+
+/* Pantalla del reloj (Fondo gris) */
+.rp-reloj-display {
+    background-color: #d9d9d9; 
+    border-radius: 12px;
+    /* --d = ancho de un dígito: 85px como máximo, menos si el contenedor es angosto. Todo el reloj sale de --d */
+    --d: min(85px, 12cqi);
+    padding: calc(var(--d) * 0.24) calc(var(--d) * 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(var(--d) * 0.18);
+    box-shadow: inset 0 4px 8px rgba(0,0,0,0.15), 0 4px 6px rgba(0,0,0,0.2);
+    width: 100%; 
+    box-sizing: border-box;
+}
+
+/* Bloque de dos dígitos */
+.rp-reloj-bloque {
+    display: flex;
+    gap: calc(var(--d) * 0.235);
+}
+
+/* Cajita blanca individual de cada número */
+.rp-digito-box {
+    background-color: #ffffff;
+    width: var(--d);
+    height: calc(var(--d) * 1.18);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    border: 1px solid #ccc;
+    position: relative;
+}
+
+/* Línea divisoria del número (estilo Flip Clock) */
+.rp-digito-box::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: rgba(0,0,0,0.2);
+    transform: translateY(-50%);
+}
+
+.rp-digito-box span {
+    font-family: 'Inria Serif', serif;
+    font-size: calc(var(--d) * 1.35);
+    font-weight: bold;
+    color: #000;
+    line-height: 1;
+    z-index: 2; 
+}
+
+/* Separador (Dos puntos) */
+.rp-reloj-separador {
+    font-size: calc(var(--d) * 0.82);
+    font-weight: bold;
+    color: #333;
+    margin: 0 calc(var(--d) * 0.06);
+    padding-bottom: calc(var(--d) * 0.12);
+}
+
+/* Columna de botones A.M / P.M pegados */
+.rp-reloj-ampm {
+    display: flex;
+    flex-direction: column;
+    gap: 0; /* 👈 Sin espacio para que se peguen */
+    margin-left: calc(var(--d) * 0.18);
+}
+
+.rp-ampm-btn {
+    background-color: #b3b3b3;
+    color: #333;
+    border: 1px solid #999;
+    padding: 2px 0;
+    font-family: 'Inria Serif', serif;
+    font-weight: bold;
+    width: calc(var(--d) * 1.18);
+    font-size: calc(var(--d) * 0.29);
+    cursor: pointer;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
+}
+
+/* Bordes redondeados específicos para que parezcan una sola pieza */
+.rp-ampm-btn:first-child {
+    border-radius: 6px 6px 0 0;
+    border-bottom: none;
+}
+
+.rp-ampm-btn:last-child {
+    border-radius: 0 0 6px 6px;
+}
+
+.rp-ampm-btn.active {
+    background-color: #ffffff;
+    color: #000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    border-color: #999;
+    z-index: 1;
+}
+
+/* Botones rápidos (06:30, 07:00, etc.) */
+.rp-reloj-quick-btns {
+    display: flex;
+    gap: 12px 20px;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.rp-quick-btn {
+    background-color: #ffffff; /* 👈 Fondo blanco como el prototipo */
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 8px 20px;
+    font-family: 'Inria Serif', serif;
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    box-shadow: 0 3px 5px rgba(0,0,0,0.15); /* 👈 Sombra para que resalten */
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.rp-quick-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+/* Botón Asignar final */
+.rp-btn-asignar-reloj {
+    background-color: #9ab03f;
+    color: #111; /* 👈 Texto oscuro en vez de blanco, como en el prototipo */
+    border: 1px solid #7a8c32;
+    border-radius: 6px;
+    padding: 10px 40px;
+    font-family: 'Inria Serif', serif;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    transition: background-color 0.2s;
+    width: auto;
+    min-width: min(250px, 100%);
+}
+
+.rp-btn-asignar-reloj:hover {
+    background-color: #8a9e38;
+}
+
+/* Pantallas medianas y pequeñas: la lista de empleados y el reloj se apilan en vez de competir por el ancho */
+@media (max-width: 900px) {
+    .rp-grid-layout {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .rp-grid-layout .rp-box-left {
+        width: 100%;
+        height: 320px;
+    }
+
+    .rp-grid-layout .rp-box-right {
+        width: 100%;
+        padding: 15px 12px;
+    }
+
+    .rp-reloj-wrapper {
+        width: 100%;
+        padding: 20px 14px;
+        gap: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .rp-quick-btn {
+        padding: 8px 12px;
+        font-size: 17px;
+    }
+
+    .rp-btn-asignar-reloj {
+        padding: 10px 20px;
+        font-size: 20px;
+    }
+}

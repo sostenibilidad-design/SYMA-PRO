@@ -52,9 +52,14 @@
 
                     <div class="card-back">
 
-                        <a href="{% url 'eliminar_proyecto' proyecto.id_proyectos %}" class="btn-borrar-proyecto" onclick="return confirm('¿Estás seguro de que deseas eliminar este proyecto?');">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </a>
+                        {% if user|has_perm:"proyectos,proyectos,eliminar" %}
+                        <form method="post" action="{% url 'eliminar_proyecto' proyecto.id_proyectos %}" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este proyecto?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-borrar-proyecto" title="Eliminar proyecto">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </form>
+                        {% endif %}
 
                         <h3 class="back-titulo">Ficha técnica del proyecto</h3>
                         <div class="back-grid">

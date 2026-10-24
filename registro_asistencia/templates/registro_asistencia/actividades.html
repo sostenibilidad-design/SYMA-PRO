@@ -1,0 +1,113 @@
+{% extends "registro_asistencia/registro_maestro.html" %}
+{% load static %}
+
+{% block custom_styles %}
+    <link rel="stylesheet" href="{% static 'registro_asistencia/css/pasos.css' %}">    
+    <!-- Importar CSS original de Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{% endblock %}
+
+{% block area_trabajo %}
+    <p class="rp-subtitle-full">Revise las actividades pre-asignadas del área medición de rendimiento y complete las asignaciones faltantes</p>
+    
+    <div class="rp-actividades-container">
+        <div class="rp-actividades-header">
+            <h3>Asignación y Confirmación de actividades</h3>
+        </div>
+
+        <div class="rp-actividades-list">
+            
+            {% for empleado in empleados %}
+            <div class="rp-actividad-row" style="display: flex; flex-wrap: wrap; align-items: center; gap: 15px; padding: 15px 20px; border-bottom: 1px solid #eee; background-color: #ffffff;">
+                
+                <div class="rp-act-empleado" style="flex: 1; min-width: 250px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-regular fa-user" style="color: #555; font-size: 18px;"></i>
+                    <span style="font-weight: bold; color: #333;">{{ empleado.nombre_completo }}</span>
+                </div>
+                
+                <div class="rp-act-selector" style="flex: 2; min-width: 300px;">
+                    <!-- El select nativo que Select2 va a transformar -->
+                    <select name="actividad_{{ empleado.pk }}" class="rp-select-actividad {% if empleado.actividad_sugerida %}select2-pre-asignada{% endif %}" required style="width: 100%;">
+                        <option value="" disabled {% if not empleado.actividad_sugerida %}selected{% endif %}>Asignar actividad...</option>
+                        
+                        {% if empleado.actividad_sugerida and empleado.actividad_sugerida not in actividades_disponibles %}
+                            <option value="{{ empleado.actividad_sugerida }}" selected>{{ empleado.actividad_sugerida }}</option>
+                        {% endif %}
+                        
+                        {% for act in actividades_disponibles %}
+                            <option value="{{ act }}" {% if empleado.actividad_sugerida == act %}selected{% endif %}>{{ act }}</option>
+                        {% endfor %}
+                        
+                    </select>
+                </div>
+            </div>
+            {% empty %}
+            <div class="rp-actividad-row" style="justify-content: center; color: #999;">
+                <span>No hay empleados disponibles para este paso.</span>
+            </div>
+            {% endfor %}
+            
+        </div>
+        
+        <div class="rp-actividades-footer-box"></div>
+    </div>
+{% endblock %}
+
+{% block custom_scripts %}
+<!-- Importar jQuery y Select2 JS -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // Inicializar Select2 con barra de búsqueda
+        $('.rp-select-actividad').select2({
+            placeholder: "Asignar actividad...",
+            width: '100%',
+            language: {
+                noResults: function() { return "No se encontraron resultados"; }
+            }
+        });
+
+        // Lógica para bloquear/desbloquear el botón Siguiente
+        const btnSiguiente = document.getElementById('btn-siguiente-paso1');
+        const contadorFooter = document.getElementById('contador-asignados');
+        
+        function validarActividades() {
+            let asignadas = 0;
+            const selects = $('.rp-select-actividad');
+            const total = selects.length;
+            
+            selects.each(function() {
+                if ($(this).val() !== null && $(this).val() !== "") {
+                    asignadas++;
+                }
+            });
+
+            if (contadorFooter) contadorFooter.textContent = asignadas;
+
+            if (btnSiguiente) {
+                const iconoSiguiente = btnSiguiente.querySelector('.material-symbols-outlined');
+                if (asignadas > 0 && asignadas === total) {
+                    btnSiguiente.classList.remove('locked'); 
+                    btnSiguiente.disabled = false; 
+                    if (iconoSiguiente) iconoSiguiente.textContent = 'arrow_forward';
+                } else {
+                    btnSiguiente.classList.add('locked'); 
+                    btnSiguiente.disabled = true; 
+                    if (iconoSiguiente) iconoSiguiente.textContent = 'lock';
+                }
+            }
+        }
+
+        // Ejecutar al inicio
+        validarActividades();
+
+        // Ejecutar al cambiar el select
+        $('.rp-select-actividad').on('change', function() {
+            $(this).removeClass('select2-pre-asignada');
+            validarActividades();
+        });
+    });
+</script>
+{% endblock %}

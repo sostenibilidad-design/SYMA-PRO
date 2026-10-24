@@ -365,6 +365,9 @@ body,html{
 
 .tabla-botones a {
     width: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background-color: var(--color-principal, #A3BD31);
     color: white;
     text-decoration: none;

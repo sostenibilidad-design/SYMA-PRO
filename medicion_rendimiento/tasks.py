@@ -23,7 +23,7 @@ def alerta_recordatorio_usuario():
                     [user_obj.correo], 
                     fail_silently=False
                 )
-                print(f"Enviado a: {user_obj.correo}")
+                print("Recordatorio enviado")
             except Exception as e:
                 print(f"Error enviando correo: {e}")
 

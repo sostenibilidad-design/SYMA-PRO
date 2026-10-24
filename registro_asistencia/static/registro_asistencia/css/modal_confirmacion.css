@@ -1,0 +1,167 @@
+.modal-confirmacion-container {
+    width: 580px !important; /* Más ancha para que quepa el texto largo */
+    padding: 40px 45px !important;
+}
+
+.modal-confirmacion-container .texto-confirmacion {
+    font-family: sans-serif;
+    color: #333;
+    font-size: 16.5px;
+    line-height: 1.5;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+/* Efecto para apilar el icono de BD con el Check */
+.icon-db-wrapper {
+    position: relative;
+    display: inline-block;
+    color: #A3BD31;
+    font-size: 75px;
+    margin-bottom: 15px;
+    line-height: 1;
+}
+
+.icon-check-overlay {
+    position: absolute;
+    bottom: -5px;
+    right: -15px;
+    background: #A3BD31;
+    color: #fff;
+    font-size: 30px;
+    border-radius: 50%;
+    padding: 6px;
+    border: 5px solid #fff; /* Crea el corte blanco alrededor del check */
+}
+
+/* Evitamos que el botón verde se parta en dos líneas */
+.modal-confirmacion-container .btn-guardar {
+    width: auto; 
+    min-width: 120px; 
+    white-space: nowrap; 
+    padding: 10px 25px;
+}
+
+/* modal calendario */
+
+/* Domingos y festivos en rojo */
+.flatpickr-day.dia-festivo {
+    color: #a40a02 !important; /* Rojo */
+    font-weight: bold !important;
+}
+
+/* Si el usuario selecciona un festivo, la letra pasa a ser blanca sobre el verde */
+.flatpickr-day.dia-festivo.selected {
+    color: white !important;
+}
+
+/* 1. Contenedor principal sin bordes ni sombras */
+.flatpickr-calendar.inline {
+    width: 100% !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+/* 2. Forzar a que todos los contenedores internos usen el 100% */
+.flatpickr-innerContainer,
+.flatpickr-rContainer,
+.flatpickr-weekdays,
+.flatpickr-days,
+.dayContainer {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* 3. ¡EL TRUCO! Obligar a que los días ocupen exactamente 1/7 del ancho */
+.flatpickr-day, 
+span.flatpickr-weekday {
+    max-width: 14.28% !important; 
+    flex-basis: 14.28% !important;
+    width: 14.28% !important;
+}
+
+/* 4. Ajustar el círculo de los números para que se vea estético */
+.flatpickr-day {
+    height: 40px !important;
+    line-height: 40px !important;
+    margin-top: 5px !important;
+    position: relative; /* Necesario para el círculo fantasma */
+    background: transparent !important; /* Bloqueamos el color de fondo nativo */
+    border: none !important;
+    z-index: 1;
+}
+
+.flatpickr-day::before {
+    content: "";
+    position: absolute;
+    top: 50%; 
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 46px; 
+    height: 46px;
+    border-radius: 50%;
+    z-index: -1;
+    transition: background 0.2s;
+}
+
+/* 5. Pintar nuestro círculo fantasma con el Verde SYMA */
+.flatpickr-day:hover:not(.flatpickr-disabled):not(.selected)::before {
+    background-color: #e6e6e6; /* Círculo gris sutil al pasar el mouse */
+}
+
+.flatpickr-day.selected::before, 
+.flatpickr-day.selected:hover::before, 
+.flatpickr-day.selected:focus::before {
+    background-color: #A3BD31 !important; /* Círculo Verde SYMA */
+}
+
+/* Letra blanca para el día seleccionado */
+.flatpickr-day.selected {
+    font-weight: bold;
+    color: white !important;
+}
+
+/* 5. Cambiar el color azul por defecto al Verde SYMA */
+.flatpickr-day,
+.flatpickr-day:hover,
+.flatpickr-day.selected,
+.flatpickr-day.selected:hover,
+.flatpickr-day.selected:focus {
+    height: 40px !important;
+    line-height: 40px !important;
+    margin-top: 5px !important;
+    background: transparent !important; 
+    background-color: transparent !important; /* Obligamos a que no se pinte el huevo */
+    border: none !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+/* 6. Poner las flechas de los meses en Verde SYMA y más grandes */
+.flatpickr-months .flatpickr-prev-month svg, 
+.flatpickr-months .flatpickr-next-month svg {
+    fill: #A3BD31 !important;
+    width: 18px;
+    height: 18px;
+}
+
+/* 7. Agrandar la fuente del mes y año para que resalte */
+.flatpickr-current-month {
+    font-size: 135% !important;
+    padding-top: 5px !important;
+}
+
+/* Fechas que ya tienen registro: tachadas y sin poder elegirse */
+.flatpickr-day.dia-registrado {
+    text-decoration: line-through;
+    color: #b0b0b0;
+}
+
+.nota-fechas-registradas {
+    margin: 0 10px;
+    text-align: center;
+    font-size: 13px;
+    color: #777;
+}

@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let allRows = [];
     let headers = [];
+    let pie = null;   // fila de totales (tfoot): se oculta mientras se busca, porque suma todas las filas
 
     // 🔎 Detecta automáticamente la primera tabla visible
     function detectTable() {
@@ -25,12 +26,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const tbody = table.querySelector("tbody");
         allRows = Array.from(tbody.querySelectorAll("tr"));
+        pie = table.querySelector("tfoot");
         headers = Array.from(table.querySelectorAll("thead th")).map(th => th.textContent.trim());
     }
 
     // 🧹 Restaurar todas las filas
     function restoreRows() {
         allRows.forEach(row => (row.style.display = ""));
+        if (pie) pie.style.display = "";
     }
 
     // 🔍 Filtrar según el texto
@@ -44,6 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const q = query.toLowerCase();
         const matches = [];
+        if (pie) pie.style.display = "none";
 
         allRows.forEach(row => {
             const text = row.innerText.toLowerCase();

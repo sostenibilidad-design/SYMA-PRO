@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% load moneda %}
+{% load dict_filters %}
 
 {% block title %}
     Personal
@@ -26,7 +27,7 @@
                             <th>C.C</th>
                             <th>Nombre completo</th>
                             <th>Cargo</th>
-                            <th>Salario</th>
+                            {% if user|has_perm:"personal,personal,salarios" %}<th>Salario</th>{% endif %}
                             <th>Ubicación</th>
                         </tr>
                     </thead>
@@ -38,7 +39,7 @@
                                 <td>{{ item.cedula }}</td>
                                 <td>{{ item.nombre_completo }}</td>
                                 <td>{{ item.cargo }}</td>
-                                <td>$ {{ item.salario|cop }}</td>
+                                {% if user|has_perm:"personal,personal,salarios" %}<td>$ {{ item.salario|cop }}</td>{% endif %}
                                 <td>{{ item.ubicacion }}</td>
                             </tr>
                             {% endfor %}

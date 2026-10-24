@@ -1,0 +1,33 @@
+<div class="tema-fondo" id="tema-fondo" hidden>
+    <section class="tema-modal" role="dialog" aria-modal="true" aria-labelledby="tema-titulo">
+        <button type="button" class="tema-modal__cerrar" id="tema-cerrar" aria-label="Cerrar">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+
+        <h2 class="tema-modal__titulo" id="tema-titulo">Tema</h2>
+        <p class="tema-modal__sub">Elige cómo quieres ver Syma Pro. Se guarda en este navegador.</p>
+
+        <fieldset class="tema-modal__grupo">
+            <legend class="tema-oculto">Tema</legend>
+            <div class="tema-opciones">
+                <label class="tema-opcion tema-opcion--claro">
+                    <input type="radio" name="tema" value="claro">
+                    <span class="tema-opcion__vista" aria-hidden="true"><i></i><b></b></span>
+                    Claro
+                </label>
+                <label class="tema-opcion tema-opcion--oscuro">
+                    <input type="radio" name="tema" value="oscuro">
+                    <span class="tema-opcion__vista" aria-hidden="true"><i></i><b></b></span>
+                    Oscuro
+                </label>
+                <label class="tema-opcion tema-opcion--sistema">
+                    <input type="radio" name="tema" value="sistema">
+                    <span class="tema-opcion__vista" aria-hidden="true"><i></i><b></b></span>
+                    Sistema
+                </label>
+            </div>
+        </fieldset>
+
+        <p class="tema-modal__nota" id="tema-nota" aria-live="polite"></p>
+    </section>
+</div>

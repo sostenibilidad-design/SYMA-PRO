@@ -1,0 +1,640 @@
+:root {
+    --rn-verde: #A3BD31;
+    --rn-verde-oscuro: #8AA62F;
+    --rn-verde-texto: #5d7414;
+    --rn-naranja: #f5a623;
+    --rn-texto: #222;
+    --rn-gris: #666;
+    --rn-gris-claro: #eceee6;
+    --rn-borde-suave: #eef0f2;
+}
+
+/* === NAVBAR: separador y botón devolverse === */
+.iconos .rn-separador {
+    width: 1px;
+    height: 26px;
+    margin: 0 6px;
+    background: #d9dccf;
+}
+
+.iconos .rn-volver {
+    color: var(--rn-verde-oscuro);
+}
+
+/* === TÍTULO === */
+.rn-titulo {
+    margin-bottom: 8px;
+}
+
+/* === MIGAS DE PAN === */
+.rn-migas {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    list-style: none;
+    margin: 0 0 25px;
+    padding: 0;
+    font-size: 16px;
+    color: var(--rn-gris);
+}
+
+.rn-migas__link {
+    color: var(--rn-gris);
+    text-decoration: none;
+    padding: 3px 8px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.rn-migas__link:hover {
+    background-color: rgba(163, 189, 49, 0.12);
+    color: var(--rn-texto);
+}
+
+.rn-migas__sep .material-symbols-outlined {
+    font-size: 18px;
+    color: #aaa;
+    vertical-align: middle;
+}
+
+.rn-migas__actual {
+    padding: 3px 8px;
+    font-weight: 700;
+    color: var(--rn-texto);
+}
+
+/* === VISTAS 1 Y 2: CARPETAS (AÑOS / MESES) === */
+.rn-carpetas {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 25px;
+    align-content: start;
+    min-height: 300px;
+    padding: 0 20px 20px;
+}
+
+.rn-carpeta {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 24px 10px 18px;
+    background-color: #fff;
+    border: 1px solid var(--rn-borde-suave);
+    border-radius: 16px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    color: inherit;
+    text-decoration: none;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.rn-carpeta:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.14);
+}
+
+.rn-carpeta:focus-visible,
+.rn-quincena:focus-visible,
+.rn-migas__link:focus-visible {
+    outline: 3px solid var(--rn-naranja);
+    outline-offset: 3px;
+}
+
+.rn-carpeta__icono {
+    font-size: 64px;
+    color: var(--rn-verde);
+}
+
+.rn-carpeta__nombre {
+    font-size: 19px;
+    color: var(--rn-texto);
+}
+
+.rn-carpeta__detalle {
+    font-size: 14px;
+    color: var(--rn-gris);
+}
+
+.rn-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 3px 9px;
+    border-radius: 12px;
+    background-color: var(--rn-naranja);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* === VISTA 3: TARJETAS DE QUINCENA === */
+.rn-quincenas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    padding: 0 20px 20px;
+}
+
+.rn-quincena {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #111;
+    border-radius: 30px;
+    box-shadow: 0 0 22px rgba(0, 0, 0, 0.25);
+    color: inherit;
+    text-decoration: none;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.rn-quincena:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Esqueleto de tabla vacía */
+.rn-esqueleto__cabecera,
+.rn-esqueleto__fila {
+    display: grid;
+    grid-template-columns: 1fr 1fr 2fr 1fr 1fr;
+}
+
+.rn-esqueleto__cabecera {
+    height: 42px;
+    background-color: var(--rn-verde);
+}
+
+.rn-esqueleto__fila {
+    height: 34px;
+    border-bottom: 1px solid #ddd;
+}
+
+.rn-esqueleto__cabecera span,
+.rn-esqueleto__fila span {
+    position: relative;
+    border-right: 1px solid rgba(0, 0, 0, 0.35);
+}
+
+.rn-esqueleto__cabecera span:last-child,
+.rn-esqueleto__fila span:last-child {
+    border-right: none;
+}
+
+/* Barrita gris que simula el texto de cada celda */
+.rn-esqueleto__fila span::after {
+    content: "";
+    position: absolute;
+    top: 14px;
+    left: 18%;
+    right: 18%;
+    height: 6px;
+    border-radius: 3px;
+    background-color: var(--rn-gris-claro);
+}
+
+.rn-quincena__pie {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 14px 22px;
+    border-top: 1px solid #111;
+}
+
+.rn-quincena__codigo {
+    display: block;
+    font-family: 'Inria Serif', serif;
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--rn-naranja);
+}
+
+/* La Q y, a su lado, las horas trabajadas en la quincena */
+.rn-quincena__titulo {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+}
+
+.rn-quincena__horas {
+    font-size: 17px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--rn-verde-texto);
+}
+
+.rn-quincena__rango {
+    display: block;
+    margin-top: 4px;
+    font-size: 14px;
+    color: var(--rn-gris);
+}
+
+.rn-estado {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.rn-estado--abierta {
+    background-color: rgba(163, 189, 49, 0.18);
+    color: var(--rn-verde-texto);
+}
+
+.rn-estado--cerrada {
+    background-color: #eee;
+    color: #555;
+}
+
+/* === SALTO RÁPIDO (vistas 1 a 4) ===
+   Reutiliza .syma-search de base.css; aquí solo va lo que cambia */
+.rn-salto .rn-salto__lista--abierta {
+    display: block;
+}
+
+.rn-salto .rn-salto__opcion {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.rn-salto .rn-salto__opcion .material-symbols-outlined {
+    font-size: 20px;
+    color: var(--rn-verde);
+}
+
+.rn-salto .rn-salto__opcion small {
+    display: inline;
+    margin-left: auto;
+}
+
+.rn-salto .rn-salto__vacio {
+    color: var(--rn-gris);
+    text-align: center;
+    cursor: default;
+}
+
+.rn-salto .rn-salto__vacio:hover {
+    background: transparent;
+}
+
+/* === VISTA 4: CARPETAS DE DÍAS === */
+.rn-dias {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+    gap: 30px 18px;
+    align-content: start;
+    min-height: 300px;
+    padding: 15px 20px 20px;
+}
+
+/* La carpeta se dibuja con CSS: borde superior + pestaña (::before).
+   --rn-tono es una variable local: cambiarla recolorea pestaña y borde a la vez */
+.rn-dia {
+    --rn-tono: var(--rn-verde);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 16px 10px 14px;
+    border-top: 5px solid var(--rn-tono);
+    border-radius: 0 14px 14px 14px;
+    background: linear-gradient(180deg, rgba(163, 189, 49, 0.10), #fff 55%);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.10);
+    color: inherit;
+    text-decoration: none;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.rn-dia::before {
+    content: "";
+    position: absolute;
+    top: -15px;
+    left: 0;
+    width: 46%;
+    height: 12px;
+    border-radius: 9px 9px 0 0;
+    background: var(--rn-tono);
+}
+
+.rn-dia:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 14px 26px rgba(0, 0, 0, 0.16);
+}
+
+.rn-dia:focus-visible {
+    outline: 3px solid var(--rn-naranja);
+    outline-offset: 3px;
+}
+
+.rn-dia__semana {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--rn-gris);
+}
+
+.rn-dia__numero {
+    font-family: 'Inria Serif', serif;
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--rn-texto);
+    font-variant-numeric: tabular-nums;
+}
+
+.rn-dia__mes {
+    font-size: 12px;
+    color: var(--rn-gris);
+}
+
+/* Día actual: naranja */
+.rn-dia--hoy {
+    --rn-tono: var(--rn-naranja);
+    background: linear-gradient(180deg, rgba(245, 166, 35, 0.13), #fff 55%);
+    box-shadow: 0 0 0 2px rgba(245, 166, 35, 0.55), 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* Día sin registro: gris con rayas diagonales */
+.rn-dia--descanso {
+    --rn-tono: #c9ccbf;
+    background: repeating-linear-gradient(135deg, #fafaf7 0 8px, #f2f3ee 8px 16px);
+}
+
+.rn-dia--descanso .rn-dia__numero {
+    color: #a9ad9d;
+}
+
+.rn-dia__etiqueta {
+    position: absolute;
+    top: -14px;
+    right: 0;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background-color: var(--rn-naranja);
+    color: #fff;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.rn-dia__etiqueta--gris {
+    background-color: #9aa08a;
+}
+
+/* === MENSAJE VACÍO (vistas 1 y 2) === */
+.rn-vacio {
+    grid-column: 1 / -1;
+    margin-top: 40px;
+    text-align: center;
+    font-size: 18px;
+    color: #718096;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 800px) {
+    .rn-carpetas {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 16px;
+        padding: 0 5px 15px;
+    }
+
+    .rn-carpeta__icono {
+        font-size: 50px;
+    }
+
+    .rn-quincenas {
+        gap: 20px;
+        padding: 0 5px 15px;
+    }
+
+    .rn-dias {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 26px 12px;
+    padding: 15px 5px 15px;
+    }
+
+    .iconos .rn-separador {
+        margin: 0 2px;
+    }
+
+    
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rn-carpeta,
+    .rn-quincena {
+        transition: none;
+    }
+}
+
+
+/* === MODO SELECCIÓN (eliminar días) === */
+.rn-barra-seleccion {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 20px 0;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: var(--rn-gris-claro);
+    font-weight: 700;
+}
+
+.rn-barra-seleccion[hidden] {
+    display: none;
+}
+
+.rn-barra-seleccion span {
+    flex: 1;
+}
+
+.rn-barra-seleccion button {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.rn-barra-seleccion .rn-barra-seleccion__eliminar {
+    background: #d9534f;
+    color: #fff;
+}
+
+.rn-barra-seleccion .rn-barra-seleccion__eliminar:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.rn-dias--seleccion .rn-dia {
+    cursor: pointer;
+}
+
+.rn-dias--seleccion .rn-dia::after {
+    content: "";
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--rn-gris);
+    border-radius: 5px;
+    background: #fff;
+}
+
+.rn-dias--seleccion .rn-dia--elegido {
+    outline: 3px solid #d9534f;
+    outline-offset: 2px;
+}
+
+.rn-dias--seleccion .rn-dia--elegido::after {
+    content: "\2713";
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-color: #d9534f;
+    background: #d9534f;
+    color: #fff;
+    font-size: 13px;
+    line-height: 1;
+}
+
+
+/* === Tabla del día: columnas con listas y aviso de fecha repetida === */
+.tabla .td-lista {
+    min-width: 200px;
+    white-space: normal;
+    text-align: left;
+}
+
+.tabla .td-lista span {
+    display: block;
+    padding: 1px 0;
+}
+
+.tabla .td-lista .sin-dato {
+    color: #999;
+    text-align: center;
+}
+
+.tabla .td-comentario {
+    min-width: 260px;
+}
+
+.aviso-fecha-repetida {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 14px;
+    padding: 10px 14px;
+    border: 1px solid #f0c36d;
+    border-radius: 8px;
+    background-color: #fff6df;
+    color: #7a5600;
+    font-size: 15px;
+}
+
+
+/* === Informe quincenal: animación de carga y aviso de días sin registrar === */
+.rn-cargando {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(3px);
+}
+
+.rn-cargando[hidden] {
+    display: none;
+}
+
+.rn-cargando__caja {
+    padding: 34px 48px;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+    text-align: center;
+    font-family: 'Inria Serif', serif;
+    font-size: 20px;
+    color: #333;
+}
+
+.rn-cargando__caja small {
+    font-size: 14px;
+    color: #777;
+}
+
+.rn-cargando__rueda {
+    display: block;
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 18px;
+    border: 5px solid #e3e8cf;
+    border-top-color: #A3BD31;
+    border-radius: 50%;
+    animation: rn-giro 0.9s linear infinite;
+}
+
+@keyframes rn-giro {
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rn-cargando__rueda {
+        animation-duration: 3s;
+    }
+}
+
+.modal-informe-incompleto {
+    width: 480px;
+    max-width: 92vw;
+}
+
+.lista-fechas-faltantes {
+    max-height: 240px;
+    margin: 14px 0 20px;
+    padding: 10px 14px 10px 34px;
+    overflow-y: auto;
+    border: 1px solid #e1e1e1;
+    border-radius: 10px;
+    text-align: left;
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+
+/* === Día sin registro: carpeta gris que no hace nada al pulsarla === */
+.rn-dia--sin-registro {
+    cursor: default;
+    pointer-events: none;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
+}
+
+.rn-dias--seleccion .rn-dia--sin-registro::after {
+    display: none;
+}
+
+
+/* Horas que faltaron para completar la jornada del día */
+.tabla .td-lista .falta-dia {
+    color: #b3361f;
+    font-size: 0.9em;
+}

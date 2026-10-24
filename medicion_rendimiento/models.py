@@ -25,7 +25,7 @@ class MedicionCuadrilla(models.Model):
     nombre_usuario = models.CharField( max_length=500, null=True,blank=True, help_text="Nombre del usuario que registró la medición")
     precio_hora_trabajadores = models.CharField(max_length=500, null=True, blank=True, help_text="Precio hora trabajadores al momento del registro (para trazabilidad)")
 
-    actividad = models.CharField(max_length=100)
+    actividad = models.CharField(max_length=255)
     ubicacion = models.CharField(max_length=100, null=True, blank=True)
 
     hora_inicio = models.TimeField(null=True, blank=True)

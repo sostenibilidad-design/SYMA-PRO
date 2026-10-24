@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    Resumen de actividades - SYMA PRO
+{% endblock %}
+
+{% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'css/tablas.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inria+Serif:wght@300;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'registro_asistencia/css/registro_niveles.css' %}">
+    <link rel="stylesheet" href="{% static 'registro_asistencia/css/informe_quincenal.css' %}">
+{% endblock %}
+
+{% block iconos %}
+    <a href="{{ url_descarga }}" id="btn-descarga" title="Descargar Excel del resumen" aria-label="Descargar Excel del resumen">
+        <span class="material-symbols-outlined">download</span>
+    </a>
+    <span class="rn-separador" aria-hidden="true"></span>
+    <a href="{{ url_volver }}" class="rn-volver" title="Devolverse" aria-label="Devolverse">
+        <span class="material-symbols-outlined">arrow_back</span>
+    </a>
+{% endblock %}
+
+{% block content %}
+    <h2 class="titulo-seccion rn-titulo">Resumen de actividades</h2>
+
+    <nav aria-label="Ubicación">
+        <ol class="rn-migas">
+            {% for miga in migas %}
+                {% if not forloop.first %}
+                    <li class="rn-migas__sep" aria-hidden="true"><span class="material-symbols-outlined">chevron_right</span></li>
+                {% endif %}
+                {% if forloop.last %}
+                    <li><span class="rn-migas__actual" aria-current="page">{{ miga.nombre }}</span></li>
+                {% else %}
+                    <li><a href="{{ miga.url }}" class="rn-migas__link">{{ miga.nombre }}</a></li>
+                {% endif %}
+            {% endfor %}
+        </ol>
+    </nav>
+
+    <p class="inf-subtitulo">{{ proyecto_actual.nombre }} · {{ quincena_codigo }} · {{ rango }}</p>
+    <p class="inf-subtitulo inf-nota">Horas efectivas trabajadas en cada actividad durante la quincena (salida − entrada − comida − salidas temporales), separadas por perfil.</p>
+
+    <div class="tabla-contenedor-relativo">
+        <section class="tabla">
+            <div class="tabla-scroll-wrapper">
+                <table class="inf-tabla inf-tabla--resumen">
+                    <thead>
+                        <tr>
+                            <th>Actividad</th>
+                            {% for perfil in perfiles %}<th>{{ perfil }} <small>horas</small></th>{% endfor %}
+                            <th>Total <small>horas</small></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for f in filas %}
+                        <tr>
+                            <td class="inf-nombre">{{ f.actividad }}</td>
+                            {% for horas in f.celdas %}
+                                <td class="inf-num{% if not horas %} inf-cero{% endif %}">{{ horas|floatformat:2 }}</td>
+                            {% endfor %}
+                            <td class="inf-num inf-total-fila">{{ f.total|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="{{ perfiles|length|add:2 }}" class="rn-vacio">Esta quincena no tiene horas trabajadas registradas.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    {% if filas %}
+                    <tfoot>
+                        <tr>
+                            <td class="inf-nombre">Total</td>
+                            {% for horas in totales.celdas %}<td class="inf-num">{{ horas|floatformat:2 }}</td>{% endfor %}
+                            <td class="inf-num">{{ totales.total|floatformat:2 }}</td>
+                        </tr>
+                    </tfoot>
+                    {% endif %}
+                </table>
+            </div>
+        </section>
+    </div>
+{% endblock %}

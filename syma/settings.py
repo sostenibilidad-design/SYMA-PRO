@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
@@ -46,6 +47,7 @@ INSTALLED_APPS = [
     'medicion_rendimiento',
     'proyectos',
     'bitacora',
+    'registro_asistencia',
 ]
 
 MIDDLEWARE = [
@@ -55,6 +57,10 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # Todo el sitio exige sesión; solo se salta con @login_not_required (login, recuperar contraseña, cron con token)
+    'django.contrib.auth.middleware.LoginRequiredMiddleware',
+    # Quien debe cambiar su contraseña no puede usar el resto del sitio hasta hacerlo
+    'usuario.middleware.CambioPasswordObligatorioMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -85,10 +91,11 @@ if database_url:
     db_config = dj_database_url.config(
         default=database_url,
         conn_max_age=0,
-        ssl_require=True
+        ssl_require=not database_url.startswith('sqlite')
     )
     
-    if 'OPTIONS' in db_config:
+    # El modo SSL solo aplica a MySQL (así se puede probar en local con DATABASE_URL=sqlite:///...)
+    if db_config.get('ENGINE', '').endswith('mysql') and 'OPTIONS' in db_config:
         db_config['OPTIONS'].pop('sslmode', None)
         db_config['OPTIONS'].pop('ssl-mode', None)
         
@@ -104,12 +111,11 @@ else:
             'ENGINE': 'django.db.backends.mysql',
             'NAME': os.environ.get('MYSQL_DATABASE', 'syma_db'),
             'USER': os.environ.get('MYSQL_USER', 'root'),
-            'PASSWORD': os.environ.get('MYSQL_PASSWORD', 'root'),
+            'PASSWORD': os.environ.get('MYSQL_PASSWORD', ''),
             'HOST': os.environ.get('MYSQL_HOST', 'localhost'),
             'PORT': os.environ.get('MYSQL_PORT', '3306'),
         }
     }
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -187,7 +193,8 @@ AUTHENTICATION_BACKENDS = [
 
 # --- CONFIGURACIÓN DE CORREO (BREVO API) ---
 # Esto le dice a Django que use la API HTTPS en lugar del puerto 587
-EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
+# En local se puede imprimir el correo en la terminal con EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
+EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND", "anymail.backends.brevo.EmailBackend")
 
 ANYMAIL = {
     "BREVO_API_KEY": os.environ.get("BREVO_API_KEY"),
@@ -214,10 +221,11 @@ if csrf_trusted:
 else:
     CSRF_TRUSTED_ORIGINS = []
 
-CSRF_TRUSTED_ORIGINS.extend(['https://' + os.environ.get('App_Domain', '*')])
+if os.environ.get('App_Domain'):
+    CSRF_TRUSTED_ORIGINS.append('https://' + os.environ['App_Domain'])
 
 FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50 MB
-DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50 MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 MB: tope de lo que no son archivos (formularios, firmas dibujadas); los archivos se validan aparte
 
 # --- BLINDAJE DE SEGURIDAD EXTRA ---
 if not DEBUG:
@@ -244,7 +252,7 @@ if 'AWS_ACCESS_KEY_ID' in os.environ:
     }
     
     AWS_LOCATION = 'media'
-    AWS_DEFAULT_ACL = 'public-read'
+    AWS_DEFAULT_ACL = 'private'
     
     STORAGES = {
         "default": {
@@ -275,7 +283,9 @@ else:
 GS_BUCKET_NAME = 'syma-storage-anyi-2026'
 GS_LOCATION = 'syma-media-files/media'  
 GS_FILE_OVERWRITE = False
-GS_QUERYSTRING_AUTH = False
+# URLs firmadas que vencen: firmas y fotos del personal no quedan públicas (el bucket debe ser privado)
+GS_QUERYSTRING_AUTH = True
+GS_EXPIRATION = timedelta(hours=1)
 
 STORAGES = {
     "default": {
