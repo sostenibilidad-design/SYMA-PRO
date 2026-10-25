@@ -287,6 +287,9 @@ GS_FILE_OVERWRITE = False
 # URLs firmadas que vencen: firmas y fotos del personal no quedan públicas (el bucket debe ser privado)
 GS_QUERYSTRING_AUTH = True
 GS_EXPIRATION = timedelta(hours=1)
+# En Cloud Run no hay clave privada (credentials.json no se sube): la URL se firma a través de la API IAM con la cuenta de servicio,
+# que necesita el rol "Creador de tokens de cuenta de servicio". Con credentials.json (en el PC) se firma con esa clave.
+GS_IAM_SIGN_BLOB = not os.path.exists(GOOGLE_CREDENTIALS_FILE)
 
 STORAGES = {
     "default": {
