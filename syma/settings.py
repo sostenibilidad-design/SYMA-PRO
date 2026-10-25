@@ -313,3 +313,18 @@ if DEBUG:
     
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+# REGISTRO DE ERRORES
+# Con DEBUG=False Django solo manda las excepciones de una petición por correo a ADMINS (que no hay): sin esto un 500 no deja
+# rastro. Así llegan a la salida estándar, que es lo que Cloud Run recoge en sus registros.
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'consola': {'class': 'logging.StreamHandler'},
+    },
+    'loggers': {
+        'django.request': {'handlers': ['consola'], 'level': 'ERROR', 'propagate': False},
+    },
+}
