@@ -1,0 +1,19 @@
+{% comment %}
+Navegación entre páginas de una tabla. Recibe `pagina` (un Page de Django) y conserva los demás parámetros de la URL
+(los filtros) con {% querystring %}. Necesita static/css/paginacion.css.
+{% endcomment %}
+{% if pagina.paginator.num_pages > 1 %}
+    <nav class="paginacion" aria-label="Páginas de la tabla">
+        {% if pagina.has_previous %}
+            <a href="{% querystring pagina=1 %}" class="paginacion__enlace">Primera</a>
+            <a href="{% querystring pagina=pagina.previous_page_number %}" class="paginacion__enlace">Anterior</a>
+        {% endif %}
+
+        <span class="paginacion__actual">Página {{ pagina.number }} de {{ pagina.paginator.num_pages }} · {{ pagina.paginator.count }} registros</span>
+
+        {% if pagina.has_next %}
+            <a href="{% querystring pagina=pagina.next_page_number %}" class="paginacion__enlace">Siguiente</a>
+            <a href="{% querystring pagina=pagina.paginator.num_pages %}" class="paginacion__enlace">Última</a>
+        {% endif %}
+    </nav>
+{% endif %}

@@ -22,6 +22,7 @@ from decimal import Decimal, ROUND_HALF_UP, ROUND_DOWN
 from django.http import JsonResponse, HttpResponseRedirect,HttpResponse
 from django.db.models import Avg, Count, Case, When, Value, IntegerField
 from django.db.models.functions import Coalesce,  ExtractMonth
+from django.core.paginator import Paginator
 
 from .forms import MedicionInicioForm, MedicionFinForm, HistorialCambiosCuadrillaForm, ConfiguracionAlertaForm
 from .models import MedicionCuadrilla, Cumplimiento, HistorialCambiosCuadrilla, ConsumoAlimento, ConfiguracionAlerta
@@ -45,6 +46,10 @@ def json_para_script(objeto, **opciones):
     con «</script>» no pueda cerrar la etiqueta (sigue siendo JSON y JavaScript válidos)."""
     texto = json.dumps(objeto, **opciones)
     return texto.replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026')
+
+
+# Filas por página en la tabla de medición por cuadrilla: mostrarlas todas obligaba a firmar 2 URLs de foto por fila
+MEDICIONES_POR_PAGINA = 50
 
 
 def formato_colombia(valor):
@@ -187,7 +192,7 @@ def medicion_por_cuadrilla(request, id_proyecto):
             default=Value(1),                           
             output_field=IntegerField()
         )
-    ).order_by('estado_orden', '-fecha', '-hora_inicio')
+    ).order_by('estado_orden', '-fecha', '-hora_inicio', '-id')   # '-id' desempata: sin él las páginas pueden repetir filas
 
     mediciones = filtrar_mediciones(request, mediciones)
 
@@ -195,10 +200,13 @@ def medicion_por_cuadrilla(request, id_proyecto):
         c.actividad.lower(): c.unidad_medida for c in Cumplimiento.objects.filter(proyecto=proyecto_actual)
     }
 
-    for m in mediciones:
+    # Solo se cargan las filas de la página pedida (?pagina=N); los filtros siguen en la URL
+    pagina = Paginator(mediciones, MEDICIONES_POR_PAGINA).get_page(request.GET.get('pagina'))
+
+    for m in pagina:
         m.unidad_medida = cumplimientos_dict.get(m.actividad.lower(), '')
 
-    filas_vacias = max(0, 20 - mediciones.count())
+    filas_vacias = max(0, 20 - len(pagina))
 
     empleados = Empleado.objects.filter(
         (Q(cargo__icontains='oficial') | Q(cargo__icontains='ayudante') | Q(cargo__icontains='contratista')) &
@@ -235,7 +243,7 @@ def medicion_por_cuadrilla(request, id_proyecto):
 
     context = {
         "proyecto_actual": proyecto_actual,
-        "Cuadrillas": mediciones,
+        "Cuadrillas": pagina,
         "filas_vacias": range(filas_vacias),
         "empleados": empleados,
         "cuadrillas": cuadrillas,
