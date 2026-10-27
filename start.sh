@@ -6,4 +6,6 @@ python manage.py migrate --noinput
 celery -A syma worker --loglevel=info &
 
 # Arrancar Gunicorn en primer plano
-exec gunicorn --bind 0.0.0.0:8080 --timeout 600 syma.wsgi:application
+# Hilos (gthread): una petición lenta (PDF, Excel, Drive) ya no deja en fila a las demás. Procesos: 1 por defecto; para
+# subirlos (si el servicio tiene memoria de sobra) basta la variable WEB_CONCURRENCY en Cloud Run, sin tocar el código.
+exec gunicorn --bind 0.0.0.0:8080 --worker-class gthread --threads "${GUNICORN_THREADS:-8}" --timeout 600 syma.wsgi:application

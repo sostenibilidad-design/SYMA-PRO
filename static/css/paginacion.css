@@ -1,0 +1,28 @@
+/* Navegación entre páginas de una tabla (templates/paginacion.html) */
+.paginacion {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 12px 0;
+    color: var(--syma-texto);
+}
+
+.paginacion__enlace {
+    padding: 6px 12px;
+    border: 1px solid var(--syma-linea);
+    border-radius: 6px;
+    color: var(--syma-texto);
+    text-decoration: none;
+}
+
+.paginacion__enlace:hover {
+    background: var(--syma-verde);
+    border-color: var(--syma-verde);
+    color: #fff;
+}
+
+.paginacion__actual {
+    color: var(--syma-texto-suave);
+}

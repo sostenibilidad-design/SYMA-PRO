@@ -12,6 +12,7 @@
 
 {% block extra_styles %}
 <link rel="stylesheet" href="{% static 'css/tablas.css' %}">
+<link rel="stylesheet" href="{% static 'css/paginacion.css' %}">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'css/modales.css' %}">
 <link rel="stylesheet" href="{% static 'css/modales_campos.css' %}">
@@ -210,6 +211,7 @@
                 <i class="fa fa-expand"></i>
             </button>
         </section>
+        {% include "paginacion.html" with pagina=Cuadrillas %}
     </div>
     
     {% include 'medicion_rendimiento/registrar_actividad_cuadrilla.html' %}

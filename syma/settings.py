@@ -153,19 +153,27 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 
+CACHES = {
+    "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
+    # URLs firmadas de las fotos (core/almacenamiento.py): en memoria de cada proceso, nunca en Redis
+    "urls_firmadas": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "urls-firmadas",
+        "OPTIONS": {"MAX_ENTRIES": 5000},
+    },
+}
+
 # Forzar a usar redis si el backend está configurado
 if 'upstash' in CELERY_RESULT_BACKEND:
-    CACHES = {
-        "default": {
-            "BACKEND": "django_redis.cache.RedisCache",
-            "LOCATION": CELERY_RESULT_BACKEND,
-            "OPTIONS": {
-                "CLIENT_CLASS": "django_redis.client.DefaultClient",
-                "IGNORE_EXCEPTIONS": True,   # si Redis no responde, el sitio sigue (solo se pierden los límites de intentos)
-                "CONNECTION_POOL_KWARGS": {
-                    "ssl": True,
-                    "ssl_cert_reqs": "none",
-                }
+    CACHES["default"] = {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": CELERY_RESULT_BACKEND,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "IGNORE_EXCEPTIONS": True,   # si Redis no responde, el sitio sigue (solo se pierden los límites de intentos)
+            "CONNECTION_POOL_KWARGS": {
+                "ssl": True,
+                "ssl_cert_reqs": "none",
             }
         }
     }
@@ -293,7 +301,8 @@ GS_IAM_SIGN_BLOB = not os.path.exists(GOOGLE_CREDENTIALS_FILE)
 
 STORAGES = {
     "default": {
-        "BACKEND": "storages.backends.gcloud.GoogleCloudStorage",
+        # GoogleCloudStorage con la URL firmada en caché (ver core/almacenamiento.py)
+        "BACKEND": "core.almacenamiento.GoogleCloudStorageConCache",
     },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
